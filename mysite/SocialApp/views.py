@@ -9,3 +9,6 @@ def Login(request):
 
 def signup(request):
     return render(request, 'signup.html', {})
+
+def author(request):
+    return render(request, 'author.html', {})
