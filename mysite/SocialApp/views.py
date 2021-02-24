@@ -16,3 +16,9 @@ def author(request):
 
 def editProfile(request):
     return render(request, 'editProfile.html', {})
+
+def newPost(request):
+    return render(request, 'newPost.html', {})
+
+def newMessage(request):
+    return render(request, 'newMessage.html', {})

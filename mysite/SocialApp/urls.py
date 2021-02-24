@@ -8,5 +8,7 @@ urlpatterns = [
   path('Login.html', views.Login, name='Login'),
   path('signup.html', views.signup, name='signup'),
   path('author.html', views.author, name='author') ,
-  path('editProfile.html', views.editProfile, name='editProfile')    
+  path('editProfile.html', views.editProfile, name='editProfile'),
+  path('newPost.html', views.newPost, name='newPost'),
+  path('newMessage.html', views.newMessage, name='newMessage')     
 ]
