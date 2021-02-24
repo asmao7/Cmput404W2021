@@ -7,6 +7,23 @@ from django.utils.translation import gettext_lazy
 #NOTE: As per the docs, model fields should be lower case, separated by underscores
 
 # TODO: Some of the URL fields are stand-ins for IDs - may need to change that
+class Author(models.Model):
+   # Models information about a user 
+   host = models.CharField(max_length=100)
+   display_name = models.CharField(max_length=100)
+   url = models.CharField(max_length=200)
+   github = models.CharField(max_length=200)
+
+
+class PostCategory(models.Model):
+    # Models a category that a post can belong to
+    name = models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name = "Post Category"
+        verbose_name_plural = "Post Categories"
+
+
 class Post(models.Model):
     # Abstract model used as the base for Posts
 
@@ -24,34 +41,31 @@ class Post(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     categories = models.ManyToManyField(PostCategory)
     published = models.DateTimeField(auto_now_add=True)
-    visibility = models.IntegerField(choices=Visibility.choices, default=Visibility.PENDING)
+    visibility = models.IntegerField(choices=Visibility.choices, default=Visibility.PUBLIC)
     unlisted = models.BooleanField()
 
     class Meta:
         abstract = True
 
+
 # TODO: Have to handle plain-text and markdown
 class TextPost(Post):
     # Models a post with text content
     content = models.TextField()
-    
+
+    class Meta:
+        verbose_name = "Text Post"
+        verbose_name_plural = "Text Posts"
+
+
 # TODO: Have to handle different types of images
 class ImagePost(Post):
     # Models a post with image content
     content = models.ImageField(upload_to="post_images")
 
-
-class Author(models.Model):
-   # Models information about a user 
-   host = models.CharField(max_length=100)
-   display_name = models.CharField(max_length=100)
-   url = models.CharField(max_length=200)
-   github = models.CharField(max_length=200)
-
-
-class PostCategory(models.Model):
-    # Models a category that a post can belong to
-    name = models.CharField(max_length=50)
+    class Meta:
+        verbose_name = "Image Post"
+        verbose_name_plural = "Image Posts"
 
 
 class Comment(models.Model):
