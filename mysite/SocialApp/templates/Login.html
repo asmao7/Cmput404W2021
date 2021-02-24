@@ -1,0 +1,34 @@
+{% load static %}
+<!Doctype html>
+
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    </head>
+
+    <body>
+        <!--background wallpaper-->
+        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
+        
+
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="index.html">Home</a>
+			<a href="Login.html">Login</a>
+			<a href="signup.html">Sign up</a>
+			<a href="#logout">Logout</a>
+		</div>
+
+        <!--COMMENT-->
+        <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2>
+
+        <form class="box" action="index.html" method="post">
+            <h1>Login</h1>
+            <input type="text" name="" placeholder="Username">
+            <input type="password" name="" placeholder="Password">
+            <a href="author.html">Login</a>
+        </form>
+
+    </body>
+</html>
