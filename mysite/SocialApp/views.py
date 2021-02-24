@@ -12,3 +12,7 @@ def signup(request):
 
 def author(request):
     return render(request, 'author.html', {})
+
+
+def editProfile(request):
+    return render(request, 'editProfile.html', {})
