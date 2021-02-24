@@ -1,1 +1,0 @@
-Just a folder to store some work in while we're figuring out Django on Heroku. To be deleted once we're up and running.
