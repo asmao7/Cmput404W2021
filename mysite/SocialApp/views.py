@@ -26,7 +26,7 @@ def newMessage(request):
     return render(request, 'newMessage.html', {})
 
 
-class Author(APIView):
+class AuthorEndpoint(APIView):
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get('author_id', -1)
         if author_id == -1:
