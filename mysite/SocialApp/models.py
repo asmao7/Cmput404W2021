@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy
 
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
@@ -9,6 +10,8 @@ from django.utils.translation import gettext_lazy
 # TODO: Some of the URL fields are stand-ins for IDs - may need to change that
 class Author(models.Model):
    # Models information about a user 
+   base_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+   user_object = models.OneToOneField(User, on_delete=models.CASCADE)
    host = models.CharField(max_length=100)
    display_name = models.CharField(max_length=100)
    url = models.CharField(max_length=200)
