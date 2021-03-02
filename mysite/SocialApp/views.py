@@ -32,7 +32,10 @@ class AuthorEndpoint(APIView):
         if author_id == -1:
             return HttpResponse(status=404)
 
-        author = Author.objects.get(pk=author_id)
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
         if not author:
             return HttpResponse(status=404)
 
