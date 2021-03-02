@@ -47,6 +47,7 @@
 /*Login form styling*/
 .box{
     width: 300px;
+    height: fit-content;
     padding: 40px;
     position: absolute;
     top: 50%;
