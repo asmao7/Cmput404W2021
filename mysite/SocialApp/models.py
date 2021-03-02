@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import Users
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy
 
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
