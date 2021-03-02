@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy
 
+from django.contrib.auth.models import User
+
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
 #NOTE: Django admin panels use __str__ to generate labels, so explicitly definiting them is important
 #NOTE: Django model class can have a "Meta" subclass to fill out additional metadata. More info here: https://docs.djangoproject.com/en/3.1/ref/models/options/
