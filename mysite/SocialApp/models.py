@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy
 class Author(models.Model):
    # Models information about a user 
    base_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-   user_object = models.OneToOneField(User, on_delete=models.CASCADE)
+   user_object = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
    host = models.CharField(max_length=100)
    display_name = models.CharField(max_length=100)
    url = models.CharField(max_length=200)
