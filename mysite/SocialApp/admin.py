@@ -8,7 +8,10 @@ class DefaultAdmin(admin.ModelAdmin):
     pass
 
 
-class AuthorAdmin(UserAdmin):
+# TODO: This should be a UserAdmin, or emulate one, but I can't figure out how
+#       to display read-only fields without using ModelAdmin
+class AuthorAdmin(admin.ModelAdmin):
+    # Custom admin panel for Authors
     readonly_fields = ("id", "host", "url",)
 
 
