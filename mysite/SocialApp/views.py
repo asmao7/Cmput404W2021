@@ -234,7 +234,7 @@ class PostCreationEndpoint(APIView):
             json = PostToJSON(text_post)
             if json:
                 text_post_json_list.append(json)
-        return JsonResponse(text_post_json_list)
+        return JsonResponse({"posts":text_post_json_list})
 
     # TODO: manage post creation based on content type
     def post(self, request, *args, **kwargs):
