@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from .models import TextPost, ImagePost, Author, PostCategory, Comment
 
 class DefaultAdmin(admin.ModelAdmin):
@@ -8,11 +8,25 @@ class DefaultAdmin(admin.ModelAdmin):
     pass
 
 
-# TODO: This should be a UserAdmin, or emulate one, but I can't figure out how
-#       to display read-only fields without using ModelAdmin
-class AuthorAdmin(admin.ModelAdmin):
-    # Custom admin panel for Authors
-    readonly_fields = ("id", "host", "url",)
+class AuthorCreationForm(UserCreationForm):
+    # Custom form for creating new users
+    class Meta:
+        model = Author
+        fields = UserCreationForm.Meta.fields + ("display_name", "github",)
+
+
+#TODO: Find a way to display read-only fields
+class AuthorChangeForm(UserChangeForm):
+    # Custom form for editing users
+    class Meta:
+        model = Author
+        fields = ("username", "password", "first_name", "last_name", "display_name", "email", "github", "is_active", "is_staff", "is_superuser", "groups", "user_permissions",)
+
+
+class AuthorAdmin(UserAdmin):
+    # Admin User Admin Panel
+    model = User
+    form = AuthorChangeForm
 
 
 admin.site.register(Author, AuthorAdmin)

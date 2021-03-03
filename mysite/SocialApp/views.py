@@ -1,14 +1,15 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
+
 from .models import Author
+from .admin import AuthorCreationForm
 
 from django.views import generic
-from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 
 class UserRegisterView(generic.CreateView):
-    form_class = UserCreationForm
+    form_class = AuthorCreationForm
     template_name = 'signup.html'
     success_url = reverse_lazy('login')
 
