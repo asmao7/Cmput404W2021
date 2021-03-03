@@ -1,20 +1,16 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django.utils.translation import gettext_lazy
-
-from django.contrib.auth.models import User
 
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
 #NOTE: Django admin panels use __str__ to generate labels, so explicitly definiting them is important
 #NOTE: Django model class can have a "Meta" subclass to fill out additional metadata. More info here: https://docs.djangoproject.com/en/3.1/ref/models/options/
 #NOTE: As per the docs, model fields should be lower case, separated by underscores
 
-# TODO: Some of the URL fields are stand-ins for IDs - may need to change that
-class Author(models.Model):
+class Author(AbstractUser):
    # Models information about a user 
-   base_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-   user_object = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
    host = models.CharField(max_length=100)
    display_name = models.CharField(max_length=100)
    url = models.CharField(max_length=200)

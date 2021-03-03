@@ -104,6 +104,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Sets us up to use our custom user model
+AUTH_USER_MODEL = "SocialApp.Author"
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
