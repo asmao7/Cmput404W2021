@@ -1,4 +1,5 @@
 import uuid
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 from django.utils.translation import gettext_lazy
@@ -11,9 +12,9 @@ from django.utils.translation import gettext_lazy
 class Author(AbstractUser):
    # Models information about a user 
    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-   host = models.CharField(max_length=100)
+   host = models.CharField(max_length=100, default=settings.HOST_NAME)
    display_name = models.CharField(max_length=100)
-   url = models.CharField(max_length=200)
+   url = models.CharField(max_length=200, default="http://{}/author/{}/".format(settings.HOST_NAME, id))
    github = models.CharField(max_length=200)
 
 
