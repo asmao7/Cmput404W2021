@@ -215,7 +215,7 @@ class PostEndpoint(APIView):
 
 
 class PostCreationEndpoint(APIView):
-    # TODO: Handle image posts, limit results
+    # TODO: Handle image posts, limit results, sort by date
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
