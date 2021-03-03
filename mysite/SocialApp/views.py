@@ -46,7 +46,11 @@ class AuthorEndpoint(APIView):
         if not author:
             return HttpResponse(status=404)
 
-        return JsonResponse(AuthorToJSON(author))
+        json = AuthorToJSON(author)
+        if json:
+            return JsonResponse(json)
+        else:
+            return HttpResponse(status=500)
 
     def post(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
@@ -100,7 +104,11 @@ class PostEndpoint(APIView):
         if not post:
             return HttpResponse(status=404)
 
-        return JsonResponse(PostToJSON(post, is_image))
+        json = PostToJSON(post, is_image)
+        if json:
+            return JsonResponse(json)
+        else:
+            return HttpResponse(status=500)
 
     # TODO: Make this authenticated
     def post(self, request, *args, **kwargs):
