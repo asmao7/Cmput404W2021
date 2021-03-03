@@ -20,7 +20,7 @@ class Author(AbstractUser):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/".format(self.host, self.id)
+            self.url = "http://{}/author/{}/".format(settings.HOST_NAME, self.id)
         super(Author, self).save(*args, **kwargs)
 
 
@@ -67,7 +67,7 @@ class Post(models.Model):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/posts/{}/".format(self.host, self.author.id, self.id)
+            self.url = "http://{}/author/{}/posts/{}/".format(settings.HOST_NAME, self.author.id, self.id)
         super(Post, self).save(*args, **kwargs)
 
 
@@ -90,5 +90,5 @@ class Comment(models.Model):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(self.host, self.author.id, self.post.id, self.id)
+            self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.author.id, self.post.id, self.id)
         super(Post, self).save(*args, **kwargs)
