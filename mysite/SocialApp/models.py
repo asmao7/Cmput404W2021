@@ -12,10 +12,16 @@ from django.utils.translation import gettext_lazy
 class Author(AbstractUser):
    # Models information about a user 
    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-   host = models.CharField(max_length=100, default=settings.HOST_NAME)
+   host = models.CharField(max_length=100, default=settings.HOST_NAME, editable=False)
    display_name = models.CharField(max_length=100)
-   url = models.CharField(max_length=200, default="http://{}/author/{}/".format(settings.HOST_NAME, str(id)))
+   url = models.CharField(max_length=200, editable=False)
    github = models.CharField(max_length=200)
+
+   # Overwrite the default save function so that we can generate our URL
+   def save(self, *args, **kwargs):
+       if not self.url:
+           self.url = "http://{}/author/{}/".format(self.host, self.id)
+       super(Author, self).save(*args, **kwargs)
 
 
 class PostCategory(models.Model):
