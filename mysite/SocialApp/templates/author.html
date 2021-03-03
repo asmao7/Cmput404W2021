@@ -4,12 +4,12 @@
 <html>
     <head>
         <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/home.css' %}">
+        <link rel="stylesheet" href="{% static 'css/homepage.css' %}">
     </head>
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
+        <body id="bg" style="background-image: url('{% static "wallpaper2.png"%}')";>
 
         <!--Navigation menu-->
 		<div class="topnav">
@@ -17,13 +17,27 @@
 			<a href="editProfile.html">Edit Profile</a>
 			<a href="#signup.html">Friends/FOllowers</a>
 			<a href="newMessage.html">New Message</a>
-            <a href="newPost.html">New Post</a>
+            <a href="{% url 'add_post' %}">New Post</a>
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
         <!--COMMENT-->
         <h2 class="comment"><br><br>We'll have to rearrange this navigation menu later, it should go to the bottom. I just wanted 
         to set up the pages for now</h2>
+
+    <div class="post">
+        <h1>POST......</h1>
+
+        {% for post in object_list %}
+            <ul>
+                <li><a href={% url 'post-details' post.pk%}>{{ post.title }}</a> - 
+                {{ post.author}} <br/>
+                {{ post.content }}</li>
+                <br/>
+                <br/>
+            {% endfor%}
+            </ul>
+    </div>
 
     </body>
 </html>
