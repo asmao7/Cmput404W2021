@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import TextPost, ImagePost, Author, PostCategory, Comment
+from .models import Post, Author, PostCategory, Comment
 
 class DefaultAdmin(admin.ModelAdmin):
     # Default Admin Panel
@@ -30,7 +30,6 @@ class AuthorAdmin(UserAdmin):
 
 
 admin.site.register(Author, AuthorAdmin)
-admin.site.register(TextPost, DefaultAdmin)
-admin.site.register(ImagePost, DefaultAdmin)
+admin.site.register(Post, DefaultAdmin)
 admin.site.register(PostCategory, DefaultAdmin)
 admin.site.register(Comment, DefaultAdmin)

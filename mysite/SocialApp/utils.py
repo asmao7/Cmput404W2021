@@ -1,4 +1,4 @@
-from .models import Author, Post, TextPost, ImagePost
+from .models import Author, Post
 
 
 def AuthorToJSON(author):
@@ -20,13 +20,14 @@ def AuthorToJSON(author):
 
 
 # TODO: Fill out categories, count, size, comments
-def PostToJSON(post, is_image=False):
+def PostToJSON(post):
     # Converts a Post object into JSON. Return None if the Post is bad
     if not post:
         return None
     try:
-        if is_image:
-            content = post.content.url
+        # Maybe don't do this? Not sure yet.
+        if post.image_content:
+            content = post.image_content.url
         else:
             content = post.content
         json = {

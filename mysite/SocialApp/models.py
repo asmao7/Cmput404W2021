@@ -26,7 +26,7 @@ class Author(AbstractUser):
 
 class PostCategory(models.Model):
     # Models a category that a post can belong to
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     class Meta:
         verbose_name = "Post Category"

@@ -4,7 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 
-from .models import Author, Post, TextPost, ImagePost, Comment
+from .models import Author, Post, Comment
 from .admin import AuthorCreationForm
 
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON
@@ -75,6 +75,7 @@ class AuthorEndpoint(APIView):
 
 
 class PostEndpoint(APIView):
+    # TODO: Make this authenticated if private/friends
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -92,19 +93,14 @@ class PostEndpoint(APIView):
             return HttpResponse(status=404)
 
         post = None
-        is_image = False
         try:
-            post = TextPost.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id)
         except:
-            try:
-                post = ImagePost.objects.get(pk=post_id)
-                is_image = True
-            except:
-                return HttpResponse(status=400)
+            return HttpResponse(status=400)
         if not post:
             return HttpResponse(status=404)
 
-        json = PostToJSON(post, is_image)
+        json = PostToJSON(post)
         if json:
             return JsonResponse(json)
         else:
@@ -138,7 +134,7 @@ class PostEndpoint(APIView):
         if not post:
             return HttpResponse(status=404)
 
-        # TODO: Handle categories, choose proper visibility
+        # TODO: Handle categories
         jsonData = request.data
         post.title = jsonData.get("title")
         post.id = jsonData.get("id")
@@ -149,12 +145,13 @@ class PostEndpoint(APIView):
         post.content = jsonData.get("content")
         post.categories = None
         post.published = datetime(jsonData.get("published"))
-        post.visibility = Post.Visibility.PUBLIC
+        post.visibility = jsonData.get("visibility")
         post.unlisted = bool(jsonData.get("unlisted"))
         post.save()
 
         return HttpResponse(status=200)
 
+    # TODO: Make this authenticated
     def delete(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -205,10 +202,10 @@ class PostEndpoint(APIView):
 
         try:
             jsonData = request.data
-            text_post = TextPost(id=post_id, title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
+            post = Post(id=post_id, title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
                                  origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
-                                 author=author, published=datetime(jsonData.get("published")), visibility=Post.Visibility.PUBLIC, unlisted=bool(jsonData.get("unlisted")))
-            text_post.save()
+                                 author=author, published=datetime(jsonData.get("published")), visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
+            post.save()
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
@@ -228,13 +225,13 @@ class PostCreationEndpoint(APIView):
         if not author:
             return HttpResponse(status=404)
 
-        text_post_json_list = []
-        text_posts = TextPost.objects.filter(author=author)
-        for text_post in text_posts:
-            json = PostToJSON(text_post)
+        post_json_list = []
+        posts = Post.objects.filter(author=author)
+        for post in posts:
+            json = PostToJSON(post)
             if json:
-                text_post_json_list.append(json)
-        return JsonResponse({"posts":text_post_json_list})
+                post_json_list.append(json)
+        return JsonResponse({"posts":post_json_list})
 
     # TODO: manage post creation based on content type
     def post(self, request, *args, **kwargs):
@@ -251,16 +248,15 @@ class PostCreationEndpoint(APIView):
 
         try:
             jsonData = request.data
-            text_post = TextPost(title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
-                                 origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
-                                 author=author, published=datetime(jsonData.get("published")), visibility=Post.Visibility.PUBLIC, unlisted=bool(jsonData.get("unlisted")))
-            text_post.save()
+            post = Post(title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
+                        origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
+                        author=author, published=datetime(jsonData.get("published")), visibility=Post.Visibility.PUBLIC, unlisted=bool(jsonData.get("unlisted")))
+            post.save()
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
 
 
-# TODO: actually attach these things to posts
 class CommentEndpoint(APIView):
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
@@ -280,17 +276,14 @@ class CommentEndpoint(APIView):
 
         post = None
         try:
-            post = TextPost.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id)
         except:
-            try:
-                post = ImagePost.objects.get(pk=post_id)
-            except:
-                return HttpResponse(status=400)
+            return HttpResponse(status=400)
         if not post:
             return HttpResponse(status=404)
 
         comment_json_list = []
-        comments = Comment.objects.filter(author=author)
+        comments = Comment.objects.filter(author=author, post=post)
         for comment in comments:
             json = CommentToJSON(comment)
             if json:
@@ -315,20 +308,17 @@ class CommentEndpoint(APIView):
 
         post = None
         try:
-            post = TextPost.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id)
         except:
-            try:
-                post = ImagePost.objects.get(pk=post_id)
-            except:
-                return HttpResponse(status=400)
+            return HttpResponse(status=400)
         if not post:
             return HttpResponse(status=404)
 
         try:
             jsonData = request.data
-            text_post = Comment(author=author, comment=jsonData.get("comment"), content_type=jsonData.get("contentType"),
-                                published=datetime(jsonData.get("published")), url=jsonData.get("id"))
-            text_post.save()
+            comment = Comment(author=author, post=post, comment=jsonData.get("comment"), content_type=jsonData.get("contentType"),
+                              published=datetime(jsonData.get("published")), url=jsonData.get("id"))
+            comment.save()
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
