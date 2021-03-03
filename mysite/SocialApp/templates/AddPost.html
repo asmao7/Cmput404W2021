@@ -1,0 +1,9 @@
+
+<!Doctype html>
+
+<h1>Add Post</h1>
+
+<form method="POST">
+    {% csrf_token%}
+    {{ form.as_p }}
+    <button>Post</button>

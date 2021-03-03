@@ -12,10 +12,38 @@ from .utils import AuthorToJSON, PostToJSON, CommentToJSON
 from django.views import generic
 from django.urls import reverse_lazy
 
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from .models import TextPost
+
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
     template_name = 'signup.html'
     success_url = reverse_lazy('login')
+
+class HomeView(ListView):
+    model = TextPost
+    template_name = 'author.html'
+
+class PostDetailView(DetailView):
+    model = TextPost
+    template_name = 'PostDetails.html'
+
+class AddPostView(CreateView):
+    model = TextPost
+    template_name = 'AddPost.html'
+    fields = '__all__'
+    #fields = ('title', 'content', 'visibility')
+
+class UpdatePostView(UpdateView):
+    model = TextPost
+    template_name = 'EditPost.html'
+    fields = ['title', 'content']
+
+class DeletePostView(DeleteView):
+    model = TextPost
+    template_name = 'DeletePost.html'
+    success_url = reverse_lazy('author')
+
 
 def home(request):
     return render(request, 'home.html', {})
