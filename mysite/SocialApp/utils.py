@@ -29,7 +29,7 @@ def PostToJSON(post):
         if post.image_content:
             content = post.image_content.url
         else:
-            content = post.content
+            content = post.text_content
         json = {
             "type":"post",
             "title":post.title,
