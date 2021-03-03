@@ -13,7 +13,6 @@ from django.views import generic
 from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import TextPost
 
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
@@ -21,26 +20,26 @@ class UserRegisterView(generic.CreateView):
     success_url = reverse_lazy('login')
 
 class HomeView(ListView):
-    model = TextPost
+    model = Post
     template_name = 'author.html'
 
 class PostDetailView(DetailView):
-    model = TextPost
+    model = Post
     template_name = 'PostDetails.html'
 
 class AddPostView(CreateView):
-    model = TextPost
+    model = Post
     template_name = 'AddPost.html'
     fields = '__all__'
     #fields = ('title', 'content', 'visibility')
 
 class UpdatePostView(UpdateView):
-    model = TextPost
+    model = Post
     template_name = 'EditPost.html'
     fields = ['title', 'content']
 
 class DeletePostView(DeleteView):
-    model = TextPost
+    model = Post
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
@@ -153,12 +152,9 @@ class PostEndpoint(APIView):
 
         post = None
         try:
-            post = TextPost.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id)
         except:
-            try:
-                post = ImagePost.objects.get(pk=post_id)
-            except:
-                return HttpResponse(status=400)
+            return HttpResponse(status=400)  
         if not post:
             return HttpResponse(status=404)
 
@@ -198,12 +194,9 @@ class PostEndpoint(APIView):
 
         post = None
         try:
-            post = TextPost.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id)
         except:
-            try:
-                post = ImagePost.objects.get(pk=post_id)
-            except:
-                return HttpResponse(status=400)
+            return HttpResponse(status=400)  
         if not post:
             return HttpResponse(status=404)
 
