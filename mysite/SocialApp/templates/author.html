@@ -33,7 +33,7 @@
                 <li><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
                 {{ post.author}} - <a href="{% url 'update_post' post.pk%}">Edit</a>
                   -  <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
-                {{ post.content }}</li>
+                {{ post.text_content }}</li>
                 <br/>
                 <br/>
             {% endfor%}
