@@ -88,17 +88,19 @@ class PostEndpoint(APIView):
             return HttpResponse(status=404)
 
         post = None
+        is_image = False
         try:
             post = TextPost.objects.get(pk=post_id)
         except:
             try:
                 post = ImagePost.objects.get(pk=post_id)
+                is_image = True
             except:
                 return HttpResponse(status=400)
         if not post:
             return HttpResponse(status=404)
 
-        return JsonResponse(PostToJSON(post))
+        return JsonResponse(PostToJSON(post, is_image))
 
     # TODO: Make this authenticated
     def post(self, request, *args, **kwargs):

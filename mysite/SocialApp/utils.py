@@ -20,11 +20,15 @@ def AuthorToJSON(author):
 
 
 # TODO: Fill out categories, count, size, comments
-def PostToJSON(post):
+def PostToJSON(post, is_image=False):
     # Converts a Post object into JSON. Return None if the Post is bad
     if not post:
         return None
     try:
+        if is_image:
+            content = post.content.url()
+        else:
+            content = post.content
         json = {
             "type":"post",
             "title":post.title,
@@ -33,7 +37,7 @@ def PostToJSON(post):
             "origin":post.origin,
             "description":post.description,
             "contentType":post.content_type,
-            "content":post.content,
+            "content":content,
             "author":AuthorToJSON(post.author),
             "categories":"",
             "count":0,
