@@ -61,13 +61,10 @@ class Post(models.Model):
 class TextPost(Post):
     # Models a post with text content
     content = models.TextField()
-
-    #def __str__(self):
-    #    return self.title + ' | ' + str(self.author)
     
     # redirect after when addding new post
     def get_absolute_url(self):
-        return reverse('post-details', args=(str(self.id)))
+        return reverse('author') #, args=(str(self.id)))
 
     class Meta:
         verbose_name = "Text Post"
