@@ -74,7 +74,7 @@ class Comment(models.Model):
     ]
 
     id = models.UUIDField()
-    post = models.ForeignKey()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.TextField()
     content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default="text/plain")
