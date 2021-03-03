@@ -8,10 +8,28 @@ from .admin import AuthorCreationForm
 from django.views import generic
 from django.urls import reverse_lazy
 
+from django.views.generic import ListView, DetailView, CreateView
+from .models import TextPost
+
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
     template_name = 'signup.html'
     success_url = reverse_lazy('login')
+
+class HomeView(ListView):
+    model = TextPost
+    template_name = 'author.html'
+
+class PostDetailView(DetailView):
+    model = TextPost
+    template_name = 'PostDetails.html'
+
+class AddPostView(CreateView):
+    model = TextPost
+    template_name = 'AddPost.html'
+    fields = '__all__'
+    #fields = ('title', 'content', 'visibility')
+
 
 def home(request):
     return render(request, 'home.html', {})
