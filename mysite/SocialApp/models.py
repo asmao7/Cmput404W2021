@@ -91,4 +91,4 @@ class Comment(models.Model):
     def save(self, *args, **kwargs):
         if not self.url:
             self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.author.id, self.post.id, self.id)
-        super(Post, self).save(*args, **kwargs)
+        super(Comment, self).save(*args, **kwargs)
