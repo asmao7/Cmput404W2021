@@ -1,0 +1,13 @@
+
+<!Doctype html>
+
+<h1>Delete Post</h1>
+<br/><br/>
+
+<h3>Delete: {{ post.title }}</h3>
+<div class="form-group">
+    <form method="POST">
+        {% csrf_token%}
+        <strong>Deleting post? </strong>
+        <button class="btn btn-secondary">Delete Post</button>
+</div>

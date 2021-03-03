@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 from django.utils.translation import gettext_lazy
+from django.urls import reverse
 
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
 #NOTE: Django admin panels use __str__ to generate labels, so explicitly definiting them is important
@@ -56,11 +57,14 @@ class Post(models.Model):
     class Meta:
         abstract = True
 
-
 # TODO: Have to handle plain-text and markdown
 class TextPost(Post):
     # Models a post with text content
     content = models.TextField()
+    
+    # redirect after when addding new post
+    def get_absolute_url(self):
+        return reverse('author') #, args=(str(self.id)))
 
     class Meta:
         verbose_name = "Text Post"
