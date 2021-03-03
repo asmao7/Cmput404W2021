@@ -28,15 +28,9 @@
 
     <div class="post">
         <h1>{{ post.title }}</h1>
-            <small>By: {{ post.author.first_name }} {{
-                post.author
-            }}</small><br>
+            <small>By: {{ post.author }}</small><br>
             <br>
-            <hr>
-            <br>
-
-            {{post.content}}
-
+            {{post.text_content}}
     </div>
 
     </body>
