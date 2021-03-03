@@ -10,18 +10,18 @@ from django.utils.translation import gettext_lazy
 #NOTE: As per the docs, model fields should be lower case, separated by underscores
 
 class Author(AbstractUser):
-   # Models information about a user 
-   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-   host = models.CharField(max_length=100, default=settings.HOST_NAME, editable=False)
-   display_name = models.CharField(max_length=100)
-   url = models.CharField(max_length=200, editable=False)
-   github = models.CharField(max_length=200)
+    # Models information about a user 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    host = models.CharField(max_length=100, default=settings.HOST_NAME, editable=False)
+    display_name = models.CharField(max_length=100)
+    url = models.CharField(max_length=200, editable=False)
+    github = models.CharField(max_length=200)
 
-   # Overwrite the default save function so that we can generate our URL
-   def save(self, *args, **kwargs):
-       if not self.url:
-           self.url = "http://{}/author/{}/".format(self.host, self.id)
-       super(Author, self).save(*args, **kwargs)
+    # Overwrite the default save function so that we can generate our URL
+    def save(self, *args, **kwargs):
+        if not self.url:
+            self.url = "http://{}/author/{}/".format(self.host, self.id)
+        super(Author, self).save(*args, **kwargs)
 
 
 class PostCategory(models.Model):
@@ -51,7 +51,7 @@ class Post(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
-    url = models.CharField(max_length=200)
+    url = models.CharField(max_length=200, editable=False)
     source = models.CharField(max_length=200)
     origin = models.CharField(max_length=200)
     description = models.CharField(max_length=200)
@@ -64,6 +64,12 @@ class Post(models.Model):
     visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default="PUBLIC")
     unlisted = models.BooleanField(default=False)
 
+    # Overwrite the default save function so that we can generate our URL
+    def save(self, *args, **kwargs):
+        if not self.url:
+            self.url = "http://{}/author/{}/posts/{}/".format(self.host, self.author.id, self.id)
+        super(Post, self).save(*args, **kwargs)
+
 
 class Comment(models.Model):
     # Models a comment on a post
@@ -73,10 +79,16 @@ class Comment(models.Model):
         ("text/markdown", "Markdown"),
     ]
 
-    id = models.UUIDField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.TextField()
     content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default="text/plain")
     published = models.DateTimeField(auto_now_add=True)
-    url = models.CharField(max_length=200)
+    url = models.CharField(max_length=200, editable=False)
+
+    # Overwrite the default save function so that we can generate our URL
+    def save(self, *args, **kwargs):
+        if not self.url:
+            self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(self.host, self.author.id, self.post.id, self.id)
+        super(Post, self).save(*args, **kwargs)
