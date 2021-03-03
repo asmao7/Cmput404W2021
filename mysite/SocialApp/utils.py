@@ -26,7 +26,7 @@ def PostToJSON(post, is_image=False):
         return None
     try:
         if is_image:
-            content = post.content.url()
+            content = post.content.url
         else:
             content = post.content
         json = {
