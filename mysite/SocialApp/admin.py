@@ -25,7 +25,7 @@ class AuthorChangeForm(UserChangeForm):
 
 class AuthorAdmin(UserAdmin):
     # Admin User Admin Panel
-    model = User
+    model = Author
     form = AuthorChangeForm
 
 
