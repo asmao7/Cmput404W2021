@@ -48,7 +48,7 @@ class Post(models.Model):
     description = models.CharField(max_length=200)
     content_type = models.CharField(max_length=50)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    categories = models.ManyToManyField(PostCategory)
+    categories = models.ManyToManyField(PostCategory, blank=True)
     published = models.DateTimeField(auto_now_add=True)
     visibility = models.IntegerField(choices=Visibility.choices, default=Visibility.PUBLIC)
     unlisted = models.BooleanField()
