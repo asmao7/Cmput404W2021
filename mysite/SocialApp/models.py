@@ -36,51 +36,47 @@ class PostCategory(models.Model):
 class Post(models.Model):
     # Abstract model used as the base for Posts
 
-    class Visibility(models.IntegerChoices):
-        # Works kind of like an enum
-        PUBLIC = 0, gettext_lazy("PUBLIC")
-        FRIENDS = 1, gettext_lazy("FRIENDS")
+    VISIBILITY_CHOICES = [
+        ("PUBLIC", "Public"),
+        ("FRIENDS", "Friends"),
+    ]
 
+    CONTENT_TYPE_CHOICES = [
+        ("text/plain", "Plain Text"),
+        ("text/markdown", "Markdown"),
+        ("application/base64", "Base64 Encoding"),
+        ("image/png;base64", "PNG"),
+        ("image/jpeg;base64", "JPEG"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
     url = models.CharField(max_length=200)
     source = models.CharField(max_length=200)
     origin = models.CharField(max_length=200)
     description = models.CharField(max_length=200)
-    content_type = models.CharField(max_length=50)
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default="text/plain")
+    text_content = models.TextField()
+    image_content = models.ImageField(upload_to="post_images")
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     categories = models.ManyToManyField(PostCategory, blank=True)
     published = models.DateTimeField(auto_now_add=True)
-    visibility = models.IntegerField(choices=Visibility.choices, default=Visibility.PUBLIC)
-    unlisted = models.BooleanField()
-
-    class Meta:
-        abstract = True
-
-
-# TODO: Have to handle plain-text and markdown
-class TextPost(Post):
-    # Models a post with text content
-    content = models.TextField()
-
-    class Meta:
-        verbose_name = "Text Post"
-        verbose_name_plural = "Text Posts"
-
-
-# TODO: Have to handle different types of images
-class ImagePost(Post):
-    # Models a post with image content
-    content = models.ImageField(upload_to="post_images")
-
-    class Meta:
-        verbose_name = "Image Post"
-        verbose_name_plural = "Image Posts"
+    visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default="PUBLIC")
+    unlisted = models.BooleanField(default=False)
 
 
 class Comment(models.Model):
     # Models a comment on a post
+
+    CONTENT_TYPE_CHOICES = [
+        ("text/plain", "Plain Text"),
+        ("text/markdown", "Markdown"),
+    ]
+
+    id = models.UUIDField()
+    post = models.ForeignKey()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.TextField()
-    content_type = models.CharField(max_length=50)
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default="text/plain")
     published = models.DateTimeField(auto_now_add=True)
     url = models.CharField(max_length=200)
