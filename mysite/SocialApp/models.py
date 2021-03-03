@@ -40,7 +40,7 @@ class Post(models.Model):
     origin = models.CharField(max_length=200)
     description = models.CharField(max_length=200)
     content_type = models.CharField(max_length=50)
-    author = models.ForeignKey(Author, to_field="base_id", on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     categories = models.ManyToManyField(PostCategory)
     published = models.DateTimeField(auto_now_add=True)
     visibility = models.IntegerField(choices=Visibility.choices, default=Visibility.PUBLIC)
@@ -72,7 +72,7 @@ class ImagePost(Post):
 
 class Comment(models.Model):
     # Models a comment on a post
-    author = models.ForeignKey(Author, to_field="base_id", on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.TextField()
     content_type = models.CharField(max_length=50)
     published = models.DateTimeField(auto_now_add=True)
