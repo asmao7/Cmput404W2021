@@ -50,3 +50,21 @@ def PostToJSON(post, is_image=False):
         return json
     except:
         return None
+
+
+def CommentToJSON(comment):
+    # Converts a Comment object into JSON. Return None if the Comment is bad
+    if not comment:
+        return None
+    try:
+        json = {
+            "type":"comment",
+            "author":AuthorToJSON(comment.author),
+            "comment":comment.comment,
+            "contentType":comment.content_type,
+            "published":comment.published,
+            "id":comment.url
+        }
+        return json
+    except:
+        return None
