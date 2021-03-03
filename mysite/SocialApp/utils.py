@@ -1,8 +1,13 @@
-from .models import Author, Post
-
+"""
+Contains useful helper functions
+"""
+from .models import Author, Post, Comment
 
 def AuthorToJSON(author):
-    # Converts an Author object into JSON. Returns None if the author is bad
+    """
+    Converts an Author object into a JSON-compatible dictionary.
+    Returns None on failure.
+    """
     if not author:
         return None
     try:
@@ -21,7 +26,10 @@ def AuthorToJSON(author):
 
 # TODO: Fill out categories, count, size, comments
 def PostToJSON(post):
-    # Converts a Post object into JSON. Return None if the Post is bad
+    """
+    Converts a Post object into a JSON-compatible dictionary.
+    Return None on failure.
+    """
     if not post:
         return None
     try:
@@ -54,7 +62,10 @@ def PostToJSON(post):
 
 
 def CommentToJSON(comment):
-    # Converts a Comment object into JSON. Return None if the Comment is bad
+    """
+    Converts a Comment object into a JSON-compatible dictionary.
+    Return None on failure.
+    """
     if not comment:
         return None
     try:

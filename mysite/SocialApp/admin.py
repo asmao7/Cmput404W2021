@@ -1,15 +1,22 @@
+"""
+Contains Django admin related configurations
+"""
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from .models import Post, Author, PostCategory, Comment
 
 class DefaultAdmin(admin.ModelAdmin):
-    # Default Admin Panel
+    """
+    Default model representation in Django admin
+    """
     pass
 
 
 class AuthorCreationForm(UserCreationForm):
-    # Custom form for creating new users
+    """
+    Custom form for creating new users
+    """
     class Meta:
         model = Author
         fields = UserCreationForm.Meta.fields + ("display_name", "github",)
@@ -17,14 +24,18 @@ class AuthorCreationForm(UserCreationForm):
 
 #TODO: Find a way to display read-only fields
 class AuthorChangeForm(UserChangeForm):
-    # Custom form for editing users
+    """
+    Custom form for editing users
+    """
     class Meta:
         model = Author
         fields = ("username", "password", "first_name", "last_name", "display_name", "email", "github", "is_active", "is_staff", "is_superuser", "groups", "user_permissions",)
 
 
 class AuthorAdmin(UserAdmin):
-    # Admin User Admin Panel
+    """
+    Author model representation ni Django admin
+    """
     model = Author
     form = AuthorChangeForm
 
