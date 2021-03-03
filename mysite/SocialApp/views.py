@@ -212,3 +212,49 @@ class PostEndpoint(APIView):
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
+
+
+class PostCreationEndpoint(APIView):
+    # TODO: Handle image posts, limit results
+    def get(self, request, *args, **kwargs):
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+        text_post_json_list = []
+        text_posts = TextPost.objects.filter(author=author)
+        for text_post in text_posts:
+            json = PostToJSON(text_post)
+            if json:
+                text_post_json_list.append(json)
+        return JsonResponse(text_post_json_list)
+
+    # TODO: manage post creation based on content type
+    def post(self, request, *args, **kwargs):
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+        try:
+            jsonData = request.data
+            text_post = TextPost(title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
+                                 origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
+                                 author=author, published=datetime(jsonData.get("published")), visibility=Post.Visibility.PUBLIC, unlisted=bool(jsonData.get("unlisted")))
+            text_post.save()
+            return HttpResponse(status=200)
+        except:
+            return HttpResponse(status=500)
