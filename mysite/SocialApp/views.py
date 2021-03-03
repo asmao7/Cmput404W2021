@@ -8,7 +8,7 @@ from .admin import AuthorCreationForm
 from django.views import generic
 from django.urls import reverse_lazy
 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import TextPost
 
 class UserRegisterView(generic.CreateView):
@@ -34,6 +34,11 @@ class UpdatePostView(UpdateView):
     model = TextPost
     template_name = 'EditPost.html'
     fields = ['title', 'content']
+
+class DeletePostView(DeleteView):
+    model = TextPost
+    template_name = 'DeletePost.html'
+    success_url = reverse_lazy('author')
 
 
 def home(request):
