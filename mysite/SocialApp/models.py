@@ -14,7 +14,7 @@ class Author(AbstractUser):
    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
    host = models.CharField(max_length=100, default=settings.HOST_NAME)
    display_name = models.CharField(max_length=100)
-   url = models.CharField(max_length=200, default="http://{}/author/{}/".format(settings.HOST_NAME, id))
+   url = models.CharField(max_length=200, default="http://{}/author/{}/".format(settings.HOST_NAME, str(id)))
    github = models.CharField(max_length=200)
 
 
