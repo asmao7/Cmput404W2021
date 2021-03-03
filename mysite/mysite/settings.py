@@ -26,6 +26,9 @@ SECRET_KEY = '810b^kjjo!b695&$!er^)^$&!o)3s9@y@4f7bs+%a5n^t4_3@y'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Host information - needs to be configured on a per-server basis
+HOST_NAME = 'localhost'
+
 ALLOWED_HOSTS = []
 
 
@@ -102,6 +105,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# Sets us up to use our custom user model
+AUTH_USER_MODEL = "SocialApp.Author"
 
 
 # Internationalization
