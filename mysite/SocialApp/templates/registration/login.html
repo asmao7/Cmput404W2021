@@ -14,21 +14,27 @@
 
         <!--Navigation menu-->
 		<div class="topnav">
-			<a class="active" href="index.html">Home</a>
-			<a href="Login.html">Login</a>
-			<a href="signup.html">Sign up</a>
-			<a href="#logout">Logout</a>
+			<a class="active" href="/">Home</a>
+			<a href="#Login.html">Login</a>
+			<a href="{% url 'signup'%}">Sign up</a>
+			<a href="{% url 'logout' %}">Logout</a>
 		</div>
 
         <!--COMMENT-->
         <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2>
 
-        <form class="box" action="index.html" method="post">
-            <h1>Login</h1>
-            <input type="text" name="" placeholder="Username">
-            <input type="password" name="" placeholder="Password">
-            <a href="author.html">Login</a>
-        </form>
+    <div class="box">
+        <div class="form-group">
+            <h1>LoginHello</h1>
+            <form method="POST">
+                {% csrf_token %}
+                {{form.as_p}}
+                <button class="btn btn-secondary">Login</button>
+
+        </div>
+    </div>
+    
+   
 
 
     </body>
