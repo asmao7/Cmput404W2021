@@ -81,17 +81,20 @@ class TestCases(TestCase):
         """
         Test the GET author/{AUTHOR_ID}/ endpoint
         """
+        # Test a good request
         client = Client()
         url = reverse("Author", kwargs={"author_id":cls.author_id_1})
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         cls.assertEqual(response.json(), AuthorToJSON(Author.objects.get(pk=cls.author_id_1)))
 
+        # Test a request on an object that doesn't exist
         url = reverse("Author", kwargs={"author_id":uuid.uuid4()})
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        url = reverse("Author", kwargs={"author_id":""})
+        # Test a request with an invalid ID
+        url = reverse("Author", kwargs={"author_id":"abc"})
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -99,6 +102,7 @@ class TestCases(TestCase):
         """
         Test the POST author/{AUTHOR_ID}/ endpoint
         """
+        # Test a good request
         client = Client()
         url = reverse("Author", kwargs={"author_id":cls.author_id_2})
         new_display_name = "Test Author 3"
@@ -109,7 +113,18 @@ class TestCases(TestCase):
         }
         response = client.post(url, json)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+        # Try GET on updated object and see if they match
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         cls.assertEqual(response.json(), AuthorToJSON(Author.objects.get(pk=cls.author_id_2)))
+
+        # Test a request on an object that doesn't exist
+        url = reverse("Author", kwargs={"author_id":uuid.uuid4()})
+        response = client.post(url, json)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request with an invalid ID
+        url = reverse("Author", kwargs={"author_id":"abc"})
+        response = client.post(url, json)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
