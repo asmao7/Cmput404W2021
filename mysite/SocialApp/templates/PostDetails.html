@@ -5,12 +5,12 @@
 <html>
     <head>
         <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/homepage.css' %}">
+        <link rel="stylesheet" href="{% static 'css/postdetails.css' %}">
     </head>
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.png"%}')";>
+        <!--<body id="bg" style="background-image: url('{% static "wallpaper2.png"%}')";>-->
 
         <!--Navigation menu-->
 		<div class="topnav">
@@ -31,7 +31,26 @@
             <small>By: {{ post.author }}</small><br>
             <br>
             {{post.text_content}}
+        
+         <!--COMMENTS-->
+         <br><br/>
+        <h2 class="comment">COMMENTS <br><a href="{% url 'add_comment'%}">Add COmments</a></h2>
+        
+        {% if not post.comments.all%}
+            No Comments yet <a href="{% url 'add_comment' %}">add comment</a>
+        {% else %}
+            <a href="#">Add COmments</a>
+            {% for comment in post.comments.all%}
+                <strong>
+                {{comment.content}} - {{comment.name}} - 
+                {{comment.name}}
+                </strong>
+            {% endfor %}
+        {% endif %}
     </div>
+
+
+   
 
     </body>
 </html>
