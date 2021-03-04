@@ -20,7 +20,7 @@ class TestCases(TestCase):
         Will run once, and then run all of the test functions after.
         """
         # Set up two test authors
-        cls.author_id_1 = uuid.uuid4
+        cls.author_id_1 = uuid.uuid4()
         cls.author_host_1 = settings.HOST_NAME
         cls.author_display_name_1 = "Test Author 1"
         cls.author_github_1 = "github.com/testauthor1"
@@ -29,7 +29,7 @@ class TestCases(TestCase):
                           github=cls.author_github_1)
         author_1.save()
 
-        cls.author_id_2 = uuid.uuid4
+        cls.author_id_2 = uuid.uuid4()
         cls.author_host_2 = settings.HOST_NAME
         cls.author_display_name_2 = "Test Author 2"
         cls.author_github_2 = "github.com/testauthor2"
@@ -47,7 +47,7 @@ class TestCases(TestCase):
         PostCategory(name=cls.category_name_3).save()
 
         # Set up a test post
-        cls.post_id = uuid.uuid4
+        cls.post_id = uuid.uuid4()
         cls.post_title = "Test Post"
         cls.post_source = "SomeTestWebsite.com/posts/"
         cls.post_origin = "SomeOtherTestWebsite.com/posts/"
@@ -62,7 +62,7 @@ class TestCases(TestCase):
         post.save()
 
         # Set up test comment
-        cls.comment_id = uuid.uuid4
+        cls.comment_id = uuid.uuid4()
         cls.comment_comment = "This is a test comment from a different author."
         cls.comment_content_type = "text/plain"
         comment = Comment(id=cls.comment_id, post=cls.post, author=cls.author_2,
