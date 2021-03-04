@@ -1,13 +1,32 @@
-
+{% load static %}
 <!Doctype html>
 
-<h1>Delete Post</h1>
-<br/><br/>
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/deletepost.css' %}">
+    </head>
 
-<h3>Delete: {{ post.title }}</h3>
-<div class="form-group">
-    <form method="POST">
-        {% csrf_token%}
-        <strong>Deleting post? </strong>
-        <button class="btn btn-secondary">Delete Post</button>
-</div>
+    <body>
+        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";
+
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="{% url 'author' %}">Home</a>
+			<a href="#">Edit Post</a>
+			<a href="#logout">Logout</a>
+		</div>
+
+        <br/><br/>
+        <div class="delete">
+            <h1 class="title">Delete Post</h1>
+            <h3>Delete: {{ post.title }}</h3>
+            <div class="form-group">
+                <form method="POST">
+                    {% csrf_token%}
+                    <strong>Deleting post? </strong>
+                    <br>
+                    <button class="btn btn-secondary">Delete Post</button>
+            </div>
+        </div>
+    </body>
