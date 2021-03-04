@@ -217,7 +217,7 @@ class PostEndpoint(APIView):
             jsonData = request.data
             post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
                         description=jsonData.get("description"), content_type=jsonData.get("contentType"),
-                        author=author, published=datetime(jsonData.get("published")), visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
+                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
         except:
