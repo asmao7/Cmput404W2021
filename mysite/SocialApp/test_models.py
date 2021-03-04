@@ -59,7 +59,7 @@ class TestCases(TestCase):
         post = Post(id=cls.post_id, title=cls.post_title, source=cls.post_source,
                     origin=cls.post_origin, description=cls.post_description,
                     content_type=cls.post_content_type, text_content=cls.post_text_content,
-                    author=cls.author_1)
+                    author=Author.objects.get(pk=cls.author_id_1))
         post.categories.add(cls.category1, cls.category2, cls.category3)
         post.save()
 
@@ -67,7 +67,7 @@ class TestCases(TestCase):
         cls.comment_id = uuid.uuid4()
         cls.comment_comment = "This is a test comment from a different author."
         cls.comment_content_type = "text/plain"
-        comment = Comment(id=cls.comment_id, post=cls.post, author=cls.author_2,
+        comment = Comment(id=cls.comment_id, post=cls.post, author=Author.objects.get(pk=cls.author_id_2),
                             comment=cls.comment_comment, content_type=cls.comment_content_type)
         comment.save()
 
