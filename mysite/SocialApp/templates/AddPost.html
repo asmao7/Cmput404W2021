@@ -1,9 +1,31 @@
-
+{% load static %}
 <!Doctype html>
 
-<h1>Add Post</h1>
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/newpost.css' %}">
+    </head>
 
-<form method="POST">
-    {% csrf_token%}
-    {{ form.as_p }}
-    <button>Post</button>
+    <body>
+        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";
+
+        
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="{% url 'author' %}">Home</a>
+			<a href="#">Delete Post</a>
+			<a href="#logout">Logout</a>
+		</div>
+
+        <div class="post">
+            <h1>Add New Post</h1>
+            <br/>
+            <div class="form-group">
+                <form method="POST">
+                    {% csrf_token%}
+                    {{ form.as_p }}
+                    <button class="btn btn-secondary">Add Post</button>
+            </div>
+        </div>
+    </body>
