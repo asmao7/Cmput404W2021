@@ -159,14 +159,9 @@ class PostEndpoint(APIView):
         # TODO: Handle categories
         jsonData = request.data
         post.title = jsonData.get("title")
-        post.id = jsonData.get("id")
-        post.source = jsonData.get("source")
-        post.origin = jsonData.get("origin")
         post.description = jsonData.get("description")
         post.content_type = jsonData.get("contentType")
-        post.content = jsonData.get("content")
-        post.categories = None
-        post.published = datetime(jsonData.get("published"))
+        post.text_content = jsonData.get("content")
         post.visibility = jsonData.get("visibility")
         post.unlisted = bool(jsonData.get("unlisted"))
         post.save()
@@ -220,9 +215,9 @@ class PostEndpoint(APIView):
 
         try:
             jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
-                                 origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
-                                 author=author, published=datetime(jsonData.get("published")), visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
+            post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
+                        description=jsonData.get("description"), content_type=jsonData.get("contentType"),
+                        author=author, published=datetime(jsonData.get("published")), visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
         except:

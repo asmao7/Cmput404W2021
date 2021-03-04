@@ -13,9 +13,9 @@ from .utils import AuthorToJSON, PostToJSON, CommentToJSON
 
 class TestCases(TestCase):
     """
-    Class that contains all of our test cases. We do this since testing models
-    often involves the interrelationships between them rather than simply
-    unit testing Django's ORM
+    Class that contains all of our test cases. We do this since testing the API
+    often involves the interrelationships between objects so we might as well
+    set them all up.
     """
     @classmethod
     def setUpTestData(cls):
@@ -128,3 +128,194 @@ class TestCases(TestCase):
         response = client.post(url, json)
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_post_get(cls):
+        """
+        Test the GET author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
+        """
+        # Test a good request
+        client = Client()
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":cls.post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.json(), AuthorToJSON(Post.objects.get(pk=cls.post_id)))
+
+        # Test a request on an object that doesn't exist (author has no posts)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_2, "post_id":cls.post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request on an object that doesn't exist (bad post ID)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":uuid.uuid4()})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request with an invalid ID (bad author ID)
+        url = reverse("Post", kwargs={"author_id":"abc", "post_id":cls.post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test a request with an invalid ID (bad post ID)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":"abc"})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_post(cls):
+        """
+        Test the POST author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
+        """
+        # Test a good request
+        client = Client()
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":cls.post_id})
+
+        new_title = "Test Post 2"
+        new_description = "A changed test post"
+        new_content_type = "text/markdown"
+        new_text_content = "Some different body text."
+        new_visibility = "FRIENDS"
+        new_unlisted = True
+        json = {
+            "title":new_title,
+            "description":new_description,
+            "contentType":new_content_type,
+            "content":new_text_content,
+            "visibility":new_visibility,
+            "unlisted":new_unlisted
+        }
+        response = client.post(url, json)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Try GET on updated object and see if they match
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.json(), PostToJSON(Post.objects.get(pk=cls.post_id)))
+
+        # Test a request on an object that doesn't exist (author has no posts)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_2, "post_id":cls.post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request on an object that doesn't exist (bad post ID)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":uuid.uuid4()})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request with an invalid ID (bad author ID)
+        url = reverse("Post", kwargs={"author_id":"abc", "post_id":cls.post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test a request with an invalid ID (bad post ID)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":"abc"})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_delete(cls):
+        """
+        Test the DELETE author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
+        """
+        # Test a good request
+        client = Client()
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":cls.post_id})
+        response = client.delete(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Test a request on an object that doesn't exist (author has no posts)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_2, "post_id":cls.post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request on an object that doesn't exist (bad post ID)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":uuid.uuid4()})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request with an invalid ID (bad author ID)
+        url = reverse("Post", kwargs={"author_id":"abc", "post_id":cls.post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test a request with an invalid ID (bad post ID)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":"abc"})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # TODO: Should put prevent overwriting an existing post???
+    def test_post_put(cls):
+        """
+        Test the PUT author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
+        """
+        # Test a good request
+        client = Client()
+        new_post_id = uuid.uuid4()
+        url = reverse("Post", kwargs={"author_id":cls.author_id_2, "post_id":new_post_id})
+
+        new_title = "Test Post 2"
+        new_source = "SomeTestWebsite.com/posts/"
+        new_origin = "SomeOtherTestWebsite.com/posts/"
+        new_description = "A changed test post"
+        new_content_type = "text/markdown"
+        new_text_content = "Some different body text."
+        new_visibility = "FRIENDS"
+        new_unlisted = True
+        json = {
+            "title":new_title,
+            "source":new_source,
+            "origin":new_origin,
+            "description":new_description,
+            "contentType":new_content_type,
+            "content":new_text_content,
+            "visibility":new_visibility,
+            "unlisted":new_unlisted
+        }
+        response = client.put(url, json)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Try GET on updated object and see if they match
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.json(), PostToJSON(Post.objects.get(pk=new_post_id)))
+
+        # Test a request on an object that doesn't exist (author has no posts)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":new_post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Test a request with an invalid ID (bad author ID)
+        url = reverse("Post", kwargs={"author_id":"abc", "post_id":new_post_id})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test a request with an invalid ID (bad post ID)
+        url = reverse("Post", kwargs={"author_id":cls.author_id_2, "post_id":"abc"})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # TODO: Fill out this test
+    def test_all_post_get(cls):
+        """
+        Test the GET author/{AUTHOR_ID}/posts/ endpoint
+        """
+        # Test a good request
+        client = Client()
+
+    # TODO: Fill out this test
+    def test_all_post_post(cls):
+        """
+        Test the POST author/{AUTHOR_ID}/posts/ endpoint
+        """
+        # Test a good request
+        client = Client()
+
+    # TODO: Fill out this test
+    def test_comment_get(cls):
+        """
+        Test the GET author/{AUTHOR_ID}/posts/{POST_ID}/comments/ endpoint
+        """
+        # Test a good request
+        client = Client()
+
+    # TODO: Fill out this test
+    def test_comment_post(cls):
+        """
+        Test the POST author/{AUTHOR_ID}/posts/{POST_ID}/comments/ endpoint
+        """
+        # Test a good request
+        client = Client()
