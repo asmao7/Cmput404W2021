@@ -58,7 +58,7 @@ class TestCases(TestCase):
         cls.post_text_content = "This is a test post. It doesn't have much to it."
         post = Post(id=cls.post_id, title=cls.post_title, source=cls.post_source,
                     origin=cls.post_origin, description=cls.post_description,
-                    content_type=post_content_type, text_content=post_text_content,
+                    content_type=cls.post_content_type, text_content=cls.post_text_content,
                     author=cls.author_1)
         post.categories.add(cls.category1, cls.category2, cls.category3)
         post.save()
