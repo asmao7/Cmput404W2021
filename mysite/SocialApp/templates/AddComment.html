@@ -1,0 +1,31 @@
+{% load static %}
+<!Doctype html>
+
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/AddComment.css' %}">
+    </head>
+
+    <body>
+        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";
+
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="{% url 'author' %}">Home</a>
+			<a href="#">Delete Post</a>
+			<a href="#logout">Logout</a>
+		</div>
+
+        <br/><br/>
+        <div class="comment">
+            <h1>Add New Comment</h1>
+            <br/><br/>
+            <div class="form-group">
+                <form method="POST">
+                    {% csrf_token%}
+                    {{ form.as_p }}
+                    <button class="btn btn-secondary">Add Comment</button>
+            </div>
+        </div>
+    </body>
