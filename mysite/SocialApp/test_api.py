@@ -101,5 +101,7 @@ class TestCases(TestCase):
         }
         response = client.post(url, json)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
-        cls.assertEqual(new_display_name, Author.objects.get(pk=cls.author_id_2).display_name)
-        cls.assertEqual(new_github, Author.objects.get(pk=cls.author_id_2).github)
+        
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.json(), AuthorToJSON(Author.objects.get(pk=cls.author_id_2)))
