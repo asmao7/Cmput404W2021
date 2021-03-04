@@ -10,6 +10,8 @@
     <body>
         <!--background wallpaper-->
         <!--<body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";-->
+            <body id="bg" style="background-image: url('{% static "wallpaper3.png"%}')";
+
 
         <!--Navigation menu-->
 		<div class="topnav">
@@ -21,24 +23,22 @@
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-        <!--COMMENT-->
-        <h2 class="comment"><br><br>We'll have to rearrange this navigation menu later, it should go to the bottom. I just wanted 
-        to set up the pages for now</h2>
+      
 
-    <div class="post">
-        <h1>ALL POSTS</h1> <br/>
+        <div class="post">
+            <h1>ALL POSTS</h1> <br/>
 
-        {% for post in object_list %}
-            <ul>
-                <li><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
-                {{ post.author}} - <a href="{% url 'update_post' post.pk%}">Edit</a>
-                  -  <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
-                {{ post.text_content }}</li>
-                <br/>
-                <br/>
-            {% endfor%}
-            </ul>
-    </div>
+            {% for post in object_list %}
+                <ul>
+                    <li class=posti><br><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
+                    {{ post.author}} - <a href="{% url 'update_post' post.pk%}">Edit</a>
+                    -  <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
+                    {{ post.text_content }}></li>
+                    <br/>
+                    <br/>
+                {% endfor%}
+                </ul>
+        </div>
 
     </body>
 </html>
