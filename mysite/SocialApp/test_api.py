@@ -87,7 +87,7 @@ class TestCases(TestCase):
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         cls.assertEqual(response.json(), AuthorToJSON(Author.objects.get(pk=cls.author_id_1)))
 
-        url = reverse("Author", kwargs={"author_id":"abc"})
+        url = reverse("Author", kwargs={"author_id":uuid.uuid4()})
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
