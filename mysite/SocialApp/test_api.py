@@ -91,6 +91,7 @@ class TestCases(TestCase):
         """
         Test the POST author/{AUTHOR_ID}/ endpoint
         """
+        print(Author.objects.get(pk=cls.author_id_2).host)
         client = Client()
         url = reverse("Author", kwargs={"author_id":cls.author_id_2})
         new_display_name = "Test Author 3"
