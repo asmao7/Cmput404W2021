@@ -60,9 +60,9 @@ class TestCases(TestCase):
                     origin=cls.post_origin, description=cls.post_description,
                     content_type=cls.post_content_type, text_content=cls.post_text_content,
                     author=Author.objects.get(pk=cls.author_id_1))
-        post.categories.add(Category.objects.get(pk=cls.category_name_1),
-                            Category.objects.get(pk=cls.category_name_2),
-                            Category.objects.get(pk=cls.category_name_3))
+        post.categories.add(PostCategory.objects.get(pk=cls.category_name_1),
+                            PostCategory.objects.get(pk=cls.category_name_2),
+                            PostCategory.objects.get(pk=cls.category_name_3))
         post.save()
 
         # Set up test comment
