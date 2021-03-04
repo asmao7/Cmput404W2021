@@ -82,7 +82,7 @@ class TestCases(TestCase):
         Test the GET author/{AUTHOR_ID}/ endpoint
         """
         client = Client()
-        url = reverse(views.AuthorEndpoint.as_view(), kwargs={"author_id":cls.author_id_1})
+        url = reverse("Author", kwargs={"author_id":cls.author_id_1})
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         cls.assertEqual(response.json(), AuthorToJSON(Author.objects.get(pk=cls.author_id_1)))
