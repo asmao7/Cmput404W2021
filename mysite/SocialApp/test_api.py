@@ -86,3 +86,20 @@ class TestCases(TestCase):
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         cls.assertEqual(response.json(), AuthorToJSON(Author.objects.get(pk=cls.author_id_1)))
+
+    def test_author_post(cls):
+        """
+        Test the POST author/{AUTHOR_ID}/ endpoint
+        """
+        client = Client()
+        url = reverse("Author", kwargs={"author_id":cls.author_id_2})
+        new_display_name = "Test Author 3"
+        new_github = "github.com/testauthor3"
+        json = {
+            "displayName":new_display_name,
+            "github":new_github
+        }
+        response = client.post(url, json)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(new_display_name, Author.objects.get(pk=cls.author_id_2).display_name)
+        cls.assertEqual(new_github, Author.objects.get(pk=cls.author_id_2).github)
