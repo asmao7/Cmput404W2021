@@ -14,10 +14,10 @@ class TestCases(TestCase):
     unit testing Django's ORM
     """
     @classmethod
-    def set_up_test_data(cls):
+    def setUpTestData(cls):
         """
         Set up test data for the models.
-        Will run before every test in this class.
+        Will run once, and then run all of the test functions after.
         """
         # Set up two test authors
         cls.author_id_1 = uuid.uuid4
