@@ -60,14 +60,16 @@ class TestCases(TestCase):
                     origin=cls.post_origin, description=cls.post_description,
                     content_type=cls.post_content_type, text_content=cls.post_text_content,
                     author=Author.objects.get(pk=cls.author_id_1))
-        post.categories.add(cls.category1, cls.category2, cls.category3)
+        post.categories.add(Category.objects.get(pk=cls.category_name_1),
+                            Category.objects.get(pk=cls.category_name_2),
+                            Category.objects.get(pk=cls.category_name_3))
         post.save()
 
         # Set up test comment
         cls.comment_id = uuid.uuid4()
         cls.comment_comment = "This is a test comment from a different author."
         cls.comment_content_type = "text/plain"
-        comment = Comment(id=cls.comment_id, post=cls.post, author=Author.objects.get(pk=cls.author_id_2),
+        comment = Comment(id=cls.comment_id, post=Post.objects.get(pk=cls.post_id), author=Author.objects.get(pk=cls.author_id_2),
                             comment=cls.comment_comment, content_type=cls.comment_content_type)
         comment.save()
 
