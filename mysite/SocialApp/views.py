@@ -34,6 +34,12 @@ class AddPostView(CreateView):
     #fields = ('title', 'content', 'visibility')
     success_url = reverse_lazy('author')
 
+class AddCommentView(CreateView):
+    model = Comment
+    template_name = 'AddComment.html'
+    fields = '__all__'
+    success_url = reverse_lazy('author')
+
 class UpdatePostView(UpdateView):
     model = Post
     template_name = 'EditPost.html'
