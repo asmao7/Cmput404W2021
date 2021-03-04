@@ -1,11 +1,15 @@
 """
-Uses Django's TestCase to run unit tests on our models.
+Uses Django's TestCase to run unit tests on our REST API endpoints.
 This ensures each test is run inside a transaction to provide isolation.
 """
 import uuid
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.conf import settings
+from django.urls import reverse
+from rest_framework import status
 from .models import Author, PostCategory, Post, Comment
+from . import views
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON
 
 class TestCases(TestCase):
     """
@@ -73,37 +77,12 @@ class TestCases(TestCase):
                             comment=cls.comment_comment, content_type=cls.comment_content_type)
         comment.save()
 
-    def test_comment_relationship(cls):
+    def test_author_get(cls):
         """
-        Tests a lengthy reverse-relationship lookup to make sure
-        that comments, authors, and posts are related appropriately
+        Test the GET author/{AUTHOR_ID}/ endpoint
         """
-        author = Author.objects.filter(comment__post__author__id=cls.author_id_1).all()[0]
-        cls.assertEqual(cls.author_display_name_2, author.display_name)
-
-    def test_author_url(cls):
-        """
-        Tests that the auto-constructed URL is formed as expected for an author.
-        It is important that this is consistent since it's key to identifying 
-        authors on other servers.
-        """
-        test_url = "http://{}/author/{}/".format(settings.HOST_NAME, cls.author_id_1)
-        cls.assertEqual(test_url, Author.objects.get(pk=cls.author_id_1).url)
-
-    def test_post_url(cls):
-        """
-        Tests that the auto-constructed URL is formed as expected for a post.
-        It is important that this is consistent since it's key to identifying
-        posts on other servers.
-        """
-        test_url = "http://{}/author/{}/posts/{}/".format(settings.HOST_NAME, cls.author_id_1, cls.post_id)
-        cls.assertEqual(test_url, Post.objects.get(pk=cls.post_id).url)
-
-    def test_comment_url(cls):
-        """
-        Tests that the auto-constructed URL is formed as expected for a comment.
-        It is important that this is consistent since it's key to identifying
-        comments on other servers.
-        """
-        test_url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, cls.author_id_1, cls.post_id, cls.comment_id)
-        cls.assertEqual(test_url, Comment.objects.get(pk=cls.comment_id).url)
+        client = Client()
+        url = reverse(views.AuthorEndpoint.as_view(), kwargs={"author_id":cls.author_id_1})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.json(), AuthorToJSON(Author.objects.get(pk=cls.author_id_1)))
