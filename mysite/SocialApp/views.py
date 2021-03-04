@@ -94,9 +94,7 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=404)
 
         jsonData = request.data
-        author.host = jsonData.get("host")
         author.displayName = jsonData.get("displayName")
-        author.url = jsonData.get("url")
         author.github = jsonData.get("github")
         author.save()
 
