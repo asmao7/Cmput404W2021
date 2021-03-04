@@ -4,7 +4,6 @@
     padding: 0;
 }
 
-
 /*navigation menu*/
 /* Add a black background color to the top navigation */
 .topnav {
@@ -47,6 +46,7 @@
   width: 1000px;  
   margin: 0 auto;
   color:white;
+  position: relative;
 }
 
 .info{
@@ -74,3 +74,30 @@
   color: white;
   line-height: 30px;
 }
+
+.buttoncontainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: 50px;
+  text-align: center;
+  transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  
+  
+}
+
+.button {
+  border: none;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 5px;
+  background-color:maroon;
+  border-radius: 12px;
+}
+
+

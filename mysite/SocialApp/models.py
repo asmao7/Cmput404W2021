@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
 #NOTE: Django admin panels use __str__ to generate labels, so explicitly definiting them is important
@@ -13,6 +15,10 @@ class Author(models.Model):
    display_name = models.CharField(max_length=100)
    url = models.CharField(max_length=200)
    github = models.CharField(max_length=200)
+   followers = models.ManyToManyField('self', through='Followers',symmetrical=False,related_name='followed_by')
+
+   def __unicode__(self):
+       return self.display_name
 
 
 class PostCategory(models.Model):
@@ -75,3 +81,20 @@ class Comment(models.Model):
     content_type = models.CharField(max_length=50)
     published = models.DateTimeField(auto_now_add=True)
     url = models.CharField(max_length=200)
+
+class Followers(models.Model):
+    """ get a specific user's followers """
+    author = models.ForeignKey(Author, related_name='to_author', on_delete=models.DO_NOTHING) #person being followed (yet to accept request)
+    follower = models.ForeignKey(Author, related_name='from_author', on_delete=models.DO_NOTHING, default=None)
+
+    """ prohibit following same person twice """
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['author','follower'],  name="unique_follow")
+        ]
+
+""" prohibit self following """
+@receiver(pre_save, sender=Followers)
+def check_self_following(sender, instance, **kwargs):
+    if instance.follower == instance.author:
+        raise ValidationError('ERROR!!, you cannot follow yourself ')

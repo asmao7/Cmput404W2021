@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TextPost, ImagePost, Author, PostCategory, Comment
+from .models import TextPost, ImagePost, Author, PostCategory, Comment, Followers
 
 class DefaultAdmin(admin.ModelAdmin):
    # Default Admin Panel
@@ -10,3 +10,4 @@ admin.site.register(ImagePost, DefaultAdmin)
 admin.site.register(Author, DefaultAdmin)
 admin.site.register(PostCategory, DefaultAdmin)
 admin.site.register(Comment, DefaultAdmin)
+admin.site.register(Followers, DefaultAdmin)

@@ -1,0 +1,59 @@
+{% load static %}
+<!Doctype html>
+
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/followers.css' %}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+
+    <body>
+    <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
+
+        <!--Navigation menu-->
+        <div class="topnav">
+            <a class="active" href="index.html">Home</a>
+            <a href="editProfile.html">Edit Profile</a>
+            <a href="author/{{ author_id }}/followers">Followers</a>
+            <a href="#friends.html">Friends</a>
+            <!--<a href="find_friends.html">Find Friends</a>-->
+            <a href="newMessage.html">New Message</a>
+            <a href="newPost.html">New Post</a>
+             <div class="search-bar">
+                <form action="author/ {{ author_id }}/followers/ {{ foreign_author_id }}">
+                <input type="text" placeholder="Find Followers By ID" name="search">
+                <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <h1 class="authors-title">Authors</h1>
+               <!-- <li class="no-author">No authors with that ID.</li> -->
+            <div class = "authorcard">
+                
+                {% if author == None %}
+                    <p class="authorname"> Sorry, That Author ID does not Exist, Please Try again</p>
+                {% else %}
+                    <div class="user-info">
+                        <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
+                        <p class="authorname">{{ author }}</p>
+                    </div>
+                    <div class="button-container"> 
+                        {% if is_follower %}
+                            <p class="is_follower">{{ author }} is already following you</p>
+                        {% else %}
+                            {% csrf_token %}
+                            <button type="submit" formmethod="post"  class="button button1">Add Follower</button>
+                        </form>
+                        {% endif %}
+                        <form action="" method="DELETE">
+                        <button onclick="#location.href='bad.html'" class="button button2" type="button">Remove Follower</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- change to reflect no unfollowed authors -->
+    </body>
+</html>   
