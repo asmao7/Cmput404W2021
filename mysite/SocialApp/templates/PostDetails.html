@@ -37,7 +37,7 @@
         <h2 class="comment">COMMENTS <br><a href="{% url 'add_comment'%}">Add COmments</a></h2>
         
         {% if not post.comments.all%}
-            No Comments yet <a href="{% url 'add_comment' %}">add comment</a>
+            <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
         {% else %}
             <a href="#">Add COmments</a>
             {% for comment in post.comments.all%}
