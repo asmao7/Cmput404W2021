@@ -1,12 +1,35 @@
-
+{% load static %}
 <!Doctype html>
 
-<h1>Edit Post</h1>
-<br/><br/>
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/editpost.css' %}">
+    </head>
 
-<div class="form-group">
-    <form method="POST">
-        {% csrf_token%}
-        {{ form.as_p }}
-        <button class="btn btn-secondary">Update</button>
-</div>
+    <body>
+        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";
+
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="{% url 'author' %}">Home</a>
+			<a href="#">Delete Post</a>
+			<a href="#logout">Logout</a>
+		</div>
+
+        <br/><br/>
+        <div class="edit">
+            <h1>Edit Post</h1>
+            <br/><br/>
+            <div class="form-group">
+                <form method="POST">
+                    {% csrf_token%}
+                    {{ form.as_p }}
+                    <button class="btn btn-secondary">Update</button>
+            </div>
+        </div>
+    </body>
+
+
+
+
