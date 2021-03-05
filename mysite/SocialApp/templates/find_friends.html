@@ -33,22 +33,27 @@
             <div class = "authorcard">
                 
                 {% if author == None %}
-                    <p class="authorname"> Sorry, That Author ID does not Exist, Please Try again</p>
+                    <p class="message"> Sorry, That Author ID does not Exist, Please Try again</p>
                 {% else %}
                     <div class="user-info">
                         <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
-                        <p class="authorname">{{ author }}</p>
+                        <p class="message">{{ author }}</p>
                     </div>
                     <div class="button-container"> 
                         {% if is_follower %}
                             <p class="is_follower">{{ author }} is already following you</p>
                         {% else %}
                             {% csrf_token %}
-                            <button type="submit" formmethod="post"  class="button button1">Add Follower</button>
+                        <form action="" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="put">
+                            <button type="submit" formmethod="post"  class="button button1" value="put">Add Follower</button>
                         </form>
                         {% endif %}
-                        <form action="" method="DELETE">
-                        <button onclick="#location.href='bad.html'" class="button button2" type="button">Remove Follower</button>
+                        <form action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="delete">
+                        <button type="submit" formmethod="post" class="button button2" value="Delete">Remove Follower</button>
                         </form>
                     </div>
                 {% endif %}

@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
+from django.core.exceptions import ValidationError
 
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
 #NOTE: Django admin panels use __str__ to generate labels, so explicitly definiting them is important
@@ -84,8 +85,8 @@ class Comment(models.Model):
 
 class Followers(models.Model):
     """ get a specific user's followers """
-    author = models.ForeignKey(Author, related_name='to_author', on_delete=models.DO_NOTHING) #person being followed (yet to accept request)
-    follower = models.ForeignKey(Author, related_name='from_author', on_delete=models.DO_NOTHING, default=None)
+    follower = models.ForeignKey(Author, related_name='from_author', on_delete=models.CASCADE) #person being followed (yet to accept request)
+    author = models.ForeignKey(Author, related_name='to_author', on_delete=models.CASCADE, default=None)
 
     """ prohibit following same person twice """
     class Meta:

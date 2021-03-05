@@ -33,6 +33,19 @@ def newMessage(request):
 
 class EditFollowersEndpoint(APIView):
     # TODO: Make this authenticated if private/friends
+
+    def dispatch(self, request, *args, **kwargs):
+        method = self.request.POST.get('_method', '').lower()
+        if method == 'put':
+            return self.put(request, *args, **kwargs)
+        if method == 'delete':
+            return self.delete(request, *args, **kwargs)
+
+        method = self.request.GET.get('_method', '').lower()
+        if method == 'get':
+            return self.delete(request, *args, **kwargs)
+        return super(EditFollowersEndpoint, self).dispatch(request,*args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -99,14 +112,19 @@ class EditFollowersEndpoint(APIView):
         if foreign_author_id == -1:
             return HttpResponse(status=404)
 
-        followersUser(author_id, foreign_author_id)
+        """Create Follow Relationship """
+        follower_object = Author.objects.get(pk=foreign_author_id)
         current_author = Author.objects.get(pk=author_id)
-        followers_list = current_author.followed_by.all()
-        followers_ids = []
-        for from_author in followers_list:
-            followers_ids.append(from_author.id)
+        new_follower = Followers(author=current_author, follower=follower_object)
+        new_follower.save()
 
-        if foreign_author_id in followers_ids:
+        is_current_follower = current_author.followed_by.filter(id=foreign_author_id)
+        # followers_ids = []
+        # for from_author in followers_list:
+        #     followers_ids.append(from_author.id)
+
+        # if foreign_author_id in followers_ids:
+        if is_current_follower.exists():
             is_follower = True
         else:
             is_follower = False
@@ -132,22 +150,21 @@ class EditFollowersEndpoint(APIView):
         if foreign_author_id == -1:
             return HttpResponse(status=404)
 
-        foreign_author_id.delete()
-        return HttpResponse(status=200)
+        current_author = Author.objects.get(pk=author_id)
+        current_follower = current_author.followed_by.filter(id=foreign_author_id)
+
+        #TODO properly handle case when its someone who is not following you and you want to follow in ui - Dont show Delete button
+        if current_follower.exists():
+            current_follower.delete() # can only delete someone that was following you 
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=404)
         # return JsonResponse({'You have successfully deleted'+ followerID + 'as a follower!'})
+            
 
-    def followUser(author_to_follow, from_author):   #will be post for friend request
-            new_follower = Followers(author=author_to_follow.id, ollower=from_author.id)
-            new_follower.save()
-
-
-
-# @api_view(['GET'])
 class GetFollowersEndpoint(APIView):
     """ Get all the followers of a specific user"""
 # def followers(request, author_id):
-    #TODO handle that you can't follow an author twice DONE TEST IT 
-    #TODO handle that you can't follow yourself DONE TEST IT
     # if request.method == 'GET':
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
@@ -167,5 +184,10 @@ class GetFollowersEndpoint(APIView):
 
         for follower in followers_list:
             followers.append(follower)
+        
+        if not followers:
+            is_empty = True
+        else:
+            is_empty = False
 
-        return render(request, 'followers.html', {"followers":followers}, status=status.HTTP_200_OK)
+        return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty}, status=status.HTTP_200_OK)

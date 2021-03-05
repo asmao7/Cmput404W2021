@@ -10,7 +10,7 @@
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
+        <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
 
         <!--Navigation menu-->
 		<div class="topnav">
@@ -30,16 +30,21 @@
 		</div>
 
         <!--Followers-->
-        {% for author in followers %}
-        <li>
-        <a href="author/{author_id }/followers/{ foreign_author_id  author.id}">
+        {% if is_empty %}
         <div class="authorcard_list">
-                <div class="user-info">
-                        <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
-                        <p class="authorname">{{ author.display_name }}</p>
-                    </div>
-        </li>
+            <p class="message"> You dont have any followers yet, Use the Search Button to add Followers</p>
+        {% else %}                  
+            {% for author in followers %}
+            <li>
+            <a href="author/{author_id }/followers/{ foreign_author_id  author.id}">
+            <div class="authorcard_list">
+                    <div class="user-info">
+                            <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
+                            <p class="message">{{ author.display_name }}</p>
+                        </div>
+            </li>
             {% endfor%}
+        {% endif %}
         </div>
         
     </body>
