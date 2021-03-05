@@ -36,11 +36,10 @@
             <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
         {% else %}
             {% for comment in post.comment_set.all%}
-                <strong>
                 <ul>
-                    {{comment.comment}}   
+                    <small>By: {{comment.author}}</small> - <strong>{{comment.comment}}</strong>
                 </ul>
-                </strong>
+                
             {% endfor %}
         {% endif %}
         <a href="{% url 'add_comment'%}">Add Comments</a>
