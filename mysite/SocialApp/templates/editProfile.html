@@ -9,8 +9,7 @@
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
-        
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";>
 
         <!--Navigation menu-->
 		<div class="topnav">
@@ -19,9 +18,6 @@
 			<a href="#signup">Sign up</a>
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
-
-        <!--COMMENT-->
-        <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2>
 
         <form class="box" action="index.html" method="post">
             <h1>Edit Profile</h1>
@@ -32,6 +28,5 @@
             <input type="password" name="" placeholder="Confirm password">
             <a href="author.html">save changes</a>
         </form>
-
     </body>
 </html>

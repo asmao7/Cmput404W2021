@@ -9,9 +9,7 @@
 
     <body>
         <!--background wallpaper-->
-        <!--<body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";-->
-        <!--<body id="bg" style="background-image: url('{% static "wallpaper3.png"%}')";-->
-
+        <!--<body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";-->
 
         <!--Navigation menu-->
 		<div class="topnav">
@@ -23,15 +21,14 @@
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-      
-
+        <!--For each post, display the author and content-->
+        <!--redirect to edit/delete/or to add comment, (we'll have to find a better way to do this)-->
         <div class="post">
             <h1>ALL POSTS</h1> <br/>
-
             {% for post in object_list %}
             		
                 <ul>
-                    <li class=posti><br><a href=#"{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
+                    <li class=posti><br><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
                     {{ post.author}} - <a href="{% url 'update_post' post.pk%}">Edit</a>
                     - <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
                     {{ post.text_content }} <br/>
@@ -48,6 +45,5 @@
                 {% endfor %}
                 </ul>
         </div>
-
     </body>
 </html>

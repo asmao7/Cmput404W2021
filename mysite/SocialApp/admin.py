@@ -39,7 +39,12 @@ class AuthorAdmin(UserAdmin):
     model = Author
     form = AuthorChangeForm
 
+# Set some admin site variables
+admin.site.site_header = "Social Distribution Project Admin"
+admin.site.site_title = "Social Distribution Project Admin"
+admin.site.index_title = "Welcome to the administration portal"
 
+# Register our models with the admin site
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Post, DefaultAdmin)
 admin.site.register(PostCategory, DefaultAdmin)

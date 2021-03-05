@@ -37,27 +37,23 @@
 .wrapper{
   width: 1000px;  
   margin: 0 auto;
-  color:wheat;
+  color:white;
 }
 
-.info{
-  padding: 60px 10px 60px;
-  width:100%;
-  float: right;
-  border: 5px solid maroon;
-  height: 50%;
-  text-align: center;
-
+body{
+    background-color: black;
 }
 
-.info h1{
-  text-decoration: underline;
-}
-
-.info p{
-  padding: 20px 0px 0px 30px;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 30px;
-  color: beige;
-  line-height: 30px;
+.comment{
+    border: 8px solid maroon;
+    color: wheat;
+    font-size: 20px;
+    text-align: center;
+    width: 400px;
+    padding: 40px;
+    position: absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }

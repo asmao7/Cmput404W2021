@@ -1,10 +1,11 @@
 {% load static %}
 <!Doctype html>
 
+<!--This template uses django form to auto generate the comment form-->
 <html>
     <head>
         <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/editpost.css' %}">
+        <link rel="stylesheet" href="{% static 'css/AddComment.css' %}">
     </head>
 
     <body>
@@ -19,15 +20,14 @@
 		</div>
 
         <br/><br/>
-        <!-- use django forms to auto generate the edit fields, (only title and cintent for now)-->
-        <div class="edit">
-            <h1>Edit Post</h1>
+        <div class="comment">
+            <h1>Add New Comment</h1>
             <br/><br/>
             <div class="form-group">
                 <form method="POST">
                     {% csrf_token%}
                     {{ form.as_p }}
-                    <button class="btn btn-secondary">Update</button>
+                    <button class="btn btn-secondary">Add Comment</button>
             </div>
         </div>
     </body>

@@ -1,0 +1,1 @@
+This needs to be here to get this folder into version control so that Heroku can run "python manage.py collectstatic"
