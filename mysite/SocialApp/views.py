@@ -307,6 +307,9 @@ class PostCommentsEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        if post.author != author:
+            return HttpResponse(status=404)
+
         comment_json_list = []
         comments = Comment.objects.filter(author=author, post=post)
         for comment in comments:
@@ -337,6 +340,9 @@ class PostCommentsEndpoint(APIView):
             return HttpResponse(status=404)
         except Exception:
             return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
 
         try:
             jsonData = request.data
