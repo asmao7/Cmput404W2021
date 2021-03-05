@@ -2,14 +2,14 @@
 
 /* Define some CSS3 variables to make this all easier to manage */
 :root {
-  --main-bg-colour: #c5283d;
-  --main-bg-colour-dark: #481d24;
-  --main-bg-colour-light: #e9724c;
-  --main-pop-text-colour: #ffc857;
-  --main-pop-text-colour-dark: #e9724c;
-  --main-pop-text-colour-light: #ffc857;
+  --main-bg-colour: #611C35;
+  --main-bg-colour-dark: #D7E8BA;
+  --main-bg-colour-light: #4DA1A9;
+  --main-pop-text-colour: #4DA1A9;
+  --main-pop-text-colour-dark: #2E5077;
+  --main-pop-text-colour-light: #D7E8BA;
   --add-button-hover-colour: #80c37a;
-  --change-button-hover-colour: #255f85;
+  --change-button-hover-colour: #FFA630;
   --generic-grey: #dedede;
 }
 
