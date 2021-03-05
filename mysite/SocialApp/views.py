@@ -69,7 +69,13 @@ def newMessage(request):
 
 
 class AuthorEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/ endpoint
+    """
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests
+        """
         author_id = kwargs.get('author_id', -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -88,6 +94,10 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=500)
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -108,8 +118,14 @@ class AuthorEndpoint(APIView):
 
 
 class PostEndpoint(APIView):
-    # TODO: Make this authenticated if private/friends
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
+    """
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve a JSON representation of the post specified in the URL
+        """
+        # TODO: Make this authenticated if not PUBLIC
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -141,8 +157,11 @@ class PostEndpoint(APIView):
         else:
             return HttpResponse(status=500)
 
-    # TODO: Make this authenticated
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to update the post specified in the URL
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -180,8 +199,11 @@ class PostEndpoint(APIView):
 
         return HttpResponse(status=200)
 
-    # TODO: Make this authenticated
     def delete(self, request, *args, **kwargs):
+        """
+        Handles DELETE requests to delete the post specified in the URL
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -214,6 +236,12 @@ class PostEndpoint(APIView):
     # TODO: manage post creation based on content type
     # TODO: Should put prevent overwriting an existing post???
     def put(self, request, *args, **kwargs):
+        """
+        Handles PUT requests to create a new post with the ID and author specified by the URL
+        """
+        # TODO: Make this authenticated
+        # TODO: Manage how the post is created based on the content type
+        # TODO: Should this protect us from overwriting an existing post?
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -246,8 +274,15 @@ class PostEndpoint(APIView):
 
 
 class AuthorPostsEndpoint(APIView):
-    # TODO: Handle image posts, limit results, sort by date
+    """
+    The author/{AUTHOR_ID}/posts/ endpoint
+    """
+    # TODO: Handle image posts
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to return the author's last N posts
+        """
+        # TODO: Paginate results and sort by date
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -269,6 +304,11 @@ class AuthorPostsEndpoint(APIView):
 
     # TODO: manage post creation based on content type
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to create a new post for the author specified by the URL
+        """
+        # TODO: Make this authenticated
+        # TODO: Manage how the post is created based on the content type
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -292,7 +332,14 @@ class AuthorPostsEndpoint(APIView):
 
 
 class PostCommentsEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/comments/ endpoint
+    """
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to return the last N comments on a specific post
+        """
+        # TODO: Paginate results and sort by date
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -327,6 +374,10 @@ class PostCommentsEndpoint(APIView):
         return JsonResponse({"comments":comment_json_list})
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to add a new comment to a post
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
