@@ -4,8 +4,7 @@
 {% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 
 {% block branding %}
-<!--<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>-->
-<h1 id="site-name"><a href="{% url 'admin:index' %}"><img src="{% static '/bot/images/eva_logo.png' %}" height="40px"/>&nbsp&nbspeva<span style='color: #FFFFFF;'> admin</span></a></h1>
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
 {% endblock %}
 
 {% block extrastyle %}
