@@ -243,10 +243,6 @@ class TestCases(TestCase):
         """
         Test the PUT author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
         """
-        # Pretty sure the endpoint needs to be fixed up
-        # But we're going to bypass this for now because it's frustrating
-        return
-
         # Test a good request
         client = Client()
         new_post_id = uuid.uuid4()
