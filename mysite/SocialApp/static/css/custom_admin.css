@@ -32,7 +32,7 @@ a:focus, a:hover {
 }
 
 div.breadcrumbs {
-  background: var(--main-bg-colour-dark);
+  background: var(--main-bg-colour);
 }
 
 /* Currently selected option (text) in left-side nav */
@@ -43,7 +43,7 @@ div.breadcrumbs {
 
 /* Currently selected option (application category) in left-side nav */
 #nav-sidebar .current-model {
-  background: var(--main-bg-colour);
+  background: var(--generic-grey);
 }
 
 #branding h1, #branding h1 a:link, #branding h1 a:visited {
@@ -84,7 +84,7 @@ div.breadcrumbs {
 }
 
 .object-tools a:link, .object-tools a:visited {
-    background: var(--main-bg-colour-dark);
+    background-color: var(--main-bg-colour-dark);
     color: #fff;
 }
 
