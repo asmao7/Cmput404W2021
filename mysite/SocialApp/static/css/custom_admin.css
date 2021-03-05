@@ -1,0 +1,93 @@
+/* Custom styling for admin panel at typical desktop resolutions */
+
+/* Define some CSS3 variables to make this all easier to manage */
+:root {
+  --main-bg-colour: #c5283d;
+  --main-bg-colour-dark: #481d24;
+  --main-bg-colour-light: #e9724c;
+  --main-pop-text-colour: #ffc857;
+  --main-pop-text-colour-dark: #e9724c;
+  --main-pop-text-colour-light: #ffc857;
+  --add-button-hover-colour: #80C37A;
+  --change-button-hover-colour: #255f85;
+  --generic-grey: #C0C0C0;
+}
+
+#header {
+   background: var(--main-bg-colour);
+   color: var(--main-pop-text-colour);
+}
+
+a:link, a:visited {
+  color: var(--main-pop-text-colour);
+}
+
+a:focus, a:hover {
+  color: var(--main-pop-text-colour-dark);
+}
+
+#user-tools a:focus, #user-tools a:hover {
+  border-bottom-color: var(--main-pop-text-colour-dark);
+  color: var(--main-pop-text-colour);
+}
+
+div.breadcrumbs {
+  background: var(--main-bg-colour-dark);
+}
+
+/* Currently selected option (text) in left-side nav */
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+  color: var(--main-pop-text-colour-dark);
+}
+
+/* Currently selected option (application category) in left-side nav */
+#nav-sidebar .current-model {
+  background: var(--main-bg-colour-light);
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+  color: var(--main-pop-text-colour);
+}
+
+.module h2, .module caption, .inline-group h2 {
+   background: var(--main-bg-colour);
+   color: #fff;
+}
+
+.addlink:focus, .addlink:hover {
+  color: var(--add-button-hover-colour);
+}
+
+.changelink:focus, .changelink:hover {
+  color: var(--change-button-hover-colour);
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: var(--main-bg-colour-light);
+}
+
+.button:active, input[type=submit]:active, input[type=button]:active,
+.button:focus, input[type=submit]:focus, input[type=button]:focus,
+.button:hover, input[type=submit]:hover, input[type=button]:hover {
+    background: var(--main-bg-colour);
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+    background: var(--main-bg-colour-dark);
+}
+
+.button.default:active, input[type=submit].default:active,
+.button.default:focus, input[type=submit].default:focus,
+.button.default:hover, input[type=submit].default:hover {
+    background: var(--main-bg-colour);
+}
+
+.object-tools a:link, .object-tools a:visited {
+    background: var(--main-bg-colour-dark);
+    color: #fff;
+}
+
+.object-tools a:focus, .object-tools a:hover {
+    background-color: var(--main-bg-colour);
+}
