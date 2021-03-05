@@ -15,7 +15,7 @@
         <div class="topnav">
             <a class="active" href="{% url 'home' %}">Home</a>
 			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="author/{{ author_id }}/followers">Followers</a> 
+			<a href="{% url 'followers' %}">Followers</a> 
             <a href="#friends.html">Friends</a>
 			<a href="{% url 'newMessage' %}">New Message</a>
             <a href="{% url 'newPost' %}">New Post</a>

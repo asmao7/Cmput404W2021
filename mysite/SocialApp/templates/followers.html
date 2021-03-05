@@ -16,15 +16,15 @@
 		<div class="topnav">
 			<a class="active" href="{% url 'home' %}">Home</a>
 			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="author/{{ author_id }}/followers">Followers</a> 
+			<a href="{% url 'followers' %}">Followers</a> 
             <a href="#friends.html">Friends</a>
 			<a href="{% url 'newMessage' %}">New Message</a>
             <a href="{% url 'newPost' %}">New Post</a>
 		</div>
 
         <div class="search-bar">
-                <input type="text" placeholder="Find Followers By ID" name="search">
-                <form action="author/{author_id }/followers/{ foreign_author_id }">
+                <input type="text" placeholder="Find Followers By ID" name="foreign_author_id" value = "foreign_author_id">
+                <form action="{%editFollowers%}}"> <!-- Find way to get that id -->
                 <button class="button" type="submit">Search</button>
                 </form>
         </div>
@@ -33,14 +33,21 @@
         <div class="authorcard_list">
             <p class="message"> You dont have any followers yet, Use the Search Button to add Followers</p>
         {% else %}                  
-            {% for author in followers %}
+            {% for follower in followers %}
             <li>
-            <a href="{author/{author_id }/followers/{ foreign_author_id  author.id}">
             <div class="authorcard_list">
                     <div class="user-info">
                             <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
-                            <p class="message">{{ author.display_name }}</p>
-                        </div>
+                            <p class="message">{{ follower}}</p>
+                            </div>
+                     <div class="button-container">
+                        <form action=""> <!--{% url 'editFollowers' author_id folllower.id%}-->
+                            {% csrf_token %}
+                            <input type="hidden" name="_method" value="delete">
+                            <button type="submit" formmethod="post" class="button button2" value="Delete">Remove Follower</button>
+                         </form>
+                    </div>
+                </div>
             </li>
             {% endfor%}
         {% endif %}
