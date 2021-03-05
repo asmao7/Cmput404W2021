@@ -366,7 +366,7 @@ class PostCommentsEndpoint(APIView):
             return HttpResponse(status=404)
 
         comment_json_list = []
-        comments = Comment.objects.filter(author=author, post=post)
+        comments = Comment.objects.filter(post=post)
         for comment in comments:
             json = CommentToJSON(comment)
             if json:
