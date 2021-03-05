@@ -22,7 +22,7 @@
 		</div>
 
     <br>
-    <div class="post">
+    <div class="posti">
         <h1>{{ post.title }}</h1>
             <small>By: {{ post.author }}</small><br>
             <br>
@@ -30,19 +30,20 @@
         
          <!--COMMENTS-->
          <br><br/>
-        <h2 class="comment">COMMENTS <br><a href="{% url 'add_comment'%}">Add COmments</a></h2>
+        <h2 class="comment">COMMENTS <br></h2>
         
-        {% if not post.comments.all%}
+        {% if not post.comment_set.all%}
             <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
         {% else %}
-            <a href="#">Add COmments</a>
-            {% for comment in post.comments.all%}
+            {% for comment in post.comment_set.all%}
                 <strong>
-                {{comment.content}} - {{comment.name}} - 
-                {{comment.name}}
+                <ul>
+                    {{comment.comment}}   
+                </ul>
                 </strong>
             {% endfor %}
         {% endif %}
+        <a href="{% url 'add_comment'%}">Add Comments</a>
     </div>
     </body>
 </html>
