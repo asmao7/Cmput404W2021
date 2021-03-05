@@ -1,5 +1,3 @@
-import datetime
-
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -230,7 +228,7 @@ class PostEndpoint(APIView):
 
         try:
             jsonData = request.data
-            post = Post(id=uuid.UUID(post_id), title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
+            post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
                         description=jsonData.get("description"), content_type=jsonData.get("contentType"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
@@ -276,9 +274,9 @@ class PostCreationEndpoint(APIView):
 
         try:
             jsonData = request.data
-            post = Post(title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
-                        origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
-                        author=author, published=datetime(jsonData.get("published")), visibility=Post.Visibility.PUBLIC, unlisted=bool(jsonData.get("unlisted")))
+            post = Post(title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
+                        description=jsonData.get("description"), content_type=jsonData.get("contentType"),
+                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
         except:
