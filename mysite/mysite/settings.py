@@ -39,6 +39,8 @@ DEBUG = ast.literal_eval(os.getenv('DEV_DEBUG', 'False'))
 
 # Host information - needs to be configured on a per-server basis
 HOST_NAME = 'socialdistributionproject.herokuapp.com'
+# Whether or not new accounts are automatically approved or need manual approval
+NEW_ACCOUNTS_AUTO_APPROVED = True
 
 ALLOWED_HOSTS = [
     '0.0.0.0',
