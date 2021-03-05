@@ -1,12 +1,6 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
-{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
-
-{% block branding %}
-<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
-{% endblock %}
-
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static '/css/custom_admin.css' %}"/>
@@ -16,5 +10,3 @@
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href= "{% static '/css/custom_responsive_admin.css' %}"/>
 {% endblock %}
-
-{% block nav-global %}{% endblock %}
