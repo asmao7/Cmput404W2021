@@ -49,6 +49,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'SocialApp.apps.SocialappConfig',
     #'users.apps.UsersConfig',
     'django.contrib.admin',
@@ -142,10 +143,8 @@ USE_TZ = True
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, '/')
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
-)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = []
 
 #LOGIN_REDIRECT_URL = 'home'
 LOGIN_REDIRECT_URL = 'author'
@@ -158,5 +157,5 @@ if not os.path.isfile(dotenv_file):
 
 # Workaround by Bennett Garner to support SQLite locally
 # https://blog.usejournal.com/deploying-django-to-heroku-connecting-heroku-postgres-fcc960d290d1
-#options = DATABASES['default'].get('OPTIONS', {})
-#options.pop('sslmode', None)
+options = DATABASES['default'].get('OPTIONS', {})
+options.pop('sslmode', None)
