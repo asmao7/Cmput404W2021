@@ -13,7 +13,7 @@
 
         <!--Navigation menu-->
 		<div class="topnav">
-			<a class="active" href="author.html">Home</a>
+		  <a class="active" href="author.html">Home</a>
 			<a href="editProfile.html">Edit Profile</a>
 			<a href="#signup.html">Friends/FOllowers</a>
 			<a href="newMessage.html">New Message</a>
@@ -26,14 +26,23 @@
         <div class="post">
             <h1>ALL POSTS</h1> <br/>
             {% for post in object_list %}
+            		
                 <ul>
                     <li class=posti><br><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
                     {{ post.author}} - <a href="{% url 'update_post' post.pk%}">Edit</a>
-                    -  <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
-                    {{ post.text_content }}></li>
+                    - <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
+                    {{ post.text_content }} <br/>
+                    <!--LIKES pass in url that sends a post id argument and updates the database-->
+                    Likes: {{ post.likes.all|length }} <br/><br/>
+                    <form action="{% url 'like' post.pk %}" method="POST">
+                    	{% csrf_token %}
+                    	{{ form.as_p }}
+                    	<input type="submit" value="Like">
+                    </form>
+                    </li>
                     <br/>
                     <br/>
-                {% endfor%}
+                {% endfor %}
                 </ul>
         </div>
     </body>
