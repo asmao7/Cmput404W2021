@@ -163,9 +163,6 @@ class TestCases(TestCase):
         """
         Test the POST author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
         """
-        # TODO: Figure out what causes the JSON mis-match (date formatting is different, for one)
-        return
-
         # Test a good request
         client = Client()
         url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":cls.post_id})
