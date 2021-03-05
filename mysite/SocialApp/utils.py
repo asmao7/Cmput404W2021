@@ -52,7 +52,7 @@ def PostToJSON(post):
             "count":0,
             "size":0,
             "comments":"",
-            "published":post.published,
+            "published":str(post.published),
             "visibility":post.visibility,
             "unlisted":post.unlisted
         }
