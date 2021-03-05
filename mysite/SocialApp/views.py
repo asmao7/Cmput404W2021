@@ -4,7 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 
-from .models import Author, Post, Comment
+from .models import Author, Post, Comment, Inbox, InboxItem
 from .admin import AuthorCreationForm
 
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON
@@ -51,6 +51,9 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
+class InboxView(ListView):
+    model = Inbox
+    template_name = 'inbox.html'
 
 def home(request):
     return render(request, 'home.html', {})
@@ -422,13 +425,19 @@ class InboxEndpoint(APIView):
     def get(self, request, *args, **kwargs):
         """
         If authenticated get a list of posts send to {AUTHOR_ID}
+        TODO - this needs authentication
         """
-        pass
+        author_id = kwargs.get("author_id", -1)
+        # Get inbox items and format into JSON to return
+        inbox_items = InboxItem.objects.get(author=author_id)
+        
+        return HttpResponse(inbox_items)
     def post(self, request, *args, **kwargs):
         """
         Send something to the author: either a post, follow, or like.
         """
-        pass
+        
+        
     def delete(self, request, *args, **kwargs):
         """
         Clear the inbox.
