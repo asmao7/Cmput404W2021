@@ -14,13 +14,12 @@
 
         <!--Navigation menu-->
 		<div class="topnav">
-			<a class="active" href="index.html">Home</a>
-			<a href="editProfile.html">Edit Profile</a>
+			<a class="active" href="{% url 'home' %}">Home</a>
+			<a href="{% url 'editProfile' %}">Edit Profile</a>
 			<a href="author/{{ author_id }}/followers">Followers</a> 
             <a href="#friends.html">Friends</a>
-            <!--<a href="find_friends.html">Find Friends</a>-->
-			<a href="newMessage.html">New Message</a>
-            <a href="newPost.html">New Post</a>
+			<a href="{% url 'newMessage' %}">New Message</a>
+            <a href="{% url 'newPost' %}">New Post</a>
 		</div>
 
         <div class="search-bar">
@@ -36,7 +35,7 @@
         {% else %}                  
             {% for author in followers %}
             <li>
-            <a href="author/{author_id }/followers/{ foreign_author_id  author.id}">
+            <a href="{author/{author_id }/followers/{ foreign_author_id  author.id}">
             <div class="authorcard_list">
                     <div class="user-info">
                             <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
