@@ -237,7 +237,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=500)
 
 
-class PostCreationEndpoint(APIView):
+class AuthorPostsEndpoint(APIView):
     # TODO: Handle image posts, limit results, sort by date
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
@@ -283,7 +283,7 @@ class PostCreationEndpoint(APIView):
             return HttpResponse(status=500)
 
 
-class CommentEndpoint(APIView):
+class PostCommentsEndpoint(APIView):
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
