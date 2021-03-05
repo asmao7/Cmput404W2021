@@ -266,7 +266,7 @@ class TestCases(TestCase):
             "visibility":new_visibility,
             "unlisted":new_unlisted
         }
-        response = client.put(url, json)
+        response = client.put(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         # Try GET on updated object and see if they match
         response = client.get(url)
