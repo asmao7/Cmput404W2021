@@ -1,4 +1,4 @@
-import datetime
+import uuid
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -69,17 +69,23 @@ def newMessage(request):
 
 
 class AuthorEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/ endpoint
+    """
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests
+        """
         author_id = kwargs.get('author_id', -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         json = AuthorToJSON(author)
         if json:
@@ -88,21 +94,23 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=500)
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         jsonData = request.data
-        author.host = jsonData.get("host")
         author.displayName = jsonData.get("displayName")
-        author.url = jsonData.get("url")
         author.github = jsonData.get("github")
         author.save()
 
@@ -110,29 +118,37 @@ class AuthorEndpoint(APIView):
 
 
 class PostEndpoint(APIView):
-    # TODO: Make this authenticated if private/friends
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
+    """
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve a JSON representation of the post specified in the URL
+        """
+        # TODO: Make this authenticated if not PUBLIC
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
-        post = None
         try:
             post = Post.objects.get(pk=post_id)
-        except:
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
             return HttpResponse(status=400)
-        if not post:
+
+        if post.author != author:
             return HttpResponse(status=404)
 
         json = PostToJSON(post)
@@ -141,71 +157,76 @@ class PostEndpoint(APIView):
         else:
             return HttpResponse(status=500)
 
-    # TODO: Make this authenticated
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to update the post specified in the URL
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
-        post = None
         try:
-            post = Post.objects.get(pk=post_id)
-        except:
-            return HttpResponse(status=400)  
-        if not post:
+            post = Post.objects.get(pk=post_id, author=author)
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
             return HttpResponse(status=404)
 
         # TODO: Handle categories
         jsonData = request.data
         post.title = jsonData.get("title")
-        post.id = jsonData.get("id")
-        post.source = jsonData.get("source")
-        post.origin = jsonData.get("origin")
         post.description = jsonData.get("description")
         post.content_type = jsonData.get("contentType")
-        post.content = jsonData.get("content")
-        post.categories = None
-        post.published = datetime(jsonData.get("published"))
+        post.text_content = jsonData.get("content")
         post.visibility = jsonData.get("visibility")
         post.unlisted = bool(jsonData.get("unlisted"))
         post.save()
 
         return HttpResponse(status=200)
 
-    # TODO: Make this authenticated
     def delete(self, request, *args, **kwargs):
+        """
+        Handles DELETE requests to delete the post specified in the URL
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
-        post = None
         try:
             post = Post.objects.get(pk=post_id)
-        except:
-            return HttpResponse(status=400)  
-        if not post:
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
             return HttpResponse(status=404)
 
         post.delete()
@@ -213,46 +234,65 @@ class PostEndpoint(APIView):
         return HttpResponse(status=200)
 
     # TODO: manage post creation based on content type
+    # TODO: Should put prevent overwriting an existing post???
     def put(self, request, *args, **kwargs):
+        """
+        Handles PUT requests to create a new post with the ID and author specified by the URL
+        """
+        # TODO: Make this authenticated
+        # TODO: Manage how the post is created based on the content type
+        # TODO: Should this protect us from overwriting an existing post?
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
+
+        try:
+            test = uuid.UUID(post_id)
+        except:
+            return HttpResponse(status=400)
 
         try:
             jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
-                                 origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
-                                 author=author, published=datetime(jsonData.get("published")), visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
+            post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
+                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), text_content=jsonData.get("content"),
+                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
 
 
-class PostCreationEndpoint(APIView):
-    # TODO: Handle image posts, limit results, sort by date
+class AuthorPostsEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/ endpoint
+    """
+    # TODO: Handle image posts
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to return the author's last N posts
+        """
+        # TODO: Paginate results and sort by date
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         post_json_list = []
         posts = Post.objects.filter(author=author)
@@ -264,55 +304,69 @@ class PostCreationEndpoint(APIView):
 
     # TODO: manage post creation based on content type
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to create a new post for the author specified by the URL
+        """
+        # TODO: Make this authenticated
+        # TODO: Manage how the post is created based on the content type
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         try:
             jsonData = request.data
-            post = Post(title=jsonData.get("title"), url=jsonData.get("id"), source=jsonData.get("source"),
-                        origin=jsonData.get("origin"), description=jsonData.get("description"), content_type=jsonData.get("contentType"),
-                        author=author, published=datetime(jsonData.get("published")), visibility=Post.Visibility.PUBLIC, unlisted=bool(jsonData.get("unlisted")))
+            post = Post(title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
+                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), text_content=jsonData.get("content"),
+                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
 
 
-class CommentEndpoint(APIView):
+class PostCommentsEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/comments/ endpoint
+    """
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to return the last N comments on a specific post
+        """
+        # TODO: Paginate results and sort by date
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
-        post = None
         try:
             post = Post.objects.get(pk=post_id)
-        except:
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
             return HttpResponse(status=400)
-        if not post:
+
+        if post.author != author:
             return HttpResponse(status=404)
 
         comment_json_list = []
-        comments = Comment.objects.filter(author=author, post=post)
+        comments = Comment.objects.filter(post=post)
         for comment in comments:
             json = CommentToJSON(comment)
             if json:
@@ -320,33 +374,39 @@ class CommentEndpoint(APIView):
         return JsonResponse({"comments":comment_json_list})
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to add a new comment to a post
+        """
+        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
         try:
             author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
+        except Author.DoesNotExist:
             return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
 
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
-            return HttpResponse(status=404)
+            return HttpResponse(status=400)
 
-        post = None
         try:
             post = Post.objects.get(pk=post_id)
-        except:
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
             return HttpResponse(status=400)
-        if not post:
+
+        if post.author != author:
             return HttpResponse(status=404)
 
         try:
             jsonData = request.data
-            comment = Comment(author=author, post=post, comment=jsonData.get("comment"), content_type=jsonData.get("contentType"),
-                              published=datetime(jsonData.get("published")), url=jsonData.get("id"))
+            comment = Comment(author=author, post=post, comment=jsonData.get("comment"),
+                              content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)
         except:

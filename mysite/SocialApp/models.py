@@ -26,6 +26,8 @@ class Author(AbstractUser):
     url = models.CharField(max_length=200, editable=False)
     # URL to the user's github. Editable by the user.
     github = models.CharField(max_length=200)
+    # Whether or not this account is allowed to log-in (default driven by settings.py)
+    is_active = models.BooleanField(default=settings.NEW_ACCOUNTS_AUTO_APPROVED)
 
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):

@@ -47,7 +47,7 @@ body{
 }
 
 
-.post{
+.posti{
   border: 4px solid maroon;
   color: wheat;
   font-size: 20px;
@@ -55,10 +55,12 @@ body{
   
 }
 
-.posti{
-  width: 800;
+.comment{
+  text-decoration: underline;
+  color: maroon;
 }
 
-.comment{
-    text-align: left;
-}
+/*.posti{
+  width: 800;
+}*/
+

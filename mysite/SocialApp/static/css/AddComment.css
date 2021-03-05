@@ -1,9 +1,7 @@
-
 *{
     margin: 0;
     padding: 0;
 }
-
 
 /*navigation menu*/
 /* Add a black background color to the top navigation */
@@ -46,7 +44,6 @@ body{
     background-color: black;
 }
 
-
 .comment{
     border: 8px solid maroon;
     color: wheat;
@@ -60,4 +57,3 @@ body{
     transform: translate(-50%, -50%);
     text-align: center;
 }
-  
