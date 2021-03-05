@@ -44,18 +44,14 @@
   padding: 60px 10px 60px;
   width:100%;
   float: right;
-  border: 2px solid maroon;
+  border: 5px solid maroon;
   height: 50%;
   text-align: center;
 
 }
 
-.info h2{
-  padding: 10px 0px 0px 30px;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 40px;
-  color:maroon;
-  line-height: 44px;
+.info h1{
+  text-decoration: underline;
 }
 
 .info p{
