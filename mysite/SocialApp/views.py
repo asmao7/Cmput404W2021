@@ -1,3 +1,5 @@
+import uuid
+
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -210,6 +212,7 @@ class PostEndpoint(APIView):
         return HttpResponse(status=200)
 
     # TODO: manage post creation based on content type
+    # TODO: Should put prevent overwriting an existing post???
     def put(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -224,6 +227,11 @@ class PostEndpoint(APIView):
 
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            test = uuid.UUID(post_id)
+        except:
             return HttpResponse(status=400)
 
         try:

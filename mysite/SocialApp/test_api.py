@@ -238,7 +238,6 @@ class TestCases(TestCase):
         response = client.delete(url)
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # TODO: Should put prevent overwriting an existing post???
     def test_post_put(cls):
         """
         Test the PUT author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
@@ -273,8 +272,8 @@ class TestCases(TestCase):
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         cls.assertEqual(response.json(), PostToJSON(Post.objects.get(pk=new_post_id)))
 
-        # Test a request on an object that doesn't exist (author has no posts)
-        url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":new_post_id})
+        # Test a request on an object that doesn't exist (author doesn't exist)
+        url = reverse("Post", kwargs={"author_id":new_post_id, "post_id":new_post_id})
         response = client.put(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
