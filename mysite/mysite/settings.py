@@ -151,8 +151,10 @@ STATICFILES_DIRS = (
 LOGIN_REDIRECT_URL = 'author'
 LOGOUT_REDIRECT_URL = '/'
 
-# Need to switch to PostgreSQL to fix this
-django_on_heroku.settings(locals())
+
+if not os.path.isfile(dotenv_file):
+    # This doesn't work with a SQLite DB
+    django_on_heroku.settings(locals())
 
 # Workaround by Bennett Garner to support SQLite locally
 # https://blog.usejournal.com/deploying-django-to-heroku-connecting-heroku-postgres-fcc960d290d1
