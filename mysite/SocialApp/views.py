@@ -1,22 +1,24 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import Followers, Author
-# from rest_framework.decorators import api_view
 from django.shortcuts import render
 from rest_framework.views import APIView
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView
 from rest_framework import status
+from .forms import SignUpForm, LoginForm
 
 
 def home(request):
     return render(request, 'home.html', {})
 
 def Login(request):
-    return render(request, 'Login.html', {})
+    form = LoginForm(request.POST)
+    return render(request, 'Login.html', {'form': form})
 
 def signup(request):
-    return render(request, 'signup.html', {})
+    form = SignUpForm(request.POST)
+    return render(request, 'signup.html', {'form': form})
 
 def author(request):
     return render(request, 'author.html', {})
@@ -158,7 +160,6 @@ class EditFollowersEndpoint(APIView):
         else:
             can_be_deleted = False
 
-        #TODO properly handle case when its someone who is not following you and you want to follow in ui - Dont show Delete button
         """ can only delete someone that was following you """
         if can_be_deleted:
             current_author.followed_by.remove(foreign_author_id)

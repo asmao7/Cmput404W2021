@@ -12,37 +12,33 @@
         <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
         
 
-        <!--Navigation menu-->
+        <!--Navigation menu for Sign Up-->
 		<div class="topnav">
 			<a class="active" href="index.html">Home</a>
-			<!--<a href="Login.html">Login</a>
-			<a href="signup">Sign up</a>
-			<a href="#logout">Logout</a> -->
 		</div>
-
-        <!--COMMENT
-        <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2> -->
 
         <form class="box" action="author.html" method="POST">
             <h1>Sign up</h1>
             {% csrf_token %}
-            <label class="required">Name </label>
-            <input type="text" name="" placeholder="Name"> <br>
-            <label class="required">Email </label>
-            <input type="text" name="" placeholder="email">
-            <label class="required">Username </label>
-            <input type="text" name="" placeholder="Username">
-            <label lass="required"> Github Url </label>
-            <input type="text" name="" placeholder="Github Url">
-            <label class="required">Password </label>
-            <input type="password" name="" placeholder="Password">
-            <label class="required">Re-enter Password</label>
-            <input type="password" name="" placeholder="Confirm password">
+            <label class="required" for="{{ form.fistName.id_for_label }}">First Name </label>
+                {{ form.fistName }}<br>
+            <label class="required" for="{{ form.lastName.id_for_label }}">First Name </label>
+                {{ form.lastName }}<br>
+            <label class="required" for="{{ form.displayName.id_for_label }}">Username </label>
+                {{ form.displayName }}
+            <label class="required" for="{{ form.Email.id_for_label }}">Email </label>
+                {{ form.Email }} 
+            <label class="required" for="{{ form.GithubUrl.id_for_label }}"> Github Url </label>
+                {{ form.GithubUrl }}
+            <label class="required" for="{{ form.Password.id_for_label }}">Password </label>
+                {{ form.Password }}
+            <label class="required" for="{{ form.Confirm_Password.id_for_label }}">Re-enter Password</label>
+                {{ form.Confirm_Password }}
             <!-- {# <a href="author.html">sign up</a> #} -->
             <div class="actionbuttons">
-            <button onclick="location.href='author.html'" class="button">Sign up</button>
+            <a class="button" href="{% url 'author' %}">Sign Up</a>
             <!--<button onclick="location.href='index.html'" class="button">Cancel</button>-->
-            <p class="signin"> Already have an account? <a href="Login.html">Log In</a></p>
+            <p class="signin"> Already have an account? <a href="{% url 'Login' %}">Log In</a></p>
             </div>
         </form>
 

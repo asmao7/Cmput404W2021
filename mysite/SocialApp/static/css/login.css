@@ -29,13 +29,6 @@
     background-color: #ddd;
     color: black;
   }
-  
-  /* Add a color to the active/current link */
-  .topnav a.active {
-    background-color: rgb(150, 17, 61);
-    color: white;
-  }
-
 
 .comment{
   font-style: normal;

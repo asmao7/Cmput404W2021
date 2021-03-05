@@ -9,30 +9,28 @@
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
+        <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
         
 
-        <!--Navigation menu-->
+        <!--Navigation menu for Log in -->
 		<div class="topnav">
 			<a class="active" href="index.html">Home</a>
-			<!--<a href="Login.html">Login</a>
-			<a href="signup.html">Sign up</a>
-			<a href="#logout">Logout</a>-->
 		</div>
-
-        <!--COMMENT-->
-        <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2>
 
         <form class="box" action="author.html" method="post">
             <h1>Login</h1>
             {% csrf_token %}
-            <label class="required">Username </label>
-            <input type="text" name="" placeholder="Username">
-            <label class="required">Password </label>
-            <input type="password" name="" placeholder="Password">
+            {{ form.non_field_errors }}
+            <div class="fieldWrapper">
+            <label class="required" for="{{ form.UserName.id_for_label }}">Username </label>
+                {{ form.UserName }}
+            </div>
+            <div class="fieldWrapper">
+            <label class="required" for="{{ form.Password.id_for_label }}">Password </label>
+                {{ form.Password }}
+            </div>
             <div>
-            <button onclick="location.href='author.html'" class="button">Log In</button>
-            <!--<button onclick="location.href='index.html'" class="button">Cancel</button>-->
+            <a class="button" href="{% url 'author' %}">Log In</a>
             </div>
         </form>
 
