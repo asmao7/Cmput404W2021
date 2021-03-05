@@ -1,21 +1,25 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from .forms import SignUpForm, LoginForm, EditProfileForm
 
 def home(request):
     return render(request, 'home.html', {})
 
 def Login(request):
-    return render(request, 'Login.html', {})
+    form = LoginForm(request.POST)
+    return render(request, 'Login.html', {'form': form})
 
 def signup(request):
-    return render(request, 'signup.html', {})
+    form = SignUpForm(request.POST)
+    return render(request, 'signup.html', {'form': form})
 
 def author(request):
     return render(request, 'author.html', {})
 
 
 def editProfile(request):
-    return render(request, 'editProfile.html', {})
+    form = EditProfileForm(request.POST)
+    return render(request, 'editProfile.html', {'form': form})
 
 def newPost(request):
     return render(request, 'newPost.html', {})

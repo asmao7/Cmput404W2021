@@ -10,5 +10,6 @@ urlpatterns = [
   path('author.html', views.author, name='author') ,
   path('editProfile.html', views.editProfile, name='editProfile'),
   path('newPost.html', views.newPost, name='newPost'),
-  path('newMessage.html', views.newMessage, name='newMessage')     
+  path('newMessage.html', views.newMessage, name='newMessage'),  
+     
 ]

@@ -9,7 +9,7 @@
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
+        <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
         
 
         <!--Navigation menu-->
@@ -20,17 +20,20 @@
 			<a href="#logout">Logout</a>
 		</div>
 
-        <!--COMMENT-->
-        <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2>
-
         <form class="box" action="index.html" method="post">
             <h1>Edit Profile</h1>
-             <input type="text" name="" placeholder="Name">
-              <input type="text" name="" placeholder="email">
-            <input type="text" name="" placeholder="Username">
-            <input type="password" name="" placeholder="Password">
-            <input type="password" name="" placeholder="Confirm password">
-            <a href="author.html">save changes</a>
+            {% csrf_token %}
+            <label class="required" for="{{ form.fistName.id_for_label }}">First Name </label>
+                {{ form.fistName }}<br>
+            <label class="required" for="{{ form.lastName.id_for_label }}">Last Name </label>
+                {{ form.lastName }}<br>
+            <label class="required" for="{{ form.displayName.id_for_label }}">Username </label>
+                {{ form.displayName }}
+            <label class="required" for="{{ form.Password.id_for_label }}">Password </label>
+                {{ form.Password }}
+            <label class="required" for="{{ form.Confirm_Password.id_for_label }}">Re-enter Password</label>
+                {{ form.Confirm_Password }}
+            <a class="button" href="{% url 'author' %}" >save changes</a>
         </form>
 
     </body>
