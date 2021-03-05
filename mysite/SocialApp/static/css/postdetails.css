@@ -58,3 +58,7 @@ body{
 .posti{
   width: 800;
 }
+
+.comment{
+    text-align: left;
+}
