@@ -103,6 +103,11 @@ class Post(models.Model):
         super(Post, self).save(*args, **kwargs)
 
 
+class LikedPost(models.Model):
+    post_id = models.ForeignKey(Post, related_name="likes", on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+
 class Comment(models.Model):
     """
     Models a comment on a post

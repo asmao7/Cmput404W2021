@@ -4,7 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 
-from .models import Author, Post, Comment
+from .models import Author, Post, Comment, LikedPost
 from .admin import AuthorCreationForm
 
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON
@@ -22,6 +22,8 @@ class UserRegisterView(generic.CreateView):
 class HomeView(ListView):
     model = Post
     template_name = 'author.html'
+    likeModel = LikedPost
+    #likes = LikedPost.objects.filter(likeModel.post_id = model.pk)
 
 class PostDetailView(DetailView):
     model = Post
