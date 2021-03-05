@@ -97,7 +97,7 @@
 }
 
 .authorcard_list{
-  color: balck;
+  color: black;
   background:white;
   width:30%;
   margin: auto;
@@ -120,7 +120,7 @@
   font-size: 16px;
   background-color:maroon;
   border-radius: 12px;
-  width: 150px;
+  width: 100px;
 }
 
 .button:hover {
@@ -157,4 +157,18 @@ form{
 
 a{
   color:black;
+}
+
+input{
+  width: 30%;
+  background-color:#D3D3D3;
+  padding:10px;
+  /* margin:auto; */
+  margin-left:200px;
+}
+
+.search-bar{
+  width:800px; 
+  margin:auto;
+  margin-top: 20px;
 }

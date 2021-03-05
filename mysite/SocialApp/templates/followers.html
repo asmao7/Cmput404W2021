@@ -21,14 +21,14 @@
             <!--<a href="find_friends.html">Find Friends</a>-->
 			<a href="newMessage.html">New Message</a>
             <a href="newPost.html">New Post</a>
-            <div class="search-bar">
+		</div>
+
+        <div class="search-bar">
                 <input type="text" placeholder="Find Followers By ID" name="search">
                 <form action="author/{author_id }/followers/{ foreign_author_id }">
                 <button class="button" type="submit">Search</button>
                 </form>
-            </div>
-		</div>
-
+        </div>
         <!--Followers-->
         {% if is_empty %}
         <div class="authorcard_list">

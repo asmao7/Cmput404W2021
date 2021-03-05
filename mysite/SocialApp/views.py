@@ -153,13 +153,27 @@ class EditFollowersEndpoint(APIView):
         current_author = Author.objects.get(pk=author_id)
         current_follower = current_author.followed_by.filter(id=foreign_author_id)
 
-        #TODO properly handle case when its someone who is not following you and you want to follow in ui - Dont show Delete button
         if current_follower.exists():
-            current_follower.delete() # can only delete someone that was following you 
-            return HttpResponse(status=200)
+            can_be_deleted = True
         else:
-            return HttpResponse(status=404)
-        # return JsonResponse({'You have successfully deleted'+ followerID + 'as a follower!'})
+            can_be_deleted = False
+
+        #TODO properly handle case when its someone who is not following you and you want to follow in ui - Dont show Delete button
+        """ can only delete someone that was following you """
+        if can_be_deleted:
+            current_author.followed_by.remove(foreign_author_id)
+            """ get follower again with new condition"""
+            is_current_follower = current_author.followed_by.filter(id=foreign_author_id)
+            if is_current_follower.exists():
+                is_follower = True
+            else:
+                is_follower = False
+
+            # return HttpResponse(status=200)
+            return render(request, 'find_friends.html', {"author":current_author, 'is_follower': is_follower})
+        else:
+            # return HttpResponse(status=404)
+            return render(request, 'find_friends.html', {"author":current_author, 'can_be_deleted': can_be_deleted})
             
 
 class GetFollowersEndpoint(APIView):
@@ -190,4 +204,5 @@ class GetFollowersEndpoint(APIView):
         else:
             is_empty = False
 
+        # return HttpResponse(status=200)
         return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty}, status=status.HTTP_200_OK)

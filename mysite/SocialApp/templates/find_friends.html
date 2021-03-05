@@ -20,13 +20,14 @@
             <!--<a href="find_friends.html">Find Friends</a>-->
             <a href="newMessage.html">New Message</a>
             <a href="newPost.html">New Post</a>
-             <div class="search-bar">
+        </div>
+
+        <div class="search-bar">
                 <form action="author/ {{ author_id }}/followers/ {{ foreign_author_id }}">
                 <input type="text" placeholder="Find Followers By ID" name="search">
-                <button type="submit"><i class="fa fa-search"></i></button>
+                <button class="button" type="submit">Search</button>
                 </form>
             </div>
-        </div>
 
         <h1 class="authors-title">Authors</h1>
                <!-- <li class="no-author">No authors with that ID.</li> -->
@@ -37,11 +38,11 @@
                 {% else %}
                     <div class="user-info">
                         <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
-                        <p class="message">{{ author }}</p>
+                        <p class="message">{{ author.display_name }}</p>
                     </div>
                     <div class="button-container"> 
                         {% if is_follower %}
-                            <p class="is_follower">{{ author }} is already following you</p>
+                            <p class="is_follower">{{ author.display_name }} is already following you</p>
                         {% else %}
                             {% csrf_token %}
                         <form action="" method="post">
@@ -50,11 +51,14 @@
                             <button type="submit" formmethod="post"  class="button button1" value="put">Add Follower</button>
                         </form>
                         {% endif %}
-                        <form action="">
-                        {% csrf_token %}
-                        <input type="hidden" name="_method" value="delete">
-                        <button type="submit" formmethod="post" class="button button2" value="Delete">Remove Follower</button>
-                        </form>
+                        {% if is_follower %}
+                            <form action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="_method" value="delete">
+                            <button type="submit" formmethod="post" class="button button2" value="Delete">Remove Follower</button>
+                            </form>
+                        {% else %}
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
