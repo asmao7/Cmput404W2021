@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
-import django_heroku
+import django_on_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,9 +28,14 @@ SECRET_KEY = '810b^kjjo!b695&$!er^)^$&!o)3s9@y@4f7bs+%a5n^t4_3@y'
 DEBUG = True
 
 # Host information - needs to be configured on a per-server basis
-HOST_NAME = 'localhost'
+HOST_NAME = 'socialdistributionproject.herokuapp.com'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '0.0.0.0',
+    'localhost',
+    '127.0.0.1',
+    'socialdistributionproject.herokuapp.com',
+    ]
 
 
 # Application definition
@@ -117,7 +122,7 @@ AUTH_USER_MODEL = "SocialApp.Author"
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Edmonton'
 
 USE_I18N = True
 
@@ -140,4 +145,5 @@ STATICFILES_DIRS = (
 LOGIN_REDIRECT_URL = 'author'
 LOGOUT_REDIRECT_URL = '/'
 
-django_heroku.settings(locals())
+# Need to switch to PostgreSQL to fix this
+# django_on_heroku.settings(locals())
