@@ -158,5 +158,5 @@ if not os.path.isfile(dotenv_file):
 
 # Workaround by Bennett Garner to support SQLite locally
 # https://blog.usejournal.com/deploying-django-to-heroku-connecting-heroku-postgres-fcc960d290d1
-options = DATABASES['default'].get('OPTIONS', {})
-options.pop('sslmode', None)
+#options = DATABASES['default'].get('OPTIONS', {})
+#options.pop('sslmode', None)
