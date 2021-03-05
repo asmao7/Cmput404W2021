@@ -1,9 +1,7 @@
-
 *{
     margin: 0;
     padding: 0;
 }
-
 
 /*navigation menu*/
 /* Add a black background color to the top navigation */
@@ -34,18 +32,6 @@
     background-color: rgb(150, 17, 61);
     color: white;
   }
-
-  /*Intro part*/
-.wrapper{
-  width: 1000px;  
-  margin: 0 auto;
-  color:white;
-}
-
-body{
-    background-color: black;
-}
-
 
 .post{
     border: 8px solid maroon;

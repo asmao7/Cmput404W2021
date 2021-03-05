@@ -9,9 +9,8 @@
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";>
         
-
         <!--Navigation menu-->
 		<div class="topnav">
 			<a class="active" href="/">Home</a>
@@ -20,9 +19,6 @@
 			<a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-        <!--COMMENT-->
-        <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2>
-
     <div class="box">
         <div class="form-group">
             <h1>LoginHello</h1>
@@ -30,12 +26,7 @@
                 {% csrf_token %}
                 {{form.as_p}}
                 <button class="btn btn-secondary">Login</button>
-
         </div>
     </div>
-    
-   
-
-
     </body>
 </html>

@@ -1,13 +1,22 @@
-
+{% load static %}
 <!Doctype html>
 
 <html>
     <head>
         <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/signup.css' %}">
     </head>
 
     <body>
-        <h1>New Message page<h1>
-        <a href="author.html">back to main page</a>
+        <!--background wallpaper-->
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";>
+
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="author.html">Home</a>
+			<a href="#Login.html">Edit</a>
+			<a href="#signup">Sign up</a>
+            <a href="{% url 'logout' %}">Logout</a>
+		</div>
     </body>
 </html>   
