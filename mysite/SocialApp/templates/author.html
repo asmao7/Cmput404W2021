@@ -37,10 +37,10 @@
                     {{ post.text_content }} <br/>
                     <!--LIKES pass in url that sends a post id argument and updates the database-->
                     Likes: {{ post.likes.all|length }} <br/><br/>
-                    <form action="" method="POST">
+                    <form action="{% url 'like' post.pk %}" method="POST">
                     	{% csrf_token %}
                     	{{ form.as_p }}
-                    	<button class="btn btn-secondary">Like</button>
+                    	<input type="submit" value="Like">
                     </form>
                     </li>
                     <br/>
