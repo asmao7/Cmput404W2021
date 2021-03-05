@@ -14,16 +14,16 @@
 }
 
 #header {
-   background: var(--main-bg-colour);
+   background: var(--main-bg-colour-dark);
    color: var(--main-pop-text-colour);
 }
 
 a:link, a:visited {
-  color: var(--main-pop-text-colour);
+  color: var(--main-pop-text-colour-dark);
 }
 
 a:focus, a:hover {
-  color: var(--main-pop-text-colour-dark);
+  color: var(--main-pop-text-colour-light);
 }
 
 #user-tools a:focus, #user-tools a:hover {
@@ -38,12 +38,12 @@ div.breadcrumbs {
 /* Currently selected option (text) in left-side nav */
 #nav-sidebar .current-app .section:link,
 #nav-sidebar .current-app .section:visited {
-  color: var(--main-pop-text-colour-dark);
+  color: var(--main-pop-text-colour);
 }
 
 /* Currently selected option (application category) in left-side nav */
 #nav-sidebar .current-model {
-  background: var(--main-bg-colour-light);
+  background: var(--main-bg-colour);
 }
 
 #branding h1, #branding h1 a:link, #branding h1 a:visited {
@@ -51,7 +51,7 @@ div.breadcrumbs {
 }
 
 .module h2, .module caption, .inline-group h2 {
-   background: var(--main-bg-colour);
+   background: var(--main-bg-colour-dark);
    color: #fff;
 }
 
