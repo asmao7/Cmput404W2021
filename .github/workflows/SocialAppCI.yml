@@ -39,7 +39,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ./mysite/requirements.txt
       - name: DB Migrations
-        run: python3 ./mysite/manage.py migrate
+        run: |
+          echo 'DATABASE_URL=sqlite:///db.sqlite3' > mysite/.env
+          python3 ./mysite/manage.py migrate
     
       #Run Backend Tests
       - name: Run Django tests 

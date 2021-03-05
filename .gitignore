@@ -113,3 +113,4 @@ ENV/
 
 # Social App Specific
 post_images/
+staticfiles/
