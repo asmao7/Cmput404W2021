@@ -132,6 +132,9 @@ class PostEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        if post.author != author:
+            return HttpResponse(status=404)
+
         json = PostToJSON(post)
         if json:
             return JsonResponse(json)
@@ -156,11 +159,14 @@ class PostEndpoint(APIView):
             return HttpResponse(status=400)
 
         try:
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id, author=author)
         except Post.DoesNotExist:
             return HttpResponse(status=404)
         except Exception:
-            return HttpResponse(status=400)  
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
 
         # TODO: Handle categories
         jsonData = request.data
@@ -196,7 +202,10 @@ class PostEndpoint(APIView):
         except Post.DoesNotExist:
             return HttpResponse(status=404)
         except Exception:
-            return HttpResponse(status=400)  
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
 
         post.delete()
 
@@ -333,8 +342,8 @@ class CommentEndpoint(APIView):
 
         try:
             jsonData = request.data
-            comment = Comment(author=author, post=post, comment=jsonData.get("comment"), content_type=jsonData.get("contentType"),
-                              published=datetime(jsonData.get("published")), url=jsonData.get("id"))
+            comment = Comment(author=author, post=post, comment=jsonData.get("comment"),
+                              content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)
         except:
