@@ -133,3 +133,21 @@ class Comment(models.Model):
         if not self.url:
             self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
         super(Comment, self).save(*args, **kwargs)
+
+
+class Inbox(models.Model):
+    """ Models an Author's Inbox. """
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    # Overwrite the default save function so that we can generate our URL
+    def save(self, *args, **kwargs):
+        if not self.url:
+            self.url = "http://{}/author/{}/inbox/".format(settings.HOST_NAME, self.author.id)
+        super(Post, self).save(*args, **kwargs)
+
+
+class InboxItem(models.Model):
+    """ Links to an item in an Author's Inbox """
+    inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE)
+    link = models.TextField()
+
+

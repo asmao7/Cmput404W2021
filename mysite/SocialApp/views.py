@@ -343,3 +343,28 @@ class CommentEndpoint(APIView):
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
+
+
+class InboxEndpoint(APIView):
+    """
+    The inbox is all the new posts from who you follow.
+    ://service/author/{AUTHOR_ID}/inbox
+    github.com/abramhindle/CMPUT404-project-socialdistribution/blob/master/project.org#inbox
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        If authenticated get a list of posts send to {AUTHOR_ID}
+        """
+        pass
+    def post(self, request, *args, **kwargs):
+        """
+        Send something to the author: either a post, follow, or like.
+        """
+        pass
+    def delete(self, request, *args, **kwargs):
+        """
+        Clear the inbox.
+        """
+        pass
+
+
