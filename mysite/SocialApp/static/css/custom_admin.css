@@ -2,92 +2,113 @@
 
 /* Define some CSS3 variables to make this all easier to manage */
 :root {
-  --main-bg-colour: #611C35;
-  --main-bg-colour-dark: #D7E8BA;
-  --main-bg-colour-light: #4DA1A9;
-  --main-pop-text-colour: #4DA1A9;
-  --main-pop-text-colour-dark: #2E5077;
-  --main-pop-text-colour-light: #D7E8BA;
+  --primary-bg-colour: #2E5077;
+  --secondary-bg-colour: #611C35;
+  --tertiary-bg-colour: #D7E8BA;
+  --primary-pop-text-colour: #D7E8BA;
+  --secondary-pop-text-colour: #4DA1A9;
+  --tertiary-pop-text-colour: #2E5077;
   --add-button-hover-colour: #80c37a;
   --change-button-hover-colour: #FFA630;
   --generic-grey: #dedede;
 }
 
+/* The main admin site header */
 #header {
-   background: var(--main-bg-colour-dark);
-   color: var(--main-pop-text-colour);
+   background: var(--primary-bg-colour);
+   color: var(--primary-pop-text-colour);
 }
 
+/* Most site links.
+   Need to be careful, since backgrounds are inconsistently coloured */
 a:link, a:visited {
-  color: var(--main-pop-text-colour-dark);
+  color: var(--tertiary-pop-text-colour);
 }
 
+/* Most site links when selected.
+   Need to be careful, since backgrounds are inconsistently coloured */
 a:focus, a:hover {
-  color: var(--main-pop-text-colour-light);
+  color: var(--secondary-pop-text-colour);
 }
 
+/* Main user-related links, top-right. */
+#user-tools a:link, #user-tools a:visited {
+  border-bottom-color: var(--secondary-pop-text-colour);
+  color: var(--secondary-pop-text-colour);
+}
+
+/* Main user-related links, top-right when selected. */
 #user-tools a:focus, #user-tools a:hover {
-  border-bottom-color: var(--main-pop-text-colour-dark);
-  color: var(--main-pop-text-colour);
+  border-bottom-color: var(--secondary-pop-text-colour);
+  color: var(--secondary-bg-colour);
 }
 
+/* Horizontal site-nav bar */
 div.breadcrumbs {
-  background: var(--main-bg-colour);
+  background: var(--secondary-bg-colour);
 }
 
-/* Currently selected option (text) in left-side nav */
+/* Currently selected option (text) in left-side DB nav */
 #nav-sidebar .current-app .section:link,
 #nav-sidebar .current-app .section:visited {
-  color: var(--main-pop-text-colour);
+  color: var(--primary-pop-text-colour);
 }
 
-/* Currently selected option (application category) in left-side nav */
+/* Currently selected option (application category) in left-side DB nav */
 #nav-sidebar .current-model {
   background: var(--generic-grey);
 }
 
 #branding h1, #branding h1 a:link, #branding h1 a:visited {
-  color: var(--main-pop-text-colour);
+  color: var(--primary-pop-text-colour);
 }
 
 .module h2, .module caption, .inline-group h2 {
-   background: var(--main-bg-colour-dark);
+   background: var(--primary-bg-colour);
    color: #fff;
 }
 
+/* Shortcut link to add new object to a model from main page */
 .addlink:focus, .addlink:hover {
   color: var(--add-button-hover-colour);
 }
 
+/* Shortcut link to edit object in a model from main page */
 .changelink:focus, .changelink:hover {
   color: var(--change-button-hover-colour);
 }
 
+/* Important submission buttons */
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: var(--main-bg-colour-light);
+    background: var(--secondary-bg-colour);
 }
 
+/* Important submission buttons when selected */
 .button:active, input[type=submit]:active, input[type=button]:active,
 .button:focus, input[type=submit]:focus, input[type=button]:focus,
 .button:hover, input[type=submit]:hover, input[type=button]:hover {
-    background: var(--main-bg-colour);
+    background: var(--primary-bg-colour);
 }
 
+/* All regular buttons */
 .button.default, input[type=submit].default, .submit-row input.default {
-    background: var(--main-bg-colour-dark);
+    background: var(--primary-bg-colour);
 }
 
+/* All regular buttons when selected */
 .button.default:active, input[type=submit].default:active,
 .button.default:focus, input[type=submit].default:focus,
 .button.default:hover, input[type=submit].default:hover {
-    background: var(--main-bg-colour);
+    background: var(--secondary-bg-colour);
 }
 
+/* Buttons that help with object editing (like "Add X" button) */
 .object-tools a:link, .object-tools a:visited {
-    background-color: var(--main-bg-colour-dark);
+    background-color: var(--primary-bg-colour);
     color: #fff;
 }
 
+/* Buttons that help with object editing (like "Add X" button) when selected*/
 .object-tools a:focus, .object-tools a:hover {
-    background-color: var(--main-bg-colour);
+    background-color: var(--secondary-bg-colour);
 }
