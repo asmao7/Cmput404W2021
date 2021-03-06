@@ -110,5 +110,5 @@ div.breadcrumbs {
 
 /* Buttons that help with object editing (like "Add X" button) when selected*/
 .object-tools a:focus, .object-tools a:hover {
-    background-color: var(--tertiary-bg-colour);
+    background-color: var(--secondary-bg-colour);
 }
