@@ -2,8 +2,8 @@
 
 /* Define some CSS3 variables to make this all easier to manage */
 :root {
-  --primary-bg-colour: #2E5077;
-  --secondary-bg-colour: #611C35;
+  --primary-bg-colour: #611C35;
+  --secondary-bg-colour: #2E5077;
   --tertiary-bg-colour: #D7E8BA;
   --primary-pop-text-colour: #D7E8BA;
   --secondary-pop-text-colour: #4DA1A9;
@@ -40,7 +40,7 @@ a:focus, a:hover {
 /* Main user-related links, top-right when selected. */
 #user-tools a:focus, #user-tools a:hover {
   border-bottom-color: var(--secondary-pop-text-colour);
-  color: var(--secondary-bg-colour);
+  color: var(--primary-pop-text-colour);
 }
 
 /* Horizontal site-nav bar */
