@@ -20,6 +20,7 @@ urlpatterns = [
   path('newMessage.html', views.newMessage, name='newMessage'),
   path('author/<str:author_id>/', views.AuthorEndpoint.as_view(), name='Author'),
   path('author/<str:author_id>/posts/<str:post_id>/', views.PostEndpoint.as_view(), name='Post'),
+  path('author.html/<str:pk>/like/', views.like, name='like'),
   path('author/<str:author_id>/posts/', views.AuthorPostsEndpoint.as_view(), name='AuthorPosts'),
   path('author/<str:author_id>/posts/<str:post_id>/comments/', views.PostCommentsEndpoint.as_view(), name="PostComments"),
   path('author/<str:author_id>/inbox/', views.InboxEndpoint.as_view(), name="Inbox"),

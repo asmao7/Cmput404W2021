@@ -1,10 +1,12 @@
+import datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 import uuid
-
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 
-from .models import Author, Post, Comment, Inbox, InboxItem
+from .models import Author, Post, Comment, LikedPost, Inbox, InboxItem
 from .admin import AuthorCreationForm
 
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON
@@ -22,6 +24,7 @@ class UserRegisterView(generic.CreateView):
 class HomeView(ListView):
     model = Post
     template_name = 'author.html'
+    likeModel = LikedPost
 
 class PostDetailView(DetailView):
     model = Post
@@ -54,6 +57,19 @@ class DeletePostView(DeleteView):
 class InboxView(ListView):
     model = Inbox
     template_name = 'inbox.html'
+    
+
+def like(request, pk):
+	# add a line to database that has user id and post id
+	current_user = request.user
+	post = get_object_or_404(Post, id=pk)
+	
+	liked = len(LikedPost.objects.filter(post_id=post, user_id=current_user))	
+	if liked == 0:
+		liked_post = LikedPost(post_id=post, user_id=current_user)
+		liked_post.save()
+	
+	return HttpResponseRedirect(reverse('author'))
 
 def home(request):
     return render(request, 'home.html', {})
