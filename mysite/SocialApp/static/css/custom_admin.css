@@ -4,7 +4,7 @@
 :root {
   --primary-bg-colour: #611C35;
   --secondary-bg-colour: #2E5077;
-  --tertiary-bg-colour: #D7E8BA;
+  --tertiary-bg-colour: #4DA1A9;
   --primary-pop-text-colour: #D7E8BA;
   --secondary-pop-text-colour: #4DA1A9;
   --tertiary-pop-text-colour: #2E5077;
@@ -39,8 +39,8 @@ a:focus, a:hover {
 
 /* Main user-related links, top-right when selected. */
 #user-tools a:focus, #user-tools a:hover {
-  border-bottom-color: var(--secondary-pop-text-colour);
-  color: var(--primary-pop-text-colour);
+  border-bottom-color: var(--primary-pop-text-colour);
+  color: var(--secondary-pop-text-colour);
 }
 
 /* Horizontal site-nav bar */
@@ -87,7 +87,7 @@ div.breadcrumbs {
 .button:active, input[type=submit]:active, input[type=button]:active,
 .button:focus, input[type=submit]:focus, input[type=button]:focus,
 .button:hover, input[type=submit]:hover, input[type=button]:hover {
-    background: var(--primary-bg-colour);
+    background: var(--tertiary-bg-colour);
 }
 
 /* All regular buttons */
@@ -99,7 +99,7 @@ div.breadcrumbs {
 .button.default:active, input[type=submit].default:active,
 .button.default:focus, input[type=submit].default:focus,
 .button.default:hover, input[type=submit].default:hover {
-    background: var(--secondary-bg-colour);
+    background: var(--tertiary-bg-colour);
 }
 
 /* Buttons that help with object editing (like "Add X" button) */
@@ -110,5 +110,5 @@ div.breadcrumbs {
 
 /* Buttons that help with object editing (like "Add X" button) when selected*/
 .object-tools a:focus, .object-tools a:hover {
-    background-color: var(--secondary-bg-colour);
+    background-color: var(--tertiary-bg-colour);
 }
