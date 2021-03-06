@@ -33,13 +33,13 @@ a:focus, a:hover {
 
 /* Main user-related links, top-right. */
 #user-tools a:link, #user-tools a:visited {
-  border-bottom-color: var(--secondary-pop-text-colour);
-  color: var(--secondary-pop-text-colour);
+  border-bottom-style: none;
+  color: var(--primary-pop-text-colour);
 }
 
 /* Main user-related links, top-right when selected. */
 #user-tools a:focus, #user-tools a:hover {
-  border-bottom-color: var(--primary-pop-text-colour);
+  border-bottom-style: none;
   color: var(--secondary-pop-text-colour);
 }
 
