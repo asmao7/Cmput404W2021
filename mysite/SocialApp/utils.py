@@ -1,7 +1,7 @@
 """
 Contains useful helper functions
 """
-from .models import Author, Post, Comment
+from .models import Author, Post, Comment, InboxItem
 
 def AuthorToJSON(author):
     """
@@ -80,3 +80,19 @@ def CommentToJSON(comment):
         return json
     except:
         return None
+
+
+def InboxItemToJSON(item):
+    """
+    Converts an InboxItem object into a JSON-compatible dictionary.
+    Returns None on failure.
+    """
+    if not item:
+        return None
+    # try:
+    #     # Request the JSON from the API on each InboxItem's `link` attribute
+    #     # Return the response's JSON
+        
+    #     json = {
+    #         "type":
+    #     }

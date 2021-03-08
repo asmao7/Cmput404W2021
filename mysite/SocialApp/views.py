@@ -54,7 +54,7 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
-class InboxView(ListView):
+class InboxView(ListView): # This will need its own url ending
     model = Inbox
     template_name = 'inbox.html'
     
@@ -72,6 +72,7 @@ def like(request, pk):
 	return HttpResponseRedirect(reverse('author'))
 
 def home(request):
+    print(request.user.id)
     return render(request, 'home.html', {})
 
 def author(request):
@@ -434,26 +435,47 @@ class PostCommentsEndpoint(APIView):
 
 class InboxEndpoint(APIView):
     """
-    The inbox is all the new posts from who you follow.
     ://service/author/{AUTHOR_ID}/inbox
-    github.com/abramhindle/CMPUT404-project-socialdistribution/blob/master/project.org#inbox
     """
     def get(self, request, *args, **kwargs):
         """
-        If authenticated get a list of posts send to {AUTHOR_ID}
-        TODO - this needs authentication
+        If authenticated get a list of posts sent to {AUTHOR_ID}
+        Converts all InboxItem objects inside and composes them in a JSON 
+        that represents the inbox.
         """
-        author_id = kwargs.get("author_id", -1)
-        # Get inbox items and format into JSON to return
-        inbox_items = InboxItem.objects.get(author=author_id)
-        
-        return HttpResponse(inbox_items)
+        author_id = kwargs.get("pk", -1)
+        print(request.user.id, type(request.user.id))
+        print(author_id, type(author_id))
+        print(str(request.user.id) == author_id)
+        if request.user.is_authenticated and str(request.user.id) == author_id:
+            # Get inbox items and format into JSON to return
+            inbox_items = InboxItem.objects.filter(author=request.user.id)
+            print(inbox_items)
+            # Call InboxItemToJSON on each object here
+            return HttpResponse(status=200)    
+        else:
+            return HttpResponse("You need to log in first to see your inbox.", status=403)
+            
     def post(self, request, *args, **kwargs):
         """
-        Send something to the author: either a post, follow, or like.
+        POST to an author's inbox to send them a link (to either a post, follow, or like).
         """
-        
-        
+        # NOTE: I am assuming that only logged in users can POST to inboxes.
+        recipient_id = kwargs.get("pk", -1)
+        if request.user.is_authenticated:
+            try:
+                # `author` is the uuid of the author you want to send to.
+                new_item = InboxItem(
+                    author = str(recipient_id),
+                    link = request.data.get("link")
+                )
+                new_item.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500) 
+        else:
+            return HttpResponse("You need to log in first to POST to inboxes.", status=403)
+
     def delete(self, request, *args, **kwargs):
         """
         Clear the inbox.

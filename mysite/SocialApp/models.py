@@ -143,7 +143,7 @@ class Comment(models.Model):
 
 
 class Inbox(models.Model):
-    """ Models an Author's Inbox. """
+    """ Models an Author's Inbox. NOTE: is this necessary? Might remove """
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
