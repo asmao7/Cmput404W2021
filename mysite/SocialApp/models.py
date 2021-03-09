@@ -161,3 +161,4 @@ class Followers(models.Model):
 @receiver(pre_save, sender=Followers)
 def check_self_following(sender, instance, **kwargs):
     if instance.follower == instance.author:
+        raise ValidationError('ERROR!!, you cannot follow yourself ')

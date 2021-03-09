@@ -70,6 +70,7 @@ def FollowerFinalJSON(follower_list):
         json = {
             "type":"followers",
             "items": follower_list
+        }
         return json
     except:
         return None
