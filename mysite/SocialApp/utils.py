@@ -1,6 +1,7 @@
 """
 Contains useful helper functions
 """
+import requests
 from .models import Author, Post, Comment, InboxItem
 
 def AuthorToJSON(author):
@@ -85,14 +86,20 @@ def CommentToJSON(comment):
 def InboxItemToJSON(item):
     """
     Converts an InboxItem object into a JSON-compatible dictionary.
+    Request the InboxItem's link and rely on APIs to return the right JSONs.
+    eg. see SocialApp.views.PostEndpoint.get()
     Returns None on failure.
+    item - an InboxItem object
     """
     if not item:
         return None
-    # try:
-    #     # Request the JSON from the API on each InboxItem's `link` attribute
-    #     # Return the response's JSON
-        
-    #     json = {
-    #         "type":
-    #     }
+    try:
+        # NOTE: may need to convert given template urls to API urls
+        # NOTE: What if we can't get the object from `link` ? eg. behind auth?
+        # NOTE: Follows added to the inbox need to be "approved" later
+        r = requests.get(item.link)
+        json = r.json()
+        return json
+    except Exception as e:
+        print(e)
+        return None

@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from .models import Author, Post, Comment, LikedPost, Inbox, InboxItem
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, InboxItemToJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -444,15 +444,22 @@ class InboxEndpoint(APIView):
         that represents the inbox.
         """
         author_id = kwargs.get("author_id", -1)
-        print(request.user.id, type(request.user.id))
-        print(author_id, type(author_id))
-        print(str(request.user.id) == author_id)
+        if author_id == -1:
+                return HttpResponse(status=400)
         if request.user.is_authenticated and str(request.user.id) == author_id:
             # Get inbox items and format into JSON to return
             inbox_items = InboxItem.objects.filter(author=request.user.id)
-            print(inbox_items)
-            # Call InboxItemToJSON on each object here
-            return HttpResponse(status=200)    
+            item_json_list = []
+            for item in inbox_items:
+                json = InboxItemToJSON(item) # will request whatever's at link
+                if json:
+                    item_json_list.append(json)
+            response_json = {
+                "type":"inbox",
+                "author":request.scheme+"://"+request.get_host()+"/author/"+str(author_id),
+                "items":item_json_list
+            }
+            return JsonResponse(response_json)
         else:
             return HttpResponse("You need to log in first to see your inbox.", status=403)
             
@@ -485,8 +492,16 @@ class InboxEndpoint(APIView):
 
     def delete(self, request, *args, **kwargs):
         """
-        Clear the inbox.
+        Clear the inbox; delete all InboxItems from the authenticated author.
         """
-        pass
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+                return HttpResponse(status=400)
+        if request.user.is_authenticated and str(request.user.id) == author_id:
+            inbox_items = InboxItem.objects.filter(author=request.user.id)
+            inbox_items.delete()
+            return HttpResponse("InboxItem(s) deleted.", status=200)
+        else:
+            return HttpResponse("You need to log in first to delete your inbox.", status=403)
 
 

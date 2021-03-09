@@ -154,7 +154,6 @@ class Inbox(models.Model):
 
 class InboxItem(models.Model):
     """ An item in an Author's inbox. Links to a post, follow, or like. """
-    #id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(Author, on_delete=models.CASCADE) # the recipient
     link = models.TextField()
     # Overwrite the default save function so that we can generate our URL
