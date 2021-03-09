@@ -6,7 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 
-from .models import Author, Post, Comment, LikedPost, Inbox, InboxItem
+from .models import Author, Post, Comment, LikedPost, InboxItem
 from .admin import AuthorCreationForm
 
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON, InboxItemToJSON
@@ -53,11 +53,6 @@ class DeletePostView(DeleteView):
     model = Post
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
-
-class InboxView(ListView): # This will need its own url ending
-    model = Inbox
-    template_name = 'inbox.html'
-    
 
 def like(request, pk):
 	# add a line to database that has user id and post id
@@ -467,8 +462,7 @@ class InboxEndpoint(APIView):
         """
         POST to an author's inbox to send them a link (to either a post, follow, or like).
         """
-        # `author_id` is the uuid of the author you want to send to.
-        author_id = kwargs.get("author_id", -1)
+        author_id = kwargs.get("author_id", -1) # the uuid of the author you want to send to
         if author_id == -1:
             return HttpResponse(status=400)
         try:
@@ -486,7 +480,7 @@ class InboxEndpoint(APIView):
                 return HttpResponse(status=201)
             except Exception as e:
                 print(e)
-                return HttpResponse(status=500)
+                return HttpResponse("Internal Server Error:"+e, status=500)
         else:
             return HttpResponse("You need to log in first to POST to inboxes.", status=403)
 

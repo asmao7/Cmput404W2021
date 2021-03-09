@@ -142,16 +142,6 @@ class Comment(models.Model):
         super(Comment, self).save(*args, **kwargs)
 
 
-class Inbox(models.Model):
-    """ Models an Author's Inbox. NOTE: is this necessary? Might remove """
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    # Overwrite the default save function so that we can generate our URL
-    def save(self, *args, **kwargs):
-        if not self.url:
-            self.url = "http://{}/author/{}/inbox/".format(settings.HOST_NAME, self.author.id)
-        super(Inbox, self).save(*args, **kwargs)
-
-
 class InboxItem(models.Model):
     """ An item in an Author's inbox. Links to a post, follow, or like. """
     author = models.ForeignKey(Author, on_delete=models.CASCADE) # the recipient
