@@ -443,7 +443,7 @@ class InboxEndpoint(APIView):
         Converts all InboxItem objects inside and composes them in a JSON 
         that represents the inbox.
         """
-        author_id = kwargs.get("pk", -1)
+        author_id = kwargs.get("author_id", -1)
         print(request.user.id, type(request.user.id))
         print(author_id, type(author_id))
         print(str(request.user.id) == author_id)
@@ -460,19 +460,26 @@ class InboxEndpoint(APIView):
         """
         POST to an author's inbox to send them a link (to either a post, follow, or like).
         """
+        # `author_id` is the uuid of the author you want to send to.
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception as e:
+            print(e)
+            return HttpResponse(status=400)
         # NOTE: I am assuming that only logged in users can POST to inboxes.
-        recipient_id = kwargs.get("pk", -1)
         if request.user.is_authenticated:
             try:
-                # `author` is the uuid of the author you want to send to.
-                new_item = InboxItem(
-                    author = str(recipient_id),
-                    link = request.data.get("link")
-                )
+                new_item = InboxItem(author=author, link=request.data.get("link"))
                 new_item.save()
-                return HttpResponse(status=200)
-            except:
-                return HttpResponse(status=500) 
+                return HttpResponse(status=201)
+            except Exception as e:
+                print(e)
+                return HttpResponse(status=500)
         else:
             return HttpResponse("You need to log in first to POST to inboxes.", status=403)
 
