@@ -9,12 +9,17 @@
 
     <body>
         <!--background wallpaper-->
+<<<<<<< HEAD
         <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
         
+=======
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";>
+>>>>>>> befa9e27d3d5e3c1f1449df0d317002f55f90a4e
 
         <!--Navigation menu for Sign Up-->
 		<div class="topnav">
 			<a class="active" href="index.html">Home</a>
+<<<<<<< HEAD
 		</div>
 
         <form class="box" action="author.html" method="POST">
@@ -42,5 +47,21 @@
             </div>
         </form>
 
+=======
+			<a href="{% url 'login'%}">Login</a>
+			<a href="#signup">Sign up</a>
+			<a href="#logout">Logout</a>
+		</div>
+     
+    <div class="box">
+        <div class="form-group">
+            <h1>Sign up</h1>
+            <form method="POST">
+                {% csrf_token %}
+                {{form.as_p}}
+                <button class="btn btn-secondary">Sign up</button>
+        </div>
+    </div>
+>>>>>>> befa9e27d3d5e3c1f1449df0d317002f55f90a4e
     </body>
 </html>

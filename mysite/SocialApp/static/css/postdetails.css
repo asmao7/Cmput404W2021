@@ -1,7 +1,9 @@
+
 *{
     margin: 0;
     padding: 0;
 }
+
 
 /*navigation menu*/
 /* Add a black background color to the top navigation */
@@ -37,54 +39,28 @@
 .wrapper{
   width: 1000px;  
   margin: 0 auto;
-  color:wheat;
+  color:white;
 }
 
-.info{
-  padding: 60px 10px 60px;
-  width:100%;
-  float: right;
-  border: 5px solid maroon;
-  height: 50%;
+body{
+  background-color: black;
+}
+
+
+.posti{
+  border: 4px solid maroon;
+  color: wheat;
+  font-size: 20px;
   text-align: center;
-
+  
 }
 
-.info h1{
+.comment{
   text-decoration: underline;
+  color: maroon;
 }
 
-.info p{
-  padding: 20px 0px 0px 30px;
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 30px;
-  color: beige;
-  line-height: 30px;
-}
-
-.buttoncontainer {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: 50px;
-  text-align: center;
-  transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  
-  
-}
-
-.button {
-  border: none;
-  color: white;
-  padding: 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 5px;
-  background-color:maroon;
-  border-radius: 12px;
-}
-
+/*.posti{
+  width: 800;
+}*/
 

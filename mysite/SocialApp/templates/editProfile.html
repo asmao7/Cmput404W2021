@@ -9,19 +9,20 @@
 
     <body>
         <!--background wallpaper-->
+<<<<<<< HEAD
         <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
         
+=======
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";>
+>>>>>>> befa9e27d3d5e3c1f1449df0d317002f55f90a4e
 
         <!--Navigation menu-->
 		<div class="topnav">
 			<a class="active" href="author.html">Home</a>
 			<a href="#Login.html">Edit</a>
 			<a href="#signup">Sign up</a>
-			<a href="#logout">Logout</a>
+            <a href="{% url 'logout' %}">Logout</a>
 		</div>
-
-        <!--COMMENT-->
-        <h2 class="comment">We'll choose a good wallpaper and a logo to go on this page!</h2>
 
         <form class="box" action="index.html" method="post">
             <h1>Edit Profile</h1>
@@ -32,6 +33,5 @@
             <input type="password" name="" placeholder="Confirm password">
             <a href="author.html">save changes</a>
         </form>
-
     </body>
 </html>

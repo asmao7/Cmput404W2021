@@ -11,13 +11,21 @@
         <!--background wallpaper-->
         <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
         
+<<<<<<< HEAD
 
         <!--Navigation menu for Log in -->
+=======
+        <!--Navigation menu-->
+>>>>>>> befa9e27d3d5e3c1f1449df0d317002f55f90a4e
 		<div class="topnav">
 			<a class="active" href="index.html">Home</a>
 		</div>
 
+<<<<<<< HEAD
         <form class="box" action="author.html" method="post">
+=======
+        <form class="box" action="index.html" method="post">
+>>>>>>> befa9e27d3d5e3c1f1449df0d317002f55f90a4e
             <h1>Login</h1>
             {% csrf_token %}
             {{ form.non_field_errors }}
@@ -33,6 +41,5 @@
             <a class="button" href="{% url 'author' %}">Log In</a>
             </div>
         </form>
-
     </body>
 </html>

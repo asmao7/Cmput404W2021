@@ -1,0 +1,48 @@
+{% load static %}
+<!Doctype html>
+
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/postdetails.css' %}">
+    </head>
+
+    <body>
+        <!--background wallpaper-->
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";
+
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="{% url 'author'%}" >Home</a>
+			<a href="#editProfile.html">Edit Profile</a>
+			<a href="#signup.html">Friends/FOllowers</a>
+			<a href="#newMessage.html">New Message</a>
+            <a href="{% url 'add_post' %}">New Post</a>
+            <a href="{% url 'logout' %}">Logout</a>
+		</div>
+
+    <br>
+    <div class="posti">
+        <h1>{{ post.title }}</h1>
+            <small>By: {{ post.author }}</small><br>
+            <br>
+            {{post.text_content}}
+        
+         <!--COMMENTS-->
+         <br><br/>
+        <h2 class="comment">COMMENTS <br></h2>
+        
+        {% if not post.comment_set.all%}
+            <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
+        {% else %}
+            {% for comment in post.comment_set.all%}
+                <ul>
+                    <small>By: {{comment.author}}</small> - <strong>{{comment.comment}}</strong>
+                </ul>
+                
+            {% endfor %}
+        {% endif %}
+        <a href="{% url 'add_comment'%}">Add Comments</a>
+    </div>
+    </body>
+</html>

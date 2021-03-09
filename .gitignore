@@ -111,3 +111,7 @@ ENV/
 .mypy_cache/
 
 /**/.DS_Store
+
+# Social App Specific
+post_images/
+staticfiles/
