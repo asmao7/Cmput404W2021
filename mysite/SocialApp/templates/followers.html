@@ -22,11 +22,12 @@
             <a href="{% url 'newPost' %}">New Post</a>
 		</div>
 
+<!--
         <div class="search-bar">
-                <input type="text" placeholder="Find Followers By ID" name="foreign_author_id" value = "foreign_author_id">
-                <form action="{%editFollowers%}}"> <!-- Find way to get that id -->
+                <input type="text" placeholder="Find Followers By ID" name="foreign_author_id" value="" id="foreign_author_id" >
+                <form action="{% url 'followersDetails' %}"> 
                 <button class="button" type="submit">Search</button>
-                </form>
+                </form> -->
         </div>
         <!--Followers-->
         {% if is_empty %}
@@ -37,15 +38,28 @@
             <li>
             <div class="authorcard_list">
                     <div class="user-info">
-                            <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
+                         <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
                             <p class="message">{{ follower}}</p>
                             </div>
-                     <div class="button-container">
-                        <form action=""> <!--{% url 'editFollowers' author_id folllower.id%}-->
+                     <div class="button-container"> 
+                        {% if is_follower %}
+                            <p class="is_follower">{{ author.display_name }} is already following you</p>
+                        {% else %}
+                            {% csrf_token %}
+                        <form action="" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="put">
+                            <button type="submit" formmethod="post"  class="button button1" value="put">Add Follower</button>
+                        </form>
+                        {% endif %}
+                        {% if is_follower %}
+                            <form action="">
                             {% csrf_token %}
                             <input type="hidden" name="_method" value="delete">
                             <button type="submit" formmethod="post" class="button button2" value="Delete">Remove Follower</button>
-                         </form>
+                            </form>
+                        {% else %}
+                        {% endif %}
                     </div>
                 </div>
             </li>

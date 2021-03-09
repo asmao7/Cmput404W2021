@@ -85,25 +85,25 @@
 }
 
 .authorcard{
-    color: balck;
-    background:white;
+    color: wheat;
     width:50%;
     margin: auto;
     margin-top: 50px;
     padding: 10px;
-    border: 0.5px solid maroon;
+    border: 5px solid maroon;
+    border-radius: 12px;
     box-shadow: 0 4px 8px 0 rgb(61, 3, 3);
      
 }
 
 .authorcard_list{
-  color: black;
-  background:white;
+  color: wheat;
   width:30%;
   margin: auto;
   margin-top: 50px;
   padding: 10px;
-  border: 0.5px solid maroon;
+  border: 7px solid maroon;
+  border-radius: 12px;
   box-shadow: 0 4px 8px 0 rgb(61, 3, 3);
    
 }
@@ -113,7 +113,7 @@
   right:    0;
   bottom:   0;
   border: none;
-  color: white;
+  color: wheat;
   padding: 10px;
   text-align: center;
   text-decoration: none;
@@ -141,7 +141,7 @@
 }
 
 .fa-user-circle {
-  color: grey;
+  color: wheat;;
   position: relative;
 }
 

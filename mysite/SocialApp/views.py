@@ -35,45 +35,61 @@ def newMessage(request):
     return render(request, 'newMessage.html', {})
 
 def followerView(request):
-    # url = reverse_lazy('getFollowers')
-    url = reverse_lazy("getFollowers", kwargs={"author_id":request.user.id})
-    response = requests.get(url)
-    follower_list = response['items']
     
-    follower_names = []
-    for item in follower_list:
-        current_name = item['displayName']
-        Follower_names.append(current_name)
-    
-    if not follower_names:
-        is_empty = True
+    # current_author_id = request.user.id
+    current_author_id = 1
+    current_author = Author.objects.get(pk=current_author_id)
+    followers = []
+    followers_list = current_author.followed_by.all()
+
+    for follower in followers_list:
+        followers.append(follower.display_name)
+
+    if not followers:
+       is_empty = True
     else:
         is_empty = False
 
-    return render(request, 'followers.html', {"followers":follower_names, 'is_empty': is_empty} )
+    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty} )
 
-def getFollowerView(request):
+def getFollowerDetails(request):
     """ get the author's followers if the foreign id author is in there then disable follow button """
-    url = reverse_lazy("editFollowers", kwargs={"author_id":request.user.id, "post_id":cls.post_id})
-    response = requests.get(url)
-    follower_list = response['items']
-        # current_author = Author.objects.get(pk=author_id)
-        # followers_list = current_author.followed_by.all()
-        # followers_ids = []
-        # for from_author in followers_list:
-        #     followers_ids.append(from_author.id)
+#     url = reverse_lazy("editFollowers", kwargs={"author_id":request.user.id, "post_id":cls.post_id})
+#     response = requests.get(url)
+#     follower_list = response['items']
+    # author_id = request.user.id
+    author_id = 1
+    foreign_author_id = 3
+    foreign_author = Author.objects.get(pk=foreign_author_id)
+    foreign_author_name = foreign_author.display_name
+    current_author = Author.objects.get(pk=author_id)
+    method = request.POST.get('_method', '').lower()
 
-        # if foreign_author_id in followers_ids:
-        #     is_follower = True
-        # else:
-        #     is_follower = False
+    # print(method)
+
+    if method == 'put':
+        # print('in post')
+        create_new_follower = Followers(author=current_author, follower=foreign_author)
+        create_new_follower.save()
+    elif method == 'delete':
+        # print('in del')
+        current_author.followed_by.remove(foreign_author_id)
+    
+    
+    current_followers_list = current_author.followed_by.all()
+    followers_ids = []
+    for from_author in current_followers_list:
+        followers_ids.append(from_author.id)
+
+    if foreign_author_id in followers_ids:
+        is_follower = True
+    else:
+        is_follower = False
             
-    return render(request, 'find_friends.html', {} )
-    # return render(request, 'find_friends.html', {"author":author_name, 'is_follower': is_follower})
+#     return render(request, 'find_friends.html', {} )
+    return render(request, 'find_friends.html', {"author":foreign_author_name, 'is_follower': is_follower})
 
-class EditFollowersEndpoint(APIView):
-    # TODO: Make this authenticated if private/friends
-
+class EditFollowersEndpoint(APIView): 
     # def dispatch(self, request, *args, **kwargs):
     #     method = self.request.POST.get('_method', '').lower()
     #     if method == 'put':
@@ -140,7 +156,6 @@ class EditFollowersEndpoint(APIView):
         if not author:
             return HttpResponse(status=404)
 
-        print("in put")
 
         foreign_author_id = kwargs.get("foreign_author_id", -1)
         if foreign_author_id == -1:
@@ -171,8 +186,6 @@ class EditFollowersEndpoint(APIView):
     
 
     def delete(self, request, *args, **kwargs):
-        print("in delete")
-
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -216,8 +229,6 @@ class EditFollowersEndpoint(APIView):
 
 class GetFollowersEndpoint(APIView):
     """ Get all the followers of a specific user"""
-# def followers(request, author_id):
-    # if request.method == 'GET':
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -243,10 +254,6 @@ class GetFollowersEndpoint(APIView):
 
         json = FollowerFinalJSON(follower_json_list)
         if json:
-            # return HttpResponse(status=200)
             return JsonResponse(json)
         else:
             return HttpResponse(status=500)
-        # return HttpResponse(status=200)
-        # success_url = reverse_lazy('editFollowers')
-        # return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty, 'author_id':author_id}, status=status.HTTP_200_OK)
