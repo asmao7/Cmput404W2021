@@ -148,8 +148,8 @@ class Comment(models.Model):
 
 class Followers(models.Model):
     #get a specific user's followers
-    follower = models.ForeignKey(Author, related_name='from_author', on_delete=models.CASCADE) #person being followed (yet to accept request)
-    author = models.ForeignKey(Author, related_name='to_author', on_delete=models.CASCADE, default=None)
+    follower = models.ForeignKey(Author, related_name='from_user', on_delete=models.CASCADE) #person being followed (yet to accept request)
+    author = models.ForeignKey(Author, related_name='to_user', on_delete=models.CASCADE, default=None)
 
     # prohibit following same person twice
     class Meta:

@@ -136,8 +136,9 @@
 }
 
 .button-container{
-  margin-left: 300px;
+  margin-left: 250px;
   margin-top:0px;
+  margin-bottom:10px;
 }
 
 .fa-user-circle {

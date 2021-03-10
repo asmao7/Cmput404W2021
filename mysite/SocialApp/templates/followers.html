@@ -14,52 +14,30 @@
 
         <!--Navigation menu-->
 		<div class="topnav">
-			<a class="active" href="{% url 'home' %}">Home</a>
+			<a class="active" href="author.html">Home</a>
 			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="{% url 'followers' %}">Followers</a> 
-            <a href="#friends.html">Friends</a>
 			<a href="{% url 'newMessage' %}">New Message</a>
-            <a href="{% url 'newPost' %}">New Post</a>
+            <a href="{% url 'add_post' %}">New Post</a>
+            <a href="{% url 'followers' %}">Followers</a> 
+            <a href="#friends.html">Friends</a>
+            <a href="{% url 'findFollowers' %}">Find Followers</a>
+            <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-<!--
-        <div class="search-bar">
-                <input type="text" placeholder="Find Followers By ID" name="foreign_author_id" value="" id="foreign_author_id" >
-                <form action="{% url 'followersDetails' %}"> 
-                <button class="button" type="submit">Search</button>
-                </form> -->
-        </div>
         <!--Followers-->
         {% if is_empty %}
         <div class="authorcard_list">
-            <p class="message"> You dont have any followers yet, Use the Search Button to add Followers</p>
+            <p class="message"> You dont have any followers yet, Use Find Followers to add Followers</p>
         {% else %}                  
             {% for follower in followers %}
             <li>
             <div class="authorcard_list">
                     <div class="user-info">
                          <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
-                            <p class="message">{{ follower}}</p>
+                            <p class="message">{{ follower.display_name}}</p>
                             </div>
                      <div class="button-container"> 
-                        {% if is_follower %}
-                            <p class="is_follower">{{ author.display_name }} is already following you</p>
-                        {% else %}
-                            {% csrf_token %}
-                        <form action="" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="_method" value="put">
-                            <button type="submit" formmethod="post"  class="button button1" value="put">Add Follower</button>
-                        </form>
-                        {% endif %}
-                        {% if is_follower %}
-                            <form action="">
-                            {% csrf_token %}
-                            <input type="hidden" name="_method" value="delete">
-                            <button type="submit" formmethod="post" class="button button2" value="Delete">Remove Follower</button>
-                            </form>
-                        {% else %}
-                        {% endif %}
+                       <a class="button" href="{% url 'deletefollower' follower.id %}">Remove Follower</a>
                     </div>
                 </div>
             </li>

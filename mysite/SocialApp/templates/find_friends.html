@@ -13,53 +13,48 @@
 
         <!--Navigation menu-->
         <div class="topnav">
-            <a class="active" href="{% url 'home' %}">Home</a>
+            <a class="active" href="author.html">Home</a>
 			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="{% url 'followers' %}">Followers</a> 
-            <a href="#friends.html">Friends</a>
 			<a href="{% url 'newMessage' %}">New Message</a>
-            <a href="{% url 'newPost' %}">New Post</a>
+            <a href="{% url 'add_post' %}">New Post</a>
+            <a href="{% url 'followers' %}">Followers</a> 
+            <a href="#friends.html">Friends</a>
+            <a href="{% url 'findFollowers' %}">Find Followers</a>
+            <a href="{% url 'logout' %}">Logout</a>
         </div>
-
+<!--
         <div class="search-bar">
                 <form action="author/ {{ author_id }}/followers/ {{ foreign_author_id }}">
                 <input type="text" placeholder="Find Followers By ID" name="search">
                 <button class="button" type="submit">Search</button>
                 </form>
-            </div>
+            </div> -->
 
         <h1 class="authors-title">Authors</h1>
                <!-- <li class="no-author">No authors with that ID.</li> -->
-            <div class = "authorcard">
-                
-                {% if author == None %}
-                    <p class="message"> Sorry, That Author ID does not Exist, Please Try again</p>
-                {% else %}
-                    <div class="user-info">
-                        <i class="fa fa-user-circle" style="font-size: 150px;" aria-hidden="true"></i>
-                        <p class="message">{{ author}}</p>
-                    </div>
-                    <div class="button-container"> 
-                        {% if is_follower %}
-                            <p class="is_follower">{{ author.display_name }} is already following you</p>
-                        {% else %}
-                            {% csrf_token %}
-                        <form action="" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="_method" value="put">
-                            <button type="submit" formmethod="post"  class="button button1" value="put">Add Follower</button>
-                        </form>
-                        {% endif %}
-                        {% if is_follower %}
-                            <form action="">
-                            {% csrf_token %}
-                            <input type="hidden" name="_method" value="delete">
-                            <button type="submit" formmethod="post" class="button button2" value="Delete">Remove Follower</button>
-                            </form>
-                        {% else %}
-                        {% endif %}
-                    </div>
-                {% endif %}
+            {% if is_empty %}
+                <div class="authorcard_list">
+                    <p class="message"> You are popular!!!!, you dont have any new followers to add, Everyone is already following you</p>
+                {% else %}                  
+                    {% for author in author_list %}
+                        <li>
+                        <div class="authorcard_list">
+                                <div class="user-info">
+                                    <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
+                                        <p class="message">{{ author.display_name }}</p>
+                                        </div>
+                                <div class="button-container"> 
+                                    {% if is_follower %}
+                                        <p class="is_follower">{{ author.display_name }} is already following you</p>
+                                        <a class="button" href="{% url 'deletefollower' follower.id %}">Remove Follower</a>
+                                    {% else %}
+                                        <a class="button" href="{% url 'addfollower' author.id %}">Add Follower</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                {% endfor %}
+            {% endif %}
             </div>
 
             <!-- change to reflect no unfollowed authors -->
