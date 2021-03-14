@@ -24,27 +24,18 @@
         </div>
 
         <h1 class="authors-title">Authors</h1>
-               <!-- <li class="no-author">No authors with that ID.</li> -->
-            {% if is_empty %}
-                <div class="authorcard_list">
-                    <p class="message"> No new Followers to add </p>
-                {% else %}                  
-                    {% for author in author_list %}
-                        <li>
                         <div class="authorcard_list">
                                 <div class="user-info">
                                     <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
-                                        <p class="message">{{ author.display_name }}</p>
+                                        <p class="message">{{ foreign_author.display_name }}</p>
                                         </div>
-                                <div class="button-container">
-                                        <a class="button" href="{% url 'addfollower' author.id %}">Follow</a>
+                                <div class="button-container"> 
+                                    {% if new_follower %}
+                                        <p class="is_follower"> Your follow request has been sent to {{ foreign_author.display_name }}</p>
+                                    {% else %}
+                                        <p class="is_follower"> Errror adding {{ foreign_author.display_name }} as follower </p>
+                                    {% endif %}
                                 </div>
                             </div>
-                        </li>
-                {% endfor %}
-            {% endif %}
-            </div>
-
-            <!-- change to reflect no unfollowed authors -->
     </body>
 </html>   

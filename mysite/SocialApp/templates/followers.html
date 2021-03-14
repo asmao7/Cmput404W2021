@@ -34,10 +34,10 @@
             <div class="authorcard_list">
                     <div class="user-info">
                          <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
-                            <p class="message">{{ follower.display_name}}</p>
+                            <p class="message">{{ follower.author_from}}</p>
                             </div>
                      <div class="button-container"> 
-                       <a class="button" href="{% url 'deletefollower' follower.id %}">Remove Follower</a>
+                       <a class="button" href="{% url 'deletefollower' follower.author_from.id %}">Remove Follower</a>
                     </div>
                 </div>
             </li>

@@ -148,17 +148,20 @@ class Comment(models.Model):
 
 class Followers(models.Model):
     #get a specific user's followers
-    follower = models.ForeignKey(Author, related_name='from_user', on_delete=models.CASCADE) #person being followed (yet to accept request)
-    author = models.ForeignKey(Author, related_name='to_user', on_delete=models.CASCADE, default=None)
+    # follower = models.ForeignKey(Author, related_name='from_user', on_delete=models.CASCADE) #person being followed (yet to accept request)
+    # author = models.ForeignKey(Author, related_name='to_user', on_delete=models.CASCADE, default=None)
+
+    author_from = models.ForeignKey(Author, related_name='following', on_delete=models.DO_NOTHING) #person pressing follow
+    author_to = models.ForeignKey(Author, related_name='followee', on_delete=models.DO_NOTHING, default=None) #person being followed
 
     # prohibit following same person twice
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['author','follower'],  name="unique_follow")
+            models.UniqueConstraint(fields=['author_from','author_to'],  name="unique_follow")
         ]
 
 #prohibit self following 
 @receiver(pre_save, sender=Followers)
 def check_self_following(sender, instance, **kwargs):
-    if instance.follower == instance.author:
+    if instance.author_from == instance.author_to:
         raise ValidationError('ERROR!!, you cannot follow yourself ')
