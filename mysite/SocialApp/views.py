@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .forms import SignUpForm, LoginForm
-import requests
 
 import datetime
 from django.http import HttpResponseRedirect
@@ -628,16 +627,6 @@ class EditFollowersEndpoint(APIView):
         # can only delete someone that was following you
         if current_follower.exists():
             current_follower.delete()
-        # current_follower = current_author.followed_by.filter(id=foreign_author_id)
-
-        # if current_follower.exists():
-        #     can_be_deleted = True
-        # else:
-        #     can_be_deleted = False
-
-        # """ can only delete someone that was following you """
-        # if can_be_deleted:
-            # current_author.followed_by.remove(foreign_author_id)
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=400)
