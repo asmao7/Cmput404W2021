@@ -28,14 +28,21 @@
             <small>By: {{ post.author }}</small><br>
             <br>
 
+            <section>
             {% if post.content_type == "text/plain" %}
-                {{post.content}}
+            <!--display a post as text without formatting-->
+                <p>{{post.content}}</p>
             {% elif post.content_type == "text/markdown" %}
+            <!--render markdown post as sanitized html-->
                 {{post.content|markdownify}}
+            {% elif post.content_type == "application/base64" %}
+            <!--assume this image has full base64 encoding, not just payload-->
+                <img alt="post" src={{ post.content }}>
             {% else %}
+            <!--display base64 data as an image - prepend stored content type-->
                 <img alt="post" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
             {% endif %}
-
+            </section>
         
          <!--COMMENTS-->
          <br><br/>
