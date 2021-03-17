@@ -1,4 +1,5 @@
 {% load static %}
+{% load markdownify %}
 <!Doctype html>
 
 <html>
@@ -26,7 +27,15 @@
         <h1>{{ post.title }}</h1>
             <small>By: {{ post.author }}</small><br>
             <br>
-            {{post.text_content}}
+
+            {% if post.content_type == "text/plain" %}
+                {{post.content}}
+            {% elif post.content_type == "text/markdown" %}
+                {{post.content|markdownify}}
+            {% else %}
+                <img alt="post" src={{ "data:"|add:post.content_type|add:","|add:post.content }}/>
+            {% endif %}
+
         
          <!--COMMENTS-->
          <br><br/>
