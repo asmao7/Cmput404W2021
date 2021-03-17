@@ -83,10 +83,8 @@ class Post(models.Model):
     description = models.CharField(max_length=200)
     # The content type of the post. Must be one of a few specific types.
     content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default="text/plain")
-    # The text-based content associated with this post. If the post is an image, should point to that image.
-    text_content = models.TextField(blank=True, default="")
-    # The image-based content associated with this post. If the post is a text post, should be null
-    image_content = models.ImageField(upload_to="post_images", blank=True, null=True)
+    # The content associated with this post. If the post is an image, should be base64 encoded text.
+    content = models.TextField(blank=True, default="")
     # The author of this post
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     # The categories this post has been tagged with

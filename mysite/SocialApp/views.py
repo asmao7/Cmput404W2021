@@ -46,7 +46,7 @@ class AddCommentView(CreateView):
 class UpdatePostView(UpdateView):
     model = Post
     template_name = 'EditPost.html'
-    fields = ['title', 'text_content']
+    fields = ['title', 'content']
     success_url = reverse_lazy('author')
 
 class DeletePostView(DeleteView):
@@ -207,7 +207,7 @@ class PostEndpoint(APIView):
         post.title = jsonData.get("title")
         post.description = jsonData.get("description")
         post.content_type = jsonData.get("contentType")
-        post.text_content = jsonData.get("content")
+        post.content = jsonData.get("content")
         post.visibility = jsonData.get("visibility")
         post.unlisted = bool(jsonData.get("unlisted"))
         post.save()
@@ -280,7 +280,7 @@ class PostEndpoint(APIView):
         try:
             jsonData = request.data
             post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), text_content=jsonData.get("content"),
+                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
@@ -338,7 +338,7 @@ class AuthorPostsEndpoint(APIView):
         try:
             jsonData = request.data
             post = Post(title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), text_content=jsonData.get("content"),
+                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
