@@ -33,7 +33,7 @@
             {% elif post.content_type == "text/markdown" %}
                 {{post.content|markdownify}}
             {% else %}
-                <img alt="post" src={{ "data:"|add:post.content_type|add:","|add:post.content }}/>
+                <img alt="post" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
             {% endif %}
 
         
