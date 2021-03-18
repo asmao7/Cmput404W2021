@@ -95,11 +95,29 @@ def InboxItemToJSON(item):
         return None
     try:
         # NOTE: may need to convert given template urls to API urls
-        # NOTE: What if we can't get the object from `link` ? eg. behind auth?
         # NOTE: Follows added to the inbox need to be "approved" later
         r = requests.get(item.link)
-        json = r.json()
+        json = r.json() # returns JSON, not Dict
         return json
     except Exception as e:
+        # Can't get the object from `link` eg. doesn't exist
+        placeholder = {
+            "type":"post",
+            "title":"Something went wrong.",
+            "id":item.link,
+            "source":"",
+            "origin":"",
+            "description":"There was a shared item here, but we couldn't retrieve it.",
+            "contentType":"text/plain",
+            "content":str(e),
+            "author":{},
+            "categories":"",
+            "count":0,
+            "size":0,
+            "comments":"",
+            "published":"",
+            "visibility":"PUBLIC",
+            "unlisted":"true"
+        }
         print(e)
-        return None
+        return placeholder
