@@ -7,7 +7,8 @@ from django.test import TestCase, Client
 from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
-from .models import Author, PostCategory, Post, Comment
+from rest_framework.test import APIRequestFactory, force_authenticate
+from .models import Author, PostCategory, Post, Comment, InboxItem
 from . import views
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON
 
@@ -76,6 +77,11 @@ class TestCases(TestCase):
         comment = Comment(id=cls.comment_id, post=Post.objects.get(pk=cls.post_id), author=Author.objects.get(pk=cls.author_id_2),
                             comment=cls.comment_comment, content_type=cls.comment_content_type)
         comment.save()
+
+        # Set up a test inbox item (sharing a post)
+        cls.inbox_item_post_link = "http://127.0.0.1:8000/author/"+str(Post.objects.get(pk=cls.post_id).author.id)+"/posts/"+str(Post.objects.get(pk=cls.post_id).id)+"/"
+        inbox_item = InboxItem(author=Post.objects.get(pk=cls.post_id).author, link=cls.inbox_item_post_link)
+        inbox_item.save()
 
     def test_author_get(cls):
         """
@@ -303,7 +309,6 @@ class TestCases(TestCase):
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-
     # TODO: Fill out this test
     def test_all_post_post(cls):
         """
@@ -405,3 +410,35 @@ class TestCases(TestCase):
         url = reverse("PostComments", kwargs={"author_id":cls.author_id_1, "post_id":"abc"})
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_inbox_get(cls):
+        """Test the GET author/{AUTHOR_ID}/inbox/ endpoint"""
+        # Get inbox without auth
+        client = Client()
+        url = reverse("inbox", kwargs={"author_id":cls.author_id_1})
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Get inbox WITH auth (using a different method)
+        factory = APIRequestFactory()
+        view = views.InboxEndpoint.as_view()
+        user = Author.objects.get(pk=cls.author_id_1)
+        request = factory.get(url)
+        force_authenticate(request, user=user)
+        # Problem: InboxItemToJSON won't be able to get the right json because
+        # the app isn't actually running. (Gets placeholder json every time)
+        response = view(request, author_id=str(cls.author_id_1))
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        # I guess just returning any JSON is good enough for now.
+        cls.assertEqual(response.get("Content-Type"), "application/json")
+        
+    
+    def test_inbox_post(cls):
+        """Test the POST author/{AUTHOR_ID}/inbox/ endpoint"""
+        pass
+    
+
+    def test_inbox_delete(cls):
+        """Test the DELETE author/{AUTHOR_ID}/inbox/ endpoint"""
+        pass 
+    

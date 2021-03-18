@@ -434,13 +434,14 @@ class InboxEndpoint(APIView):
     """
     def get(self, request, *args, **kwargs):
         """
-        If authenticated get a list of posts sent to {AUTHOR_ID}
-        Converts all InboxItem objects inside and composes them in a JSON 
-        that represents the inbox.
+        If authenticated get a list of posts sent to {AUTHOR_ID}.
+        Requests the links inside all InboxItem objects and composes 
+        their responses in a JSON that represents the inbox.
         """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-                return HttpResponse(status=400)
+            return HttpResponse(status=400)
+        # Assuming that nobody else can GET your inbox
         if request.user.is_authenticated and str(request.user.id) == author_id:
             # Get inbox items and format into JSON to return
             inbox_items = InboxItem.objects.filter(author=request.user.id)
@@ -456,7 +457,7 @@ class InboxEndpoint(APIView):
             }
             return JsonResponse(response_json)
         else:
-            return HttpResponse("You need to log in first to see your inbox.", status=403)
+            return HttpResponse("You need to log in first to see your inbox.", status=401)
             
     def post(self, request, *args, **kwargs):
         """
@@ -482,7 +483,7 @@ class InboxEndpoint(APIView):
                 print(e)
                 return HttpResponse("Internal Server Error:"+e, status=500)
         else:
-            return HttpResponse("You need to log in first to POST to inboxes.", status=403)
+            return HttpResponse("You need to log in first to POST to inboxes.", status=401)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -493,9 +494,10 @@ class InboxEndpoint(APIView):
                 return HttpResponse(status=400)
         if request.user.is_authenticated and str(request.user.id) == author_id:
             inbox_items = InboxItem.objects.filter(author=request.user.id)
+            # NOTE: does not check to see if Inbox is already empty
             inbox_items.delete()
             return HttpResponse("InboxItem(s) deleted.", status=200)
         else:
-            return HttpResponse("You need to log in first to delete your inbox.", status=403)
+            return HttpResponse("You need to log in first to delete your inbox.", status=401)
 
 
