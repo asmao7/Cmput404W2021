@@ -491,12 +491,12 @@ class InboxEndpoint(APIView):
         """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
-                return HttpResponse(status=400)
+            return HttpResponse(status=400)
         if request.user.is_authenticated and str(request.user.id) == author_id:
             inbox_items = InboxItem.objects.filter(author=request.user.id)
             # NOTE: does not check to see if Inbox is already empty
             inbox_items.delete()
-            return HttpResponse("InboxItem(s) deleted.", status=200)
+            return HttpResponse(status=204)
         else:
             return HttpResponse("You need to log in first to delete your inbox.", status=401)
 
