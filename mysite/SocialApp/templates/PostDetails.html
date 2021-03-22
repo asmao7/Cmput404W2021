@@ -1,4 +1,5 @@
 {% load static %}
+{% load markdownify %}
 <!Doctype html>
 
 <html>
@@ -26,7 +27,22 @@
         <h1>{{ post.title }}</h1>
             <small>By: {{ post.author }}</small><br>
             <br>
-            {{post.text_content}}
+
+            <section>
+            {% if post.content_type == "text/plain" %}
+            <!--display a post as text without formatting-->
+                <p>{{post.content}}</p>
+            {% elif post.content_type == "text/markdown" %}
+            <!--render markdown post as sanitized html-->
+                {{post.content|markdownify}}
+            {% elif post.content_type == "application/base64" %}
+            <!--assume this image has full base64 encoding, not just payload-->
+                <img alt="post image" src={{ post.content }}>
+            {% else %}
+            <!--display base64 data as an image - prepend stored content type-->
+                <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
+            {% endif %}
+            </section>
         
          <!--COMMENTS-->
          <br><br/>

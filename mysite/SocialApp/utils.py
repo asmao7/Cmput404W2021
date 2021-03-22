@@ -33,12 +33,8 @@ def PostToJSON(post):
     """
     if not post:
         return None
+
     try:
-        # Maybe don't do this? Not sure yet.
-        if post.image_content:
-            content = post.image_content.url
-        else:
-            content = post.text_content
         json = {
             "type":"post",
             "title":post.title,
@@ -47,7 +43,7 @@ def PostToJSON(post):
             "origin":post.origin,
             "description":post.description,
             "contentType":post.content_type,
-            "content":content,
+            "content":post.content,
             "author":AuthorToJSON(post.author),
             "categories":"",
             "count":0,
