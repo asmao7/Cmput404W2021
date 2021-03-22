@@ -102,11 +102,7 @@ class TestCases(TestCase):
         """
         Test the POST author/{AUTHOR_ID}/ endpoint
         """
-        # Test a good request
         client = Client()
-        
-        # Force a test login as the second author
-        client.force_login(Author.objects.get(pk=cls.author_id_2))
         url = reverse("Author", kwargs={"author_id":cls.author_id_2})
 
         # Modify the author's information via POST
@@ -116,6 +112,18 @@ class TestCases(TestCase):
             "displayName":new_display_name,
             "github":new_github
         }
+        
+        # Test unauthenticated request
+        response = client.post(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Force an incorrect test login and test incorrectly authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_1))
+        response = client.post(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Force a test login as the second author and test authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_2))
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -169,7 +177,6 @@ class TestCases(TestCase):
         """
         Test the POST author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
         """
-        # Test a good request
         client = Client()
         url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":cls.post_id})
 
@@ -187,8 +194,21 @@ class TestCases(TestCase):
             "visibility":new_visibility,
             "unlisted":new_unlisted
         }
+
+        # Test unauthenticated request
+        response = client.post(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Force a bad test login and test incorrectly authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_2))
+        response = client.post(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Force a test login and test authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_1))
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
+
         # Try GET on updated object and see if they match
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -218,9 +238,20 @@ class TestCases(TestCase):
         """
         Test the DELETE author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
         """
-        # Test a good request
         client = Client()
         url = reverse("Post", kwargs={"author_id":cls.author_id_1, "post_id":cls.post_id})
+
+        # Test unauthenticated request
+        response = client.delete(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Force a bad test login and test incorrectly authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_2))
+        response = client.delete(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Force a good test login and test authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_1))
         response = client.delete(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -248,7 +279,6 @@ class TestCases(TestCase):
         """
         Test the PUT author/{AUTHOR_ID}/posts/{POST_ID}/ endpoint
         """
-        # Test a good request
         client = Client()
         new_post_id = uuid.uuid4()
         url = reverse("Post", kwargs={"author_id":cls.author_id_2, "post_id":new_post_id})
@@ -271,8 +301,21 @@ class TestCases(TestCase):
             "visibility":new_visibility,
             "unlisted":new_unlisted
         }
+
+        # Test unauthenticated request
+        response = client.put(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test incorrectly authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_1))
+        response = client.put(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test correctly authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_2))
         response = client.put(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
+
         # Try GET on updated object and see if they match
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -315,9 +358,9 @@ class TestCases(TestCase):
         """
         Test the POST author/{AUTHOR_ID}/posts/ endpoint
         """
-        # Test a good request
         client = Client()
         url = reverse("AuthorPosts", kwargs={"author_id":cls.author_id_2})
+
         new_title = "Test Post 2"
         new_source = "SomeTestWebsite.com/posts/"
         new_origin = "SomeOtherTestWebsite.com/posts/"
@@ -336,6 +379,18 @@ class TestCases(TestCase):
             "visibility":new_visibility,
             "unlisted":new_unlisted
         }
+
+        # Test unauthenticated request
+        response = client.post(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test request with bad authentication
+        client.force_login(Author.objects.get(pk=cls.author_id_1))
+        response = client.post(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test request with good authentication
+        client.force_login(Author.objects.get(pk=cls.author_id_2))
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -380,15 +435,22 @@ class TestCases(TestCase):
         """
         Test the POST author/{AUTHOR_ID}/posts/{POST_ID}/comments/ endpoint
         """
-        # Test a good request
         client = Client()
         url = reverse("PostComments", kwargs={"author_id":cls.author_id_1, "post_id":cls.post_id})
+
         new_content_type = "text/markdown"
         new_comment = "This post is the best."
         json = {
             "contentType":new_content_type,
             "comment":new_comment
         }
+
+        # Test unauthenticated request
+        response = client.post(url, json, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test authenticated request
+        client.force_login(Author.objects.get(pk=cls.author_id_2))
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
 

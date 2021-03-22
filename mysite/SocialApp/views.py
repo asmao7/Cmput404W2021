@@ -91,10 +91,13 @@ class AuthorEndpoint(APIView):
         """
         Handles GET requests
         """
+
+        # Check for bad URI
         author_id = kwargs.get('author_id', -1)
         if author_id == -1:
             return HttpResponse(status=400)
 
+        # Check that associated author exists
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
@@ -102,6 +105,7 @@ class AuthorEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Return public info about the author
         json = AuthorToJSON(author)
         if json:
             return JsonResponse(json)
@@ -112,10 +116,13 @@ class AuthorEndpoint(APIView):
         """
         Handles POST requests
         """
+
+        # Check for bad URI
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
 
+        # Check that associated author exists
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
@@ -123,14 +130,15 @@ class AuthorEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Check that a user is authenticated
         if not request.user.is_authenticated:
-            print("not authenticated")
             return HttpResponse(status=401)
 
+        # Check that the right user is authenticated
         if request.user != author:
-            print("authors not equal")
             return HttpResponse(status=401)
 
+        # Update author info
         jsonData = request.data
         author.displayName = jsonData.get("displayName")
         author.github = jsonData.get("github")
@@ -183,11 +191,13 @@ class PostEndpoint(APIView):
         """
         Handles POST requests to update the post specified in the URL
         """
-        # TODO: Make this authenticated
+        
+        # Check for bad URI (author portion)
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure author exists
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
@@ -195,10 +205,12 @@ class PostEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Check for bad URI (post portion)
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure post exists
         try:
             post = Post.objects.get(pk=post_id, author=author)
         except Post.DoesNotExist:
@@ -206,8 +218,17 @@ class PostEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Make sure the author is actually the post's author
         if post.author != author:
             return HttpResponse(status=404)
+
+        # Check that a user is authenticated
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+
+        # Check that the right user is authenticated
+        if request.user != author:
+            return HttpResponse(status=401)
 
         # TODO: Handle categories
         jsonData = request.data
@@ -225,11 +246,13 @@ class PostEndpoint(APIView):
         """
         Handles DELETE requests to delete the post specified in the URL
         """
-        # TODO: Make this authenticated
+
+        # Check for bad URI (author portion)
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure author exists
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
@@ -237,37 +260,47 @@ class PostEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Check for bad URI (post portion)
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure post exists
         try:
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id, author=author)
         except Post.DoesNotExist:
             return HttpResponse(status=404)
         except Exception:
             return HttpResponse(status=400)
 
+        # Make sure the author is actually the post's author
         if post.author != author:
             return HttpResponse(status=404)
+
+        # Check that a user is authenticated
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+
+        # Check that the right user is authenticated
+        if request.user != author:
+            return HttpResponse(status=401)
 
         post.delete()
 
         return HttpResponse(status=200)
 
-    # TODO: manage post creation based on content type
     # TODO: Should put prevent overwriting an existing post???
     def put(self, request, *args, **kwargs):
         """
         Handles PUT requests to create a new post with the ID and author specified by the URL
         """
-        # TODO: Make this authenticated
-        # TODO: Manage how the post is created based on the content type
-        # TODO: Should this protect us from overwriting an existing post?
+        
+        # Check for bad URI (author portion)
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure author exists
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
@@ -275,14 +308,24 @@ class PostEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Check for bad URI (post portion)
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
             return HttpResponse(status=400)
 
+        # Check for malformed URI (post portion)
         try:
             test = uuid.UUID(post_id)
         except:
             return HttpResponse(status=400)
+
+        # Check that a user is authenticated
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+
+        # Check that the right user is authenticated
+        if request.user != author:
+            return HttpResponse(status=401)
 
         try:
             jsonData = request.data
@@ -299,12 +342,12 @@ class AuthorPostsEndpoint(APIView):
     """
     The author/{AUTHOR_ID}/posts/ endpoint
     """
-    # TODO: Handle image posts
     def get(self, request, *args, **kwargs):
         """
         Handles GET requests to return the author's last N posts
         """
         # TODO: Paginate results and sort by date
+        # TODO: Authenticate? Or only allow this endpoint to return PUBLIC posts?
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -324,23 +367,31 @@ class AuthorPostsEndpoint(APIView):
                 post_json_list.append(json)
         return JsonResponse({"posts":post_json_list})
 
-    # TODO: manage post creation based on content type
     def post(self, request, *args, **kwargs):
         """
         Handles POST requests to create a new post for the author specified by the URL
         """
-        # TODO: Make this authenticated
-        # TODO: Manage how the post is created based on the content type
+        
+        # Check for bad URI
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure author exists
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
             return HttpResponse(status=404)
         except Exception:
             return HttpResponse(status=400)
+
+        # Check that a user is authenticated
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+
+        # Check that the right user is authenticated
+        if request.user != author:
+            return HttpResponse(status=401)
 
         try:
             jsonData = request.data
@@ -399,11 +450,13 @@ class PostCommentsEndpoint(APIView):
         """
         Handles POST requests to add a new comment to a post
         """
-        # TODO: Make this authenticated
+
+        # Check for bad URI (author portion)
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure author exists
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
@@ -411,10 +464,12 @@ class PostCommentsEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Check for bad URI (post portion)
         post_id = kwargs.get("post_id", -1)
         if post_id == -1:
             return HttpResponse(status=400)
 
+        # Make sure post exists
         try:
             post = Post.objects.get(pk=post_id)
         except Post.DoesNotExist:
@@ -422,12 +477,17 @@ class PostCommentsEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
+        # Make sure the author in the URI matches the post's author
         if post.author != author:
             return HttpResponse(status=404)
 
+        # Check that a user is authenticated so it can be the author of the post
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+
         try:
             jsonData = request.data
-            comment = Comment(author=author, post=post, comment=jsonData.get("comment"),
+            comment = Comment(author=request.user, post=post, comment=jsonData.get("comment"),
                               content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)
