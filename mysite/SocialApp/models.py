@@ -138,3 +138,16 @@ class Comment(models.Model):
         if not self.url:
             self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
         super(Comment, self).save(*args, **kwargs)
+
+
+class InboxItem(models.Model):
+    """ An item in an Author's inbox. Links to a post, follow, or like. """
+    author = models.ForeignKey(Author, on_delete=models.CASCADE) # the recipient
+    link = models.TextField()
+    # Overwrite the default save function so that we can generate our URL
+    # def save(self, *args, **kwargs):
+    #     if not self.url:
+    #         self.url = "http://{}/author/{}/inbox/{}".format(settings.HOST_NAME, self.author.id, self.id)
+    #     super(InboxItem, self).save(*args, **kwargs)
+
+

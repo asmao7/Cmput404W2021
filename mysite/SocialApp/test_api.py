@@ -2,12 +2,13 @@
 Uses Django's TestCase to run unit tests on our REST API endpoints.
 This ensures each test is run inside a transaction to provide isolation.
 """
-import uuid
+import uuid, json
 from django.test import TestCase, Client
 from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
-from .models import Author, PostCategory, Post, Comment
+from rest_framework.test import APIRequestFactory, force_authenticate
+from .models import Author, PostCategory, Post, Comment, InboxItem
 from . import views
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON
 
@@ -76,6 +77,12 @@ class TestCases(TestCase):
         comment = Comment(id=cls.comment_id, post=Post.objects.get(pk=cls.post_id), author=Author.objects.get(pk=cls.author_id_2),
                             comment=cls.comment_comment, content_type=cls.comment_content_type)
         comment.save()
+
+        # Set up a test inbox item (sharing a post)
+        # test post from above is by author_id_1, and we'll put it in author_id_2's inbox
+        cls.inbox_item_post_link = "http://127.0.0.1:8000/author/"+str(Post.objects.get(pk=cls.post_id).author.id)+"/posts/"+str(Post.objects.get(pk=cls.post_id).id)+"/"
+        inbox_item = InboxItem(author=Author.objects.get(pk=cls.author_id_2), link=cls.inbox_item_post_link)
+        inbox_item.save()
 
     def test_author_get(cls):
         """
@@ -303,7 +310,6 @@ class TestCases(TestCase):
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-
     # TODO: Fill out this test
     def test_all_post_post(cls):
         """
@@ -405,3 +411,80 @@ class TestCases(TestCase):
         url = reverse("PostComments", kwargs={"author_id":cls.author_id_1, "post_id":"abc"})
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_inbox_get(cls):
+        """Test the GET author/{AUTHOR_ID}/inbox/ endpoint"""
+        AUTHOR_ID = cls.author_id_2
+        client = Client()
+        url = reverse("inbox", kwargs={"author_id":AUTHOR_ID})
+        # Get inbox without auth
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Get inbox WITH auth (Y. Alaqra https://stackoverflow.com/q/55033950)
+        factory = APIRequestFactory()
+        view = views.InboxEndpoint.as_view()
+        user = Author.objects.get(pk=AUTHOR_ID)
+        request = factory.get(url)
+        force_authenticate(request, user=user)
+        # Problem: InboxItemToJSON won't be able to get the right json because
+        # the app isn't actually running. (Returns the placeholder json)
+        response = view(request, author_id=str(AUTHOR_ID))
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.get("Content-Type"), "application/json")
+        response_content = json.loads(response.content.decode('utf-8'))
+        cls.assertNotEqual(len(response_content["items"]), 0)
+    
+    
+    def test_inbox_post(cls):
+        """Test the POST author/{AUTHOR_ID}/inbox/ endpoint"""
+        AUTHOR_ID = cls.author_id_2
+        client = Client()
+        url = reverse("inbox", kwargs={"author_id":AUTHOR_ID})
+        to_post = { "link":cls.inbox_item_post_link }
+        # POST to an author's inbox without auth
+        response = client.post(url, to_post, content_type="application/json")
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # POST to an author's inbox WITH auth
+        factory = APIRequestFactory()
+        view = views.InboxEndpoint.as_view()
+        user = Author.objects.get(pk=AUTHOR_ID)
+        request = factory.post(url, to_post)
+        force_authenticate(request, user=user)
+        response = view(request, author_id=str(AUTHOR_ID))
+        cls.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Now GET to make sure
+        request = factory.get(url)
+        force_authenticate(request, user=user)
+        response = view(request, author_id=str(AUTHOR_ID))
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.get("Content-Type"), "application/json")
+        response_content = json.loads(response.content.decode('utf-8'))
+        # setUp already saved one InboxItem, so now we should have two
+        cls.assertEqual(len(response_content["items"]), 2)
+
+
+    def test_inbox_delete(cls):
+        """Test the DELETE author/{AUTHOR_ID}/inbox/ endpoint"""
+        AUTHOR_ID = cls.author_id_2
+        client = Client()
+        url = reverse("inbox", kwargs={"author_id":AUTHOR_ID})
+        # DELETE (clear the inbox) without auth
+        response = client.delete(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # DELETE (clear the inbox) with auth
+        factory = APIRequestFactory()
+        view = views.InboxEndpoint.as_view()
+        user = Author.objects.get(pk=AUTHOR_ID)
+        request = factory.delete(url)
+        force_authenticate(request, user=user)
+        response = view(request, author_id=str(AUTHOR_ID))
+        cls.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # Now GET to make sure
+        request = factory.get(url)
+        force_authenticate(request, user=user)
+        response = view(request, author_id=str(AUTHOR_ID))
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+        cls.assertEqual(response.get("Content-Type"), "application/json")
+        response_content = json.loads(response.content.decode('utf-8'))
+        cls.assertEqual(len(response_content["items"]), 0) # is it empty?
