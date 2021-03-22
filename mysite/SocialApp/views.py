@@ -112,7 +112,6 @@ class AuthorEndpoint(APIView):
         """
         Handles POST requests
         """
-        # TODO: Make this authenticated
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -123,6 +122,12 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=404)
         except Exception:
             return HttpResponse(status=400)
+
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+
+        if request.user.id != author_id:
+            return HttpResponse(status=401)
 
         jsonData = request.data
         author.displayName = jsonData.get("displayName")

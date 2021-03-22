@@ -104,7 +104,12 @@ class TestCases(TestCase):
         """
         # Test a good request
         client = Client()
+        
+        # Force a test login as the second author
+        client.force_login(Author.objects.get(pk=cls.author_id_2))
         url = reverse("Author", kwargs={"author_id":cls.author_id_2})
+
+        # Modify the author's information via POST
         new_display_name = "Test Author 3"
         new_github = "github.com/testauthor3"
         json = {
@@ -113,6 +118,7 @@ class TestCases(TestCase):
         }
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
+
         # Try GET on updated object and see if they match
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
