@@ -88,7 +88,7 @@ def CommentToJSON(comment):
             "author":AuthorToJSON(comment.author),
             "comment":comment.comment,
             "contentType":comment.content_type,
-            "published":comment.published,
+            "published":str(comment.published),
             "id":comment.url
         }
         return json
