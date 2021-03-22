@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from .models import Author, Post, Comment, LikedPost
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, PostListToJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -155,7 +155,6 @@ class PostEndpoint(APIView):
         """
         Handles GET requests to retrieve a JSON representation of the post specified in the URL
         """
-        # TODO: Make this authenticated if not PUBLIC
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
@@ -180,6 +179,14 @@ class PostEndpoint(APIView):
 
         if post.author != author:
             return HttpResponse(status=404)
+
+        # Public posts can be viewed by anyone
+        if post.visibility != "PUBLIC":
+            # Check that a user is authenticated
+            if not request.user.is_authenticated:
+                return HttpResponse(status=401)
+
+            # TODO: Must be author's friend to have access
 
         json = PostToJSON(post)
         if json:
@@ -230,7 +237,6 @@ class PostEndpoint(APIView):
         if request.user != author:
             return HttpResponse(status=401)
 
-        # TODO: Handle categories
         jsonData = request.data
         post.title = jsonData.get("title")
         post.description = jsonData.get("description")
@@ -238,6 +244,7 @@ class PostEndpoint(APIView):
         post.content = jsonData.get("content")
         post.visibility = jsonData.get("visibility")
         post.unlisted = bool(jsonData.get("unlisted"))
+        post.categories = StringListToCategories(jsonData.get("categories"))
         post.save()
 
         return HttpResponse(status=200)
@@ -289,7 +296,6 @@ class PostEndpoint(APIView):
 
         return HttpResponse(status=200)
 
-    # TODO: Should put prevent overwriting an existing post???
     def put(self, request, *args, **kwargs):
         """
         Handles PUT requests to create a new post with the ID and author specified by the URL
@@ -359,13 +365,9 @@ class AuthorPostsEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        post_json_list = []
         posts = Post.objects.filter(author=author)
-        for post in posts:
-            json = PostToJSON(post)
-            if json:
-                post_json_list.append(json)
-        return JsonResponse({"posts":post_json_list})
+        json = PostListToJSON(posts)
+        return JsonResponse({"posts":json})
 
     def post(self, request, *args, **kwargs):
         """
