@@ -185,12 +185,14 @@ class TestCases(TestCase):
         new_content_type = "text/markdown"
         new_content = "Some different body text."
         new_visibility = "FRIENDS"
+        new_categories = ["Test Category 4", "Test Category 5"]
         new_unlisted = True
         json = {
             "title":new_title,
             "description":new_description,
             "contentType":new_content_type,
             "content":new_content,
+            "categories":new_categories,
             "visibility":new_visibility,
             "unlisted":new_unlisted
         }
