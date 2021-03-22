@@ -2,7 +2,7 @@
 Uses Django's TestCase to run unit tests on our REST API endpoints.
 This ensures each test is run inside a transaction to provide isolation.
 """
-import uuid
+import uuid, json
 from django.test import TestCase, Client
 from django.conf import settings
 from django.urls import reverse
@@ -419,23 +419,29 @@ class TestCases(TestCase):
         url = reverse("inbox", kwargs={"author_id":cls.author_id_1})
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        # Get inbox WITH auth (using a different method)
+        # Get inbox WITH auth (Y. Alaqra https://stackoverflow.com/q/55033950)
         factory = APIRequestFactory()
         view = views.InboxEndpoint.as_view()
         user = Author.objects.get(pk=cls.author_id_1)
         request = factory.get(url)
         force_authenticate(request, user=user)
         # Problem: InboxItemToJSON won't be able to get the right json because
-        # the app isn't actually running. (Gets placeholder json every time)
+        # the app isn't actually running. (Returns the placeholder json every time)
         response = view(request, author_id=str(cls.author_id_1))
         cls.assertEqual(response.status_code, status.HTTP_200_OK)
         # I guess just returning any JSON is good enough for now.
         cls.assertEqual(response.get("Content-Type"), "application/json")
-        
+        response_content = json.loads(response.content.decode('utf-8'))
+        cls.assertNotEqual(response_content["items"], 0)
     
-    def test_inbox_post(cls):
-        """Test the POST author/{AUTHOR_ID}/inbox/ endpoint"""
-        pass
+    
+    # def test_inbox_post(cls):
+    #     """Test the POST author/{AUTHOR_ID}/inbox/ endpoint"""
+    #     # POST to an author's inbox without auth
+    #     client = Client()
+    #     url = reverse("inbox", kwargs={"author_id":cls.author_id_1})
+    #     response = client.post(url)
+
     
 
     def test_inbox_delete(cls):

@@ -117,7 +117,7 @@ def InboxItemToJSON(item):
             "comments":"",
             "published":"",
             "visibility":"PUBLIC",
-            "unlisted":"true"
+            "unlisted":True
         }
         print(e)
         return placeholder
