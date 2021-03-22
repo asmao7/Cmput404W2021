@@ -244,7 +244,7 @@ class PostEndpoint(APIView):
         post.content = jsonData.get("content")
         post.visibility = jsonData.get("visibility")
         post.unlisted = bool(jsonData.get("unlisted"))
-        post.categories = StringListToPostCategoryList(jsonData.get("categories"))
+        post.categories.set(StringListToPostCategoryList(jsonData.get("categories")))
         post.save()
 
         return HttpResponse(status=200)
