@@ -124,9 +124,11 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=400)
 
         if not request.user.is_authenticated:
+            print("not authenticated")
             return HttpResponse(status=401)
 
-        if request.user.id != author_id:
+        if request.user != author:
+            print("authors not equal")
             return HttpResponse(status=401)
 
         jsonData = request.data
