@@ -1,7 +1,8 @@
 """
 Contains useful helper functions
 """
-from .models import Author, Post, Comment, PostCategory
+import requests
+from .models import Author, Post, Comment, PostCategory, InboxItem
 
 def AuthorToJSON(author):
     """
@@ -150,3 +151,43 @@ def StringListToPostCategoryList(category_list):
         return categories
     except:
         return []
+
+      
+def InboxItemToJSON(item):
+    """
+    Converts an InboxItem object into a JSON-compatible dictionary.
+    Request the InboxItem's link and rely on APIs to return the right JSONs.
+    eg. see SocialApp.views.PostEndpoint.get()
+    Returns None on failure.
+    item - an InboxItem object
+    """
+    if not item:
+        return None
+    try:
+        # NOTE: may need to convert given template urls to API urls
+        # NOTE: Follows added to the inbox need to be "approved" later
+        r = requests.get(item.link)
+        json = r.json() # returns JSON, not Dict
+        return json
+    except Exception as e:
+        # Can't get the object from `link` eg. doesn't exist
+        placeholder = {
+            "type":"post",
+            "title":"Something went wrong.",
+            "id":item.link,
+            "source":"",
+            "origin":"",
+            "description":"There was a shared item here, but we couldn't retrieve it.",
+            "contentType":"text/plain",
+            "content":str(e),
+            "author":{},
+            "categories":"",
+            "count":0,
+            "size":0,
+            "comments":"",
+            "published":"",
+            "visibility":"PUBLIC",
+            "unlisted":True
+        }
+        print(e)
+        return placeholder
