@@ -67,7 +67,6 @@ def like(request, pk):
 	return HttpResponseRedirect(reverse('author'))
 
 def home(request):
-    print(request.user.id)
     return render(request, 'home.html', {})
 
 def author(request):
