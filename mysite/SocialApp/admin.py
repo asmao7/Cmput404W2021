@@ -59,11 +59,6 @@ class AuthorAdmin(UserAdmin):
         ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    add_fieldsets = (
-        (None, {'fields': ('username', 'email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'github')}),
-        ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
-    )
 
 
 # Set some admin site variables
