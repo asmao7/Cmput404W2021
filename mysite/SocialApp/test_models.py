@@ -22,21 +22,17 @@ class TestCases(TestCase):
         # Set up two test authors
         cls.author_id_1 = uuid.uuid4()
         cls.author_host_1 = settings.HOST_NAME
-        cls.author_display_name_1 = "Test Author 1"
         cls.author_username_1 = "TestAuthor1"
         cls.author_github_1 = "github.com/testauthor1"
         author_1 = Author(id=cls.author_id_1, host=cls.author_host_1,
-                          display_name=cls.author_display_name_1,
                           github=cls.author_github_1, username=cls.author_username_1)
         author_1.save()
 
         cls.author_id_2 = uuid.uuid4()
         cls.author_host_2 = settings.HOST_NAME
-        cls.author_display_name_2 = "Test Author 2"
         cls.author_username_2 = "TestAuthor2"
         cls.author_github_2 = "github.com/testauthor2"
         author_2 = Author(id=cls.author_id_2, host=cls.author_host_2,
-                          display_name=cls.author_display_name_2,
                           github=cls.author_github_2, username=cls.author_username_2)
         author_2.save()
 
@@ -79,7 +75,7 @@ class TestCases(TestCase):
         that comments, authors, and posts are related appropriately
         """
         author = Author.objects.filter(comment__post__author__id=cls.author_id_1).all()[0]
-        cls.assertEqual(cls.author_display_name_2, author.display_name)
+        cls.assertEqual(cls.author_username_2, author.username)
 
     def test_author_url(cls):
         """
