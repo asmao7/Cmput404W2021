@@ -435,13 +435,24 @@ class PostCommentsEndpoint(APIView):
 def followerView(request):
     
     current_author_id = request.user.id
-    print(current_author_id)
     current_author = Author.objects.get(pk=current_author_id)
     followers = []
     followers_list = current_author.followee.all() #all the people currently following this user
 
+    #all the people that you currently follow 
+    #TODO move these to the friends tab
+    following = current_author.following.all()
+    following_list = []
+
+    for author in following:
+        following_list.append(author.author_to)
+
     for follower in followers_list:
-        followers.append(follower)
+        if follower.author_from in following_list:
+            pass
+        else:
+            followers.append(follower)
+
 
     if not followers:
        is_empty = True
@@ -455,11 +466,17 @@ def findFollower(request):
     author_id = request.user.id
     author_object = Author.objects.get(pk=author_id)
     following_list = []
-    #follow_list = author_object.followed_by.all()  #get all the current user followers
     following = author_object.following.all()  #all the people the current user follows
     
     for follower in following:
         following_list.append(follower.author_to) #append the author being followed
+
+    #get all the current author's followers so they only show up in the followers tab
+    followers = author_object.followee.all() 
+
+    for follower_author in followers:
+        following_list.append(follower_author.author_from) #append the author being followed
+
 
     all_authors = Author.objects.exclude(pk=author_id).exclude(is_staff=True)
     authors = []   #list of all authors not followed by the author
@@ -494,29 +511,39 @@ def addFollower(request, foreign_author_id):
     is_new_follower = True
     return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
 
+def friendsView(request):
+    return render(request, 'friends.html')
 
-def deleteFollower(request, foreign_author_id):
+
+def deleteFollower(request, foreign_author_id): 
+    """ un follow an author """
 
     foreign_author =  Author.objects.get(pk=foreign_author_id)
     current_author_id = request.user.id
     current_author =  Author.objects.get(pk=current_author_id)
-    current_follower = current_author.followee.filter(author_from=foreign_author)
+    current_follower = current_author.following.filter(author_to=foreign_author)
 
     # can only delete someone that was following you
     if current_follower.exists():
         current_follower.delete()
 
+    following = []
+    following_list = current_author.following.all()
+    for following_author in following_list:
+        following.append(following_author)
+
     followers = []
-    followers_list = current_author.followee.all()
-    for follower in followers_list:
+    follower_list = current_author.followee.all()
+    for follwer in follower_list:
         followers.append(follower)
 
-    if not followers:
+    if not following:
        is_empty = True
     else:
         is_empty = False
 
 
+   # chnage to render friends template
     return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty} )
 
 class EditFollowersEndpoint(APIView): 
@@ -622,7 +649,7 @@ class EditFollowersEndpoint(APIView):
             return HttpResponse(status=404)
 
         # current_author = Author.objects.get(pk=author_id)
-        current_follower = current_author.followee.filter(author_from=foreign_author)
+        current_follower = current_author.following.filter(author_to=foreign_author)
 
         # can only delete someone that was following you
         if current_follower.exists():

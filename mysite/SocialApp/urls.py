@@ -25,6 +25,7 @@ urlpatterns = [
   path('findFollowers', views.findFollower, name='findFollowers'),
   path('addfollower/<str:foreign_author_id>', views.addFollower, name='addfollower'),
   path('deletefollower/<str:foreign_author_id>', views.deleteFollower, name='deletefollower'),
+  path('friends', views.friendsView, name="friends"),
   path('author/<str:author_id>/posts/', views.AuthorPostsEndpoint.as_view(), name='AuthorPosts'),
   path('author/<str:author_id>/posts/<str:post_id>/comments/', views.PostCommentsEndpoint.as_view(), name="PostComments"), 
   path('author/<str:author_id>/followers', views.GetFollowersEndpoint.as_view(), name='getFollowers'),

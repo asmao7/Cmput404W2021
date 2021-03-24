@@ -24,10 +24,10 @@
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-        <!--Followers-->
+        <!--Friends
         {% if is_empty %}
         <div class="authorcard_list">
-            <p class="message"> No new followers, Use Find Followers to follow new users</p>
+            <p class="message"> You dont have any friends yet, Use Find Followers to add Followers</p>
         {% else %}                  
             {% for follower in followers %}
             <li>
@@ -37,14 +37,14 @@
                             <p class="message">{{ follower.author_from}}</p>
                             </div>
                      <div class="button-container"> 
-                       <!--<a class="button" href="{% url 'deletefollower' follower.author_from.id %}">Remove Follower</a>-->
-                        <a class="button" href="{% url 'addfollower' follower.author_from.id %}">Follow Back</a>
+                       <!<a class="button" href="{% url 'deletefollower' follower.author_from.id %}">Remove Follower</a>>
+                        <a class="button" href="{% url 'addfollower' follower.author_from.id %}">UnFollow</a>
                     </div>
                 </div>
             </li>
             {% endfor%}
         {% endif %}
-        </div>
+        </div> -->
         
     </body>
 </html>
