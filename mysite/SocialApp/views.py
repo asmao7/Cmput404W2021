@@ -138,7 +138,7 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author:
+        if request.user != author and not request.user.is_server:
             return HttpResponse(status=401)
 
         # Update author info
@@ -237,7 +237,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author:
+        if request.user != author and not request.user.is_server:
             return HttpResponse(status=401)
 
         jsonData = request.data
@@ -292,7 +292,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author:
+        if request.user != author and not request.user.is_server:
             return HttpResponse(status=401)
 
         post.delete()
@@ -333,7 +333,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author:
+        if request.user != author and not request.user.is_server:
             return HttpResponse(status=401)
 
         try:
@@ -395,7 +395,7 @@ class AuthorPostsEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author:
+        if request.user != author and not request.user.is_server:
             return HttpResponse(status=401)
 
         try:
@@ -796,7 +796,7 @@ class InboxEndpoint(APIView):
         if author_id == -1:
             return HttpResponse(status=400)
         # Assuming that nobody else can GET your inbox
-        if request.user.is_authenticated and str(request.user.id) == author_id:
+        if request.user.is_authenticated and str(request.user.id) == author_id and not request.user.is_server:
             # Get inbox items and format into JSON to return
             inbox_items = InboxItem.objects.filter(author=request.user.id)
             item_json_list = []
@@ -846,7 +846,7 @@ class InboxEndpoint(APIView):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
-        if request.user.is_authenticated and str(request.user.id) == author_id:
+        if request.user.is_authenticated and str(request.user.id) == author_id and not request.user.is_server:
             inbox_items = InboxItem.objects.filter(author=request.user.id)
             # NOTE: does not check to see if Inbox is already empty
             inbox_items.delete()
