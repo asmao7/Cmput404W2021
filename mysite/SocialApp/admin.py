@@ -2,6 +2,7 @@
 Contains Django admin related configurations
 """
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from .models import Post, Author, PostCategory, Comment, LikedPost, Followers

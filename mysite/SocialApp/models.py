@@ -26,7 +26,7 @@ class Author(AbstractUser):
     # URL that points to the REST api endpoint for this author - also used as the "id" in the protocol
     url = models.CharField(max_length=200, editable=False)
     # URL to the user's github. Editable by the user.
-    github = models.CharField(max_length=200)
+    github = models.CharField(max_length=200, blank=True)
     # Whether or not this account is allowed to log-in (default driven by settings.py)
     is_active = models.BooleanField(default=settings.NEW_ACCOUNTS_AUTO_APPROVED)
     #followers stores the number of users following the current user linking them through the intermediate table Followers
