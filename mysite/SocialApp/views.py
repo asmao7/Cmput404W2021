@@ -782,6 +782,8 @@ class GetFollowersEndpoint(APIView):
             return JsonResponse(json)
         else:
             return HttpResponse(status=500)
+
+
 class InboxEndpoint(APIView):
     """
     ://service/author/{AUTHOR_ID}/inbox
@@ -795,10 +797,18 @@ class InboxEndpoint(APIView):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
         # Assuming that nobody else can GET your inbox
-        if request.user.is_authenticated and str(request.user.id) == author_id and not request.user.is_server:
+        if request.user.is_authenticated and str(request.user.id) == author_id or request.user.is_server:
             # Get inbox items and format into JSON to return
-            inbox_items = InboxItem.objects.filter(author=request.user.id)
+            inbox_items = InboxItem.objects.filter(author=author)
             item_json_list = []
             for item in inbox_items:
                 json = InboxItemToJSON(item) # will request whatever's at link
@@ -846,7 +856,7 @@ class InboxEndpoint(APIView):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
-        if request.user.is_authenticated and str(request.user.id) == author_id and not request.user.is_server:
+        if request.user.is_authenticated and str(request.user.id) == author_id:
             inbox_items = InboxItem.objects.filter(author=request.user.id)
             # NOTE: does not check to see if Inbox is already empty
             inbox_items.delete()
