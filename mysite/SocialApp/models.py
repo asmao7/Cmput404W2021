@@ -88,10 +88,8 @@ class Post(models.Model):
     description = models.CharField(max_length=200)
     # The content type of the post. Must be one of a few specific types.
     content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default="text/plain")
-    # The text-based content associated with this post. If the post is an image, should point to that image.
-    text_content = models.TextField(blank=True, default="")
-    # The image-based content associated with this post. If the post is a text post, should be null
-    image_content = models.ImageField(upload_to="post_images", blank=True, null=True)
+    # The content associated with this post. If the post is an image, should be base64 encoded text.
+    content = models.TextField(blank=True, default="")
     # The author of this post
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     # The categories this post has been tagged with
@@ -147,7 +145,7 @@ class Comment(models.Model):
         super(Comment, self).save(*args, **kwargs)
 
 class Followers(models.Model):
-    #get a specific user's followers
+    """ get a specific user's followers """
     author_from = models.ForeignKey(Author, related_name='following', on_delete=models.CASCADE) #person pressing follow
     author_to = models.ForeignKey(Author, related_name='followee', on_delete=models.CASCADE, default=None) #person being followed
 
@@ -162,3 +160,9 @@ class Followers(models.Model):
 def check_self_following(sender, instance, **kwargs):
     if instance.author_from == instance.author_to:
         raise ValidationError('ERROR!!, you cannot follow yourself ')
+
+class InboxItem(models.Model):
+    """ An item in an Author's inbox. Links to a post, follow, or like. """
+    author = models.ForeignKey(Author, on_delete=models.CASCADE) # the recipient
+    link = models.TextField()
+
