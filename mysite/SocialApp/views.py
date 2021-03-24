@@ -806,7 +806,7 @@ class InboxEndpoint(APIView):
             return HttpResponse(status=404)
 
         # Assuming that nobody else can GET your inbox
-        if request.user.is_authenticated and str(request.user.id) == author_id or request.user.is_server:
+        if request.user.is_authenticated and (str(request.user.id) == author_id or request.user.is_server):
             # Get inbox items and format into JSON to return
             inbox_items = InboxItem.objects.filter(author=author)
             item_json_list = []
