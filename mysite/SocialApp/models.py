@@ -23,12 +23,10 @@ class Author(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # Automatically derived from the HOST_NAME field in settings.py
     host = models.CharField(max_length=100, default=settings.HOST_NAME, editable=False)
-    # Self-identification by the author. Not used for authentication.
-    display_name = models.CharField(max_length=100)
     # URL that points to the REST api endpoint for this author - also used as the "id" in the protocol
     url = models.CharField(max_length=200, editable=False)
     # URL to the user's github. Editable by the user.
-    github = models.CharField(max_length=200)
+    github = models.CharField(max_length=200, blank=True)
     # Whether or not this account is allowed to log-in (default driven by settings.py)
     is_active = models.BooleanField(default=settings.NEW_ACCOUNTS_AUTO_APPROVED)
     #followers stores the number of users following the current user linking them through the intermediate table Followers

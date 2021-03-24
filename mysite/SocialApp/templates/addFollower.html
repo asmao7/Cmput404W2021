@@ -27,13 +27,13 @@
                         <div class="authorcard_list">
                                 <div class="user-info">
                                     <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
-                                        <p class="message">{{ foreign_author.display_name }}</p>
+                                        <p class="message">{{ foreign_author.username }}</p>
                                         </div>
                                 <div class="button-container"> 
                                     {% if new_follower %}
-                                        <p class="is_follower"> Your follow request has been sent to {{ foreign_author.display_name }}</p>
+                                        <p class="is_follower"> Your follow request has been sent to {{ foreign_author.username }}</p>
                                     {% else %}
-                                        <p class="is_follower"> Errror adding {{ foreign_author.display_name }} as follower </p>
+                                        <p class="is_follower"> Errror adding {{ foreign_author.username }} as follower </p>
                                     {% endif %}
                                 </div>
                             </div>
