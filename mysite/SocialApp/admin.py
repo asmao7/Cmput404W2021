@@ -29,7 +29,8 @@ class AuthorChangeForm(UserChangeForm):
     """
     class Meta:
         model = Author
-        fields = ("username", "password", "first_name", "last_name", "display_name", "email", "github", "is_active", "is_staff", "is_superuser", "groups", "user_permissions",)
+        fields = ("username", "password", "first_name", "last_name", "display_name", "email", "github", "is_active", "is_server", "is_superuser",)
+        exclude = ("groups", "user_permissions",)
 
 
 class AuthorAdmin(UserAdmin):
@@ -38,6 +39,18 @@ class AuthorAdmin(UserAdmin):
     """
     model = Author
     form = AuthorChangeForm
+    add_form = AuthorCreationForm
+    list_display = ('email', 'is_active',)
+    list_filter = ('email', "is_active",)
+    fieldsets = (
+        (None, {'fields': ('username', 'email', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'display_name', 'github')}),
+        ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    )
+    add_fieldsets = (
+    )
+
 
 # Set some admin site variables
 admin.site.site_header = "Social Distribution Project Admin"
