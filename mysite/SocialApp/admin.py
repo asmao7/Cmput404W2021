@@ -32,6 +32,11 @@ class AuthorChangeForm(UserChangeForm):
         model = Author
         fields = ("username", "password", "first_name", "last_name", "email", "github", "is_active", "is_server", "is_superuser",)
         exclude = ("groups", "user_permissions",)
+        help_texts = {
+            "is_active": "Whether or not a user has permission to log-in.",
+            "is_server": "Gives this user elevated permissions with the REST API. Used for remote server credentials.",
+            "is_superuser": "Gives this user full administrator permissions.",
+        }
 
 
 class AuthorAdmin(UserAdmin):
