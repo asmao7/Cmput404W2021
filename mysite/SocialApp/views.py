@@ -439,7 +439,7 @@ def followerView(request):
     followers = []
     followers_list = current_author.followee.all() #all the people currently following this user
 
-    #all the people that you currently follow 
+    #all the people that the user currently follows 
     #TODO move these to the friends tab
     following = current_author.following.all()
     following_list = []
@@ -512,10 +512,34 @@ def addFollower(request, foreign_author_id):
     return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
 
 def friendsView(request):
-    return render(request, 'friends.html')
+
+    current_author_id = request.user.id
+    current_author = Author.objects.get(pk=current_author_id)
+    friends = []
+    current_followers_list = current_author.followee.all() #all the people currently following this user
+
+    #all the people that the user currently follows
+    #TODO move these to the friends tab
+    current_following = current_author.following.all()
+    current_following_list = []
+
+    for author in current_following:
+        current_following_list.append(author.author_to)
+
+    for follower in current_followers_list:
+        if follower.author_from in current_following_list:
+            friends.append(follower)
 
 
-def deleteFollower(request, foreign_author_id): 
+    if not friends:
+       is_empty = True
+    else:
+        is_empty = False
+
+    return render(request, 'friends.html', {"friends":friends, 'is_empty': is_empty} )
+
+
+def unFollow(request, foreign_author_id): 
     """ un follow an author """
 
     foreign_author =  Author.objects.get(pk=foreign_author_id)
@@ -534,7 +558,7 @@ def deleteFollower(request, foreign_author_id):
 
     followers = []
     follower_list = current_author.followee.all()
-    for follwer in follower_list:
+    for follower in follower_list:
         followers.append(follower)
 
     if not following:
@@ -544,7 +568,7 @@ def deleteFollower(request, foreign_author_id):
 
 
    # chnage to render friends template
-    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty} )
+    return friendsView(request)
 
 class EditFollowersEndpoint(APIView): 
 

@@ -24,27 +24,26 @@
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-        <!--Friends
+        <!--Friends -->
         {% if is_empty %}
         <div class="authorcard_list">
             <p class="message"> You dont have any friends yet, Use Find Followers to add Followers</p>
         {% else %}                  
-            {% for follower in followers %}
+            {% for friend in friends %}
             <li>
             <div class="authorcard_list">
                     <div class="user-info">
                          <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
-                            <p class="message">{{ follower.author_from}}</p>
+                            <p class="message">{{ friend.author_from}}</p>
                             </div>
                      <div class="button-container"> 
-                       <!<a class="button" href="{% url 'deletefollower' follower.author_from.id %}">Remove Follower</a>>
-                        <a class="button" href="{% url 'addfollower' follower.author_from.id %}">UnFollow</a>
+                        <a class="button" href="{% url 'unfollow' friend.author_from.id %}">UnFollow</a>
                     </div>
                 </div>
             </li>
             {% endfor%}
         {% endif %}
-        </div> -->
+        </div>
         
     </body>
 </html>
