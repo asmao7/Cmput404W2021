@@ -21,6 +21,11 @@ class AuthorCreationForm(UserCreationForm):
     class Meta:
         model = Author
         fields = UserCreationForm.Meta.fields + ("github",)
+        help_texts = {
+            "is_active": "Whether or not a user has permission to log-in.",
+            "is_server": "Gives this user elevated permissions with the REST API. Used for remote server credentials.",
+            "is_superuser": "Gives this user full administrator permissions.",
+        }
 
 
 #TODO: Find a way to display read-only fields
@@ -41,7 +46,7 @@ class AuthorChangeForm(UserChangeForm):
 
 class AuthorAdmin(UserAdmin):
     """
-    Author model representation ni Django admin
+    Author model representation in Django admin
     """
     model = Author
     form = AuthorChangeForm
