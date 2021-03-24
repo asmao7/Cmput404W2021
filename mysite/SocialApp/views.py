@@ -1,15 +1,20 @@
+from django.shortcuts import render
+from django.shortcuts import render
+from rest_framework.views import APIView
+from .forms import SignUpForm, LoginForm
+
 import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import uuid
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
-from rest_framework.views import APIView
+from rest_framework.views import APIView, status
 
-from .models import Author, Post, Comment, LikedPost, InboxItem
+from .models import Author, Post, Comment, LikedPost, InboxItem, Followers
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, PostListToJSON, InboxItemToJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, PostListToJSON, InboxItemToJSON , FollowerFinalJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -80,7 +85,6 @@ def newPost(request):
 
 def newMessage(request):
     return render(request, 'newMessage.html', {})
-
 
 class AuthorEndpoint(APIView):
     """
@@ -496,6 +500,288 @@ class PostCommentsEndpoint(APIView):
             return HttpResponse(status=500)
 
 
+def followerView(request):
+    
+    current_author_id = request.user.id
+    current_author = Author.objects.get(pk=current_author_id)
+    followers = []
+    followers_list = current_author.followee.all() #all the people currently following this user
+
+    #all the people that the user currently follows 
+    #TODO move these to the friends tab
+    following = current_author.following.all()
+    following_list = []
+
+    for author in following:
+        following_list.append(author.author_to)
+
+    for follower in followers_list:
+        if follower.author_from in following_list:
+            pass
+        else:
+            followers.append(follower)
+
+
+    if not followers:
+       is_empty = True
+    else:
+        is_empty = False
+
+    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty} )
+
+
+def findFollower(request):
+    author_id = request.user.id
+    author_object = Author.objects.get(pk=author_id)
+    following_list = []
+    following = author_object.following.all()  #all the people the current user follows
+    
+    for follower in following:
+        following_list.append(follower.author_to) #append the author being followed
+
+    #get all the current author's followers so they only show up in the followers tab
+    followers = author_object.followee.all() 
+
+    for follower_author in followers:
+        following_list.append(follower_author.author_from) #append the author being followed
+
+
+    all_authors = Author.objects.exclude(pk=author_id).exclude(is_staff=True)
+    authors = []   #list of all authors not followed by the author
+
+    for current in all_authors:
+        if current in following_list:
+            pass
+        else:
+            authors.append(current)
+    
+    if not authors:
+        is_empty = True
+    else:
+        is_empty  = False
+
+    return render(request, 'find_friends.html', {"author_list":authors, 'is_empty': is_empty})
+
+
+def addFollower(request, foreign_author_id):
+    #add new follower and return followers list with new follower included
+    #TODO authenticate follower addition
+    #TODO check correct save
+    #TODO order of add for unique constraint for friends
+    foreign_author =  Author.objects.get(pk=foreign_author_id)
+    current_author_id = request.user.id
+    current_author =  Author.objects.get(pk=current_author_id)
+
+    if current_author_id == foreign_author_id:
+            is_new_follower = False
+            return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+    new_follower = Followers.objects.create(author_from=current_author, author_to=foreign_author)
+    is_new_follower = True
+    return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+
+def friendsView(request):
+
+    current_author_id = request.user.id
+    current_author = Author.objects.get(pk=current_author_id)
+    friends = []
+    current_followers_list = current_author.followee.all() #all the people currently following this user
+
+    #all the people that the user currently follows
+    #TODO move these to the friends tab
+    current_following = current_author.following.all()
+    current_following_list = []
+
+    for author in current_following:
+        current_following_list.append(author.author_to)
+
+    for follower in current_followers_list:
+        if follower.author_from in current_following_list:
+            friends.append(follower)
+
+
+    if not friends:
+       is_empty = True
+    else:
+        is_empty = False
+
+    return render(request, 'friends.html', {"friends":friends, 'is_empty': is_empty} )
+
+
+def unFollow(request, foreign_author_id): 
+    """ un follow an author """
+
+    foreign_author =  Author.objects.get(pk=foreign_author_id)
+    current_author_id = request.user.id
+    current_author =  Author.objects.get(pk=current_author_id)
+    current_follower = current_author.following.filter(author_to=foreign_author)
+
+    # can only delete someone that was following you
+    if current_follower.exists():
+        current_follower.delete()
+
+    following = []
+    following_list = current_author.following.all()
+    for following_author in following_list:
+        following.append(following_author)
+
+    followers = []
+    follower_list = current_author.followee.all()
+    for follower in follower_list:
+        followers.append(follower)
+
+    if not following:
+       is_empty = True
+    else:
+        is_empty = False
+
+
+   # chnage to render friends template
+    return friendsView(request)
+
+class EditFollowersEndpoint(APIView): 
+
+    def get(self, request, *args, **kwargs):
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+
+        if not author:
+            return HttpResponse(status=404)
+
+        foreign_author_id = kwargs.get("foreign_author_id", -1)
+        if foreign_author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            get_foreign_author = Author.objects.get(pk=foreign_author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=400)
+
+        if not get_foreign_author:
+            return HttpResponse(status=404)
+
+        if author_id == foreign_author_id:
+            return HttpResponse(status=400)
+
+        follower_json = AuthorToJSON(get_foreign_author)
+
+        if follower_json:
+            return JsonResponse(follower_json)
+        else:
+            return HttpResponse(status=500)
+
+
+
+    def put(self, request, *args, **kwargs):  
+        #TODO need to authenticate
+        #TODO modularize getting followers
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+
+        foreign_author_id = kwargs.get("foreign_author_id", -1)
+        if foreign_author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            foreign_author = Author.objects.get(pk=foreign_author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+        #if author ID same as foreign_author_id bad request since you cannot follow yourself
+        if author_id == foreign_author_id:
+            return HttpResponse(status=400)
+        
+        #check if already following first 
+        is_current_follower = current_author.following.filter(author_to=foreign_author_id)
+        if is_current_follower.exists():
+            return HttpResponse(status=400)
+
+        else:
+            new_follower = Followers.objects.create(author_from=author, author_to=foreign_author)
+            return HttpResponse(status=200)
+    
+
+    def delete(self, request, *args, **kwargs):
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+        foreign_author_id = kwargs.get("foreign_author_id", -1)
+        if foreign_author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            foreign_author = Author.objects.get(pk=foreign_author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+        # current_author = Author.objects.get(pk=author_id)
+        current_follower = current_author.following.filter(author_to=foreign_author)
+
+        # can only delete someone that was following you
+        if current_follower.exists():
+            current_follower.delete()
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=400)
+            
+
+class GetFollowersEndpoint(APIView):
+    """ Get all the followers of a specific user"""
+    def get(self, request, *args, **kwargs):
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+        followers = []
+
+        follower_json_list = []
+
+        followers_list = author.followed_by.all()
+        # followers_list = author.followee.all()
+
+        for follower in followers_list:
+            followers.append(follower)
+            follower_json = AuthorToJSON(follower)
+            follower_json_list.append(follower_json)
+
+        json = FollowerFinalJSON(follower_json_list)
+        if json:
+            return JsonResponse(json)
+        else:
+            return HttpResponse(status=500)
 class InboxEndpoint(APIView):
     """
     ://service/author/{AUTHOR_ID}/inbox

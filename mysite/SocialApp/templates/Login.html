@@ -9,21 +9,28 @@
 
     <body>
         <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper2.jpg"%}')";>
+        <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
         
         <!--Navigation menu-->
 		<div class="topnav">
 			<a class="active" href="index.html">Home</a>
-			<a href="Login.html">Login</a>
-			<a href="signup.html">Sign up</a>
-			<a href="#logout">Logout</a>
 		</div>
 
         <form class="box" action="index.html" method="post">
             <h1>Login</h1>
-            <input type="text" name="" placeholder="Username">
-            <input type="password" name="" placeholder="Password">
-            <a href="author.html">Login</a>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="fieldWrapper">
+            <label class="required" for="{{ form.UserName.id_for_label }}">Username </label>
+                {{ form.UserName }}
+            </div>
+            <div class="fieldWrapper">
+            <label class="required" for="{{ form.Password.id_for_label }}">Password </label>
+                {{ form.Password }}
+            </div>
+            <div>
+            <a class="button" href="{% url 'author' %}">Log In</a>
+            </div>
         </form>
     </body>
 </html>

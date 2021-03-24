@@ -6,6 +6,9 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 from django.utils.translation import gettext_lazy
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
+from django.core.exceptions import ValidationError
 
 #NOTE: django gives each model an auto generated id field:  id = models.AutoField(primary_key=True, **options)
 #NOTE: Django admin panels use __str__ to generate labels, so explicitly definiting them is important
@@ -28,6 +31,8 @@ class Author(AbstractUser):
     github = models.CharField(max_length=200)
     # Whether or not this account is allowed to log-in (default driven by settings.py)
     is_active = models.BooleanField(default=settings.NEW_ACCOUNTS_AUTO_APPROVED)
+    #followers stores the number of users following the current user linking them through the intermediate table Followers
+    followers = models.ManyToManyField('self', through='Followers',symmetrical=False,related_name='followed_by')
 
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
@@ -139,6 +144,22 @@ class Comment(models.Model):
             self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
         super(Comment, self).save(*args, **kwargs)
 
+class Followers(models.Model):
+    """ get a specific user's followers """
+    author_from = models.ForeignKey(Author, related_name='following', on_delete=models.CASCADE) #person pressing follow
+    author_to = models.ForeignKey(Author, related_name='followee', on_delete=models.CASCADE, default=None) #person being followed
+
+    # prohibit following same person twice
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['author_from','author_to'],  name="unique_follow")
+        ]
+
+#prohibit self following 
+@receiver(pre_save, sender=Followers)
+def check_self_following(sender, instance, **kwargs):
+    if instance.author_from == instance.author_to:
+        raise ValidationError('ERROR!!, you cannot follow yourself ')
 
 class InboxItem(models.Model):
     """ An item in an Author's inbox. Links to a post, follow, or like. """

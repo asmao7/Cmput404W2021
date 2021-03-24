@@ -29,13 +29,6 @@
     background-color: #ddd;
     color: black;
   }
-  
-  /* Add a color to the active/current link */
-  .topnav a.active {
-    background-color: rgb(150, 17, 61);
-    color: white;
-  }
-
 
 .comment{
   font-style: normal;
@@ -43,17 +36,17 @@
   text-align: center;
 }
 
-
 /*Login form styling*/
 .box{
-    width: 300px;
-    padding: 40px;
+    width: 400px;
+    padding: 5px;
     position: absolute;
     top: 50%;
     left:50%;
     transform: translate(-50%, -50%);
-    background: white;
+    background: #D3D3D3;;
     text-align: center;
+    border: 0.5px solid maroon;
 
 }
 
@@ -65,13 +58,13 @@
 .box input[type="text"], .box input[type="password"]{
     border: 0;
     background: none;
-    display: block;
+    /* display: block; */
     margin: 20px auto;
     text-align: center;
     border: 2px solid maroon;
     padding: 14px, 10px;
     width: 200px;
-    height: 50px;
+    height: 40px;
     outline: none;
     color: black;
     border-radius: 24px;
@@ -82,4 +75,35 @@
     background: none;
     color: black;
     
+}
+
+.button {
+  border: none;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 6px;
+  background-color:maroon;
+  border-radius: 12px;
+  width: 150px;
+}
+
+.button:hover {
+  background-color: #333; 
+  color: white;
+}
+
+.required:after {
+  content:"*";
+  color: red;
+}
+
+label {
+  display: inline-block;
+  width: 90px;
+  text-align: center;
+  padding: 5px;
 }

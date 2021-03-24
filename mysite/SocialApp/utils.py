@@ -2,7 +2,7 @@
 Contains useful helper functions
 """
 import requests
-from .models import Author, Post, Comment, PostCategory, InboxItem
+from .models import Author, Post, Comment, PostCategory, InboxItem, Followers
 
 def AuthorToJSON(author):
     """
@@ -52,6 +52,22 @@ def PostToJSON(post):
             "published":str(post.published),
             "visibility":post.visibility,
             "unlisted":post.unlisted
+        }
+        return json
+    except:
+        return None
+
+def FollowerFinalJSON(follower_list):
+    """
+    Converts Followe object into a JSON-compatible dictionary.
+    Returns None on failure.
+    """
+    if not follower_list:
+        return None
+    try:
+        json = {
+            "type":"followers",
+            "items": follower_list
         }
         return json
     except:

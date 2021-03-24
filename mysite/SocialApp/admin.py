@@ -4,7 +4,7 @@ Contains Django admin related configurations
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import Post, Author, PostCategory, Comment, LikedPost
+from .models import Post, Author, PostCategory, Comment, LikedPost, Followers
 
 class DefaultAdmin(admin.ModelAdmin):
     """
@@ -49,6 +49,7 @@ admin.site.register(Author, AuthorAdmin)
 admin.site.register(Post, DefaultAdmin)
 admin.site.register(PostCategory, DefaultAdmin)
 admin.site.register(Comment, DefaultAdmin)
+admin.site.register(Followers, DefaultAdmin)
 admin.site.register(LikedPost, DefaultAdmin)
 
 

@@ -15,10 +15,12 @@
         <!--Navigation menu-->
 		<div class="topnav">
 			<a class="active" href="{% url 'author'%}" >Home</a>
-			<a href="#editProfile.html">Edit Profile</a>
-			<a href="#signup.html">Friends/FOllowers</a>
-			<a href="#newMessage.html">New Message</a>
+			<a href="{% url 'editProfile' %}">Edit Profile</a>
+			<a href="{% url 'newMessage' %}">New Message</a>
             <a href="{% url 'add_post' %}">New Post</a>
+            <a href="{% url 'followers' %}">Followers</a> 
+           <a href="{% url 'friends' %}">Friends</a>
+            <a href="{% url 'findFollowers' %}">Find Followers</a>
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
