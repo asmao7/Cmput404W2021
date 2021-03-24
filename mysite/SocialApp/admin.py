@@ -40,8 +40,8 @@ class AuthorAdmin(UserAdmin):
     model = Author
     form = AuthorChangeForm
     add_form = AuthorCreationForm
-    list_display = ('email', 'is_active',)
-    list_filter = ('email', "is_active",)
+    list_display = ("username", "email", "is_active", "is_server",)
+    list_filter = ("is_active", "is_server",)
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'display_name', 'github')}),
@@ -49,6 +49,9 @@ class AuthorAdmin(UserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
+        (None, {'fields': ('username', 'email', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'display_name', 'github')}),
+        ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
     )
 
 
