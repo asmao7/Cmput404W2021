@@ -33,6 +33,8 @@ class Author(AbstractUser):
     is_active = models.BooleanField(default=settings.NEW_ACCOUNTS_AUTO_APPROVED)
     #followers stores the number of users following the current user linking them through the intermediate table Followers
     followers = models.ManyToManyField('self', through='Followers',symmetrical=False,related_name='followed_by')
+    # Whether or not this account should be treated as a friendly server and get elevated permissions
+    is_server = models.BooleanField(default=False)
 
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
