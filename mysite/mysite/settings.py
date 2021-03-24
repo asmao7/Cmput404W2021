@@ -35,7 +35,7 @@ SECRET_KEY = '810b^kjjo!b695&$!er^)^$&!o)3s9@y@4f7bs+%a5n^t4_3@y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Debug is off by default, but can be turned on if .env is present to override it
-DEBUG = ast.literal_eval(os.getenv('DEV_DEBUG', 'True'))
+DEBUG = ast.literal_eval(os.getenv('DEV_DEBUG', 'False'))
 
 # Host information - needs to be configured on a per-server basis
 HOST_NAME = 'socialdistributionproject.herokuapp.com'
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'markdownify.apps.MarkdownifyConfig',
     'rest_framework',
 ]
 
