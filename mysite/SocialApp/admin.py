@@ -19,7 +19,7 @@ class AuthorCreationForm(UserCreationForm):
     """
     class Meta:
         model = Author
-        fields = UserCreationForm.Meta.fields + ("display_name", "github",)
+        fields = UserCreationForm.Meta.fields + ("github",)
 
 
 #TODO: Find a way to display read-only fields
@@ -29,7 +29,7 @@ class AuthorChangeForm(UserChangeForm):
     """
     class Meta:
         model = Author
-        fields = ("username", "password", "first_name", "last_name", "display_name", "email", "github", "is_active", "is_server", "is_superuser",)
+        fields = ("username", "password", "first_name", "last_name", "email", "github", "is_active", "is_server", "is_superuser",)
         exclude = ("groups", "user_permissions",)
 
 
@@ -44,13 +44,13 @@ class AuthorAdmin(UserAdmin):
     list_filter = ("is_active", "is_server",)
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'display_name', 'github')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'github')}),
         ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'display_name', 'github')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'github')}),
         ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
     )
 
@@ -59,6 +59,9 @@ class AuthorAdmin(UserAdmin):
 admin.site.site_header = "Social Distribution Project Admin"
 admin.site.site_title = "Social Distribution Project Admin"
 admin.site.index_title = "Welcome to the administration portal"
+
+# Hide Groups since we only have one user group
+admin.site.unregister(Group)
 
 # Register our models with the admin site
 admin.site.register(Author, AuthorAdmin)

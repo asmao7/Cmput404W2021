@@ -143,7 +143,7 @@ class AuthorEndpoint(APIView):
 
         # Update author info
         jsonData = request.data
-        author.displayName = jsonData.get("displayName")
+        author.username = jsonData.get("displayName")
         author.github = jsonData.get("github")
         author.save()
 

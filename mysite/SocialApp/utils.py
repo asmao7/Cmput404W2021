@@ -16,7 +16,7 @@ def AuthorToJSON(author):
             "type":"author",
             "id":author.url,
             "host":author.host,
-            "displayName":author.display_name,
+            "displayName":author.username,
             "url":author.url,
             "github":author.github
         }
