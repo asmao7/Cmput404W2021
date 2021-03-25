@@ -63,8 +63,8 @@ class AuthorAdmin(UserAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ("title", "description", "id", "author", "visibility", "unlisted",)
-    list_filter = ("author", "visibility", "unlisted",)
+    list_display = ("title", "description", "id", "author", "visibility", "unlisted", "published",)
+    list_filter = ("author", "visibility", "unlisted", "published",)
     search_fields = ("title", "description", "author",)
 
 
