@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import Post, Author, PostCategory, Comment, LikedPost, Followers
+from .models import Post, Author, PostCategory, Comment, LikedPost, Followers, InboxItem
 
 class DefaultAdmin(admin.ModelAdmin):
     """
@@ -51,14 +51,42 @@ class AuthorAdmin(UserAdmin):
     model = Author
     form = AuthorChangeForm
     add_form = AuthorCreationForm
-    list_display = ("username", "email", "is_active", "is_server",)
+    list_display = ("username", "email", "id", "is_active", "is_server",)
     list_filter = ("is_active", "is_server",)
+    search_fields = ("username", "email", "first_name", "last_name",)
     fieldsets = (
-        (None, {'fields': ('username', 'email', 'password')}),
+        (None, {'fields': ('username', 'email', 'id', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'github')}),
         ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
+
+
+class PostAdmin(admin.ModelAdmin):
+    list_display = ("title", "description", "id", "author", "visibility", "unlisted", "published",)
+    list_filter = ("author", "visibility", "unlisted", "published",)
+    search_fields = ("title", "description", "author",)
+
+
+class PostCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "post", "author", "published",)
+    list_filter = ("published",)
+    search_fields = ("post", "author",)
+
+
+class FollowersAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "author_from", "author_to",)
+    search_fields = ("author_from", "author_to",)
+
+
+class InboxItemAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "author", "link",)
+    search_fields = ("author",)
 
 
 # Set some admin site variables
@@ -71,10 +99,9 @@ admin.site.unregister(Group)
 
 # Register our models with the admin site
 admin.site.register(Author, AuthorAdmin)
-admin.site.register(Post, DefaultAdmin)
-admin.site.register(PostCategory, DefaultAdmin)
-admin.site.register(Comment, DefaultAdmin)
-admin.site.register(Followers, DefaultAdmin)
+admin.site.register(Post, PostAdmin)
+admin.site.register(PostCategory, PostCategoryAdmin)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(Followers, FollowersAdmin)
 admin.site.register(LikedPost, DefaultAdmin)
-
-
+admin.site.register(InboxItem, InboxItemAdmin)
