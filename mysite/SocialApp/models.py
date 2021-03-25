@@ -34,6 +34,9 @@ class Author(AbstractUser):
     # Whether or not this account should be treated as a friendly server and get elevated permissions
     is_server = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.username
+
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
@@ -48,6 +51,9 @@ class PostCategory(models.Model):
     # Unique names prevents duplicate entries from appearing in the database
     # prefer to re-use existing categories where possible
     name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         # Helpful for Django Admin
@@ -100,6 +106,9 @@ class Post(models.Model):
     visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default="PUBLIC")
     # Whether or not this post should show up in feeds, or is only accessible via URL
     unlisted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title
 
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
@@ -154,6 +163,9 @@ class Followers(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['author_from','author_to'],  name="unique_follow")
         ]
+        # Helpful for Django Admin
+        verbose_name = "Followers"
+        verbose_name_plural = "Followers"
 
 #prohibit self following 
 @receiver(pre_save, sender=Followers)
