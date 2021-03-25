@@ -76,7 +76,7 @@ admin.site.unregister(Group)
 
 # Register our models with the admin site
 admin.site.register(Author, AuthorAdmin)
-admin.site.register(Post, DefaultAdmin)
+admin.site.register(Post, PostAdmin)
 admin.site.register(PostCategory, DefaultAdmin)
 admin.site.register(Comment, DefaultAdmin)
 admin.site.register(Followers, DefaultAdmin)
