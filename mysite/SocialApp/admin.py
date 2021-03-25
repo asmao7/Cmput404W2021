@@ -51,14 +51,19 @@ class AuthorAdmin(UserAdmin):
     model = Author
     form = AuthorChangeForm
     add_form = AuthorCreationForm
-    list_display = ("username", "email", "is_active", "is_server",)
+    list_display = ("username", "email", "id", "is_active", "is_server",)
     list_filter = ("is_active", "is_server",)
     fieldsets = (
-        (None, {'fields': ('username', 'email', 'password')}),
+        (None, {'fields': ('username', 'email', 'id', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'github')}),
         ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
+
+
+class PostAdmin(admin.ModelAdmin):
+    list_display = ("title", "description", "id", "author", "visibility", "unlisted",)
+    list_filter = ("author", "visibility", "unlisted")
 
 
 # Set some admin site variables
