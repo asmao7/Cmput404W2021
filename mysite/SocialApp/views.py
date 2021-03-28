@@ -657,7 +657,7 @@ def remotePosts(request):
             if post["visibility"] == "PUBLIC":
                 public_posts.append(post)
 
-    return render(request, 'remote_posts.html', {"posts":public_posts})
+    return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
 
 
 class EditFollowersEndpoint(APIView): 
