@@ -150,7 +150,7 @@ class Comment(models.Model):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
+            self.url = "https://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
         super(Comment, self).save(*args, **kwargs)
 
 class Followers(models.Model):

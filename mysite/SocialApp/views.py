@@ -1,3 +1,8 @@
+import datetime
+import requests
+import uuid
+import json
+
 from django.shortcuts import render
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -6,6 +11,7 @@ from .forms import SignUpForm, LoginForm
 import datetime, uuid, requests
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.html import escape
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
@@ -13,7 +19,7 @@ from rest_framework.views import APIView, status
 from .models import Author, Post, Comment, LikedPost, InboxItem, Followers
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, PostListToJSON, InboxItemToJSON , FollowerFinalJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -112,6 +118,25 @@ def inbox(request):
         return HttpResponse(str(resp.text), status=resp.status_code)
     
 
+class AllAuthorsEndpoint(APIView):
+    """
+    The authors/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve all authors on the system
+        """
+        # Check that a user is an authenticated server since this gives access to sensitive data
+        if not request.user.is_authenticated or not request.user.is_server:
+            return HttpResponse(status=401)
+
+        try:
+            json = AuthorListToJSON(Author.objects.all())
+            return JsonResponse({"authors":json})
+        except:
+            return HttpResponse(status=500)
+
+
 class AuthorEndpoint(APIView):
     """
     The author/{AUTHOR_ID}/ endpoint
@@ -174,6 +199,25 @@ class AuthorEndpoint(APIView):
         author.save()
 
         return HttpResponse(status=200)
+
+
+class AllPostsEndpoint(APIView):
+    """
+    The posts/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve all posts on the system
+        """
+        # Check that a user is an authenticated server since this gives access to sensitive data
+        if not request.user.is_authenticated or not request.user.is_server:
+            return HttpResponse(status=401)
+
+        try:
+            json = PostListToJSON(Post.objects.all())
+            return JsonResponse({"posts":json})
+        except:
+            return HttpResponse(status=500)
 
 
 class PostEndpoint(APIView):
@@ -395,8 +439,12 @@ class AuthorPostsEndpoint(APIView):
             return HttpResponse(status=400)
 
         posts = Post.objects.filter(author=author)
-        json = PostListToJSON(posts)
-        return JsonResponse({"posts":json})
+
+        try:
+            json = PostListToJSON(posts)
+            return JsonResponse({"posts":json})
+        except:
+            return HttpResponse(status=500)
 
     def post(self, request, *args, **kwargs):
         """
@@ -663,6 +711,24 @@ def unFollow(request, foreign_author_id):
 
    # chnage to render friends template
     return friendsView(request)
+
+
+def remotePosts(request):
+    """
+    Display public posts on Team 17's server
+    """
+    team_17 = "https://cmput-404-group17.herokuapp.com/"
+    author_endpoint = "author/"
+    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
+    public_posts = []
+    for author in authors:
+        posts = requests.get("{}/posts/".format(author["url"])).json()
+        for post in posts["items"]:
+            if post["visibility"] == "PUBLIC":
+                public_posts.append(post)
+
+    return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
+
 
 class EditFollowersEndpoint(APIView): 
 

@@ -25,7 +25,25 @@ def AuthorToJSON(author):
         return None
 
 
-# TODO: Fill out size
+def AuthorListToJSON(authors):
+    """
+    Converts a list of Author objects into a JSON-compatible list
+    of Authors. Returns an empty list on failure.
+    """
+    if not authors:
+        return []
+    try:
+        author_list = []
+        for author in authors:
+            test_json = AuthorToJSON(author)
+            if test_json:
+                author_list.append(test_json)
+        return author_list
+    except:
+        return []
+
+
+# TODO: Fill out size and paginate
 def PostToJSON(post):
     """
     Converts a Post object into a JSON-compatible dictionary.
@@ -77,7 +95,7 @@ def FollowerFinalJSON(follower_list):
 def PostListToJSON(posts):
     """
     Converts a list of Post objects into a JSON-compatible list
-    of Posts. Returns an empty list on Failure.
+    of Posts. Returns an empty list on failure.
     """
     if not posts:
         return []

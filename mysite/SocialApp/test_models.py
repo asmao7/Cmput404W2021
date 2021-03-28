@@ -101,5 +101,5 @@ class TestCases(TestCase):
         It is important that this is consistent since it's key to identifying
         comments on other servers.
         """
-        test_url = "http://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, cls.author_id_1, cls.post_id, cls.comment_id)
+        test_url = "https://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, cls.author_id_1, cls.post_id, cls.comment_id)
         cls.assertEqual(test_url, Comment.objects.get(pk=cls.comment_id).url)
