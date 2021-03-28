@@ -105,7 +105,7 @@ class AllAuthorsEndpoint(APIView):
 
         try:
             json = PostListToJSON(Author.objects.all())
-            return JsonResponse(json)
+            return JsonResponse({"authors":json})
         except:
             return HttpResponse(status=500)
 
@@ -187,7 +187,7 @@ class AllPostsEndpoint(APIView):
 
         try:
             json = PostListToJSON(Post.objects.all())
-            return JsonResponse(json)
+            return JsonResponse({"posts":json})
         except:
             return HttpResponse(status=500)
 
@@ -414,7 +414,7 @@ class AuthorPostsEndpoint(APIView):
 
         try:
             json = PostListToJSON(posts)
-            return JsonResponse(json)
+            return JsonResponse({"posts":json})
         except:
             return HttpResponse(status=500)
 
