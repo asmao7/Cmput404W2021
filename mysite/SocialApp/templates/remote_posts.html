@@ -1,0 +1,72 @@
+{% load static %}
+{% load markdownify %}
+<!Doctype html>
+
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/remote_posts.css' %}">
+    </head>
+
+    <body>
+        <!--background wallpaper-->
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";
+
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="{% url 'author'%}" >Home</a>
+			<a href="{% url 'editProfile' %}">Edit Profile</a>
+			<a href="{% url 'newMessage' %}">New Message</a>
+            <a href="{% url 'add_post' %}">New Post</a>
+            <a href="{% url 'followers' %}">Followers</a> 
+            <a href="{% url 'friends' %}">Friends</a>
+            <a href="{% url 'findFollowers' %}">Find Followers</a>
+            <a href="{% url 'remotePosts' %}">Remote Posts</a>
+            <a href="{% url 'logout' %}">Logout</a>
+		</div>
+
+        <br>
+        <h1>REMOTE POSTS</h1> <br/>
+
+        {% if has_content %}
+            {% for post in posts %}
+                <div class="posti">
+                    <h1><a href={{ post.origin }}>{{ post.title }}</a></h1>
+                        <small>By: <a href={{ post.author.url }}>{{ post.author.displayName }}</a></small><br>
+                        <small>Description: {{ post.description }}</small>
+                        <br>
+
+                        <section>
+                        {% if post.contentType == "text/plain" %}
+                        <!--display a post as text without formatting-->
+                            <p>{{post.content}}</p>
+                        {% elif post.contentType == "text/markdown" %}
+                        <!--render markdown post as sanitized html-->
+                            {{post.content|markdownify}}
+                        {% elif post.contentType == "application/base64" %}
+                        <!--assume this image has full base64 encoding, not just payload-->
+                            <img alt="post image" src={{ post.content }}>
+                        {% else %}
+                        <!--display base64 data as an image - prepend stored content type-->
+                            <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
+                        {% endif %}
+                        </section>
+                    
+                    <!--COMMENTS-->
+                    <br><br/>
+                    <h2 class="comment">COMMENTS <br></h2>
+                    
+                    <ul>
+                        {% for comment in post.comments %}
+                            <li>
+                                <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment}}
+                            </li> 
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        {% else %}
+            <h2>No Posts Available</h2>
+        {% endif %}
+    </body>
+</html>

@@ -1,12 +1,16 @@
+import datetime
+import requests
+import uuid
+import json
+
 from django.shortcuts import render
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .forms import SignUpForm, LoginForm
 
-import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-import uuid
+from django.utils.html import escape
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
@@ -637,6 +641,24 @@ def unFollow(request, foreign_author_id):
 
    # chnage to render friends template
     return friendsView(request)
+
+
+def remotePosts(request):
+    """
+    Display public posts on Team 17's server
+    """
+    team_17 = "https://cmput-404-group17.herokuapp.com/"
+    author_endpoint = "author/"
+    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
+    public_posts = []
+    for author in authors:
+        posts = requests.get("{}/posts/".format(author["url"])).json()
+        for post in posts["items"]:
+            if post["visibility"] == "PUBLIC":
+                public_posts.append(post)
+
+    return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
+
 
 class EditFollowersEndpoint(APIView): 
 
