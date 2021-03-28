@@ -1,4 +1,5 @@
 from django import forms
+from .models import Post
 
 #TODO data validation for form data 
 class SignUpForm(forms.Form):
@@ -35,3 +36,19 @@ class SignUpForm(forms.Form):
 class LoginForm(forms.Form):
     UserName = forms.CharField(label='UserName', max_length=1000, required=True, widget=forms.TextInput)
     Password = forms.CharField(label='Password', max_length=32, required=True, widget=forms.PasswordInput)
+
+
+# to add placeholders for posts
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'description', 'author', 'content']
+
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.TextInput(attrs={'class': 'form-control'}),
+            #'author': forms.Select(attrs={'class': 'form-control'}),
+            'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
+            'content_type': forms.Select(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control'}),
+        }
