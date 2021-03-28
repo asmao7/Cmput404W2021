@@ -3,10 +3,9 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from .forms import SignUpForm, LoginForm
 
-import datetime
+import datetime, uuid, requests
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-import uuid
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
@@ -85,6 +84,34 @@ def newPost(request):
 
 def newMessage(request):
     return render(request, 'newMessage.html', {})
+
+def inbox(request):
+    """
+    Request all of the inbox items using our API endpoint and render out.
+    """
+    # Martijn Pieters https://stackoverflow.com/a/13569789
+    logurl = request.scheme+"://"+request.get_host()+"/SocialApp/login/"
+    client = requests.session()
+    client.get(logurl) # Sets cookie
+    if 'csrftoken' in client.cookies:
+        csrftoken = client.cookies['csrftoken']
+    else: print("No CSRF token found")
+    sessionid = request.COOKIES.get('sessionid') # FBI OPEN UP
+    if sessionid:
+        print(sessionid)
+    else: print("No sessionid cookie found")
+    cookies = dict(csrftoken=csrftoken, sessionid=sessionid)
+    # Now GET the inbox endpoint and pass in our cookies
+    url = request.scheme+"://"+request.get_host()+"/author/"+str(request.user.id)+"/inbox/"
+    resp = client.get(url, cookies=cookies, headers=dict(Referer=logurl))
+    # Pass the resulting inbox items to the template if successful
+    if resp.status_code == 200:
+        inbox_json = dict(resp.json())
+        items = inbox_json["items"]
+        return render(request, 'inbox.html', {})
+    else:
+        return HttpResponse(str(resp.text), status=resp.status_code)
+    
 
 class AuthorEndpoint(APIView):
     """
