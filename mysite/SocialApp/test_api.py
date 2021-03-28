@@ -41,6 +41,12 @@ class TestCases(TestCase):
                           github=cls.author_github_2, username=cls.author_username_2)
         author_2.save()
 
+        # Set up a test server user
+        cls.server_id = uuid.uuid4()
+        cls.server_host = settings.HOST_NAME
+        cls.server_username = "server"
+        server = Author(id=cls.server_id, host=cls.server_host, username=cls.server_username, is_server=True)
+
         # Set up some test post categories
         cls.category_name_1 = "Test Category One"
         cls.category_name_2 = "Test Category Two"
@@ -144,6 +150,27 @@ class TestCases(TestCase):
         url = reverse("Author", kwargs={"author_id":"abc"})
         response = client.post(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_all_author_get(cls):
+        """
+        Test the GET authors/ endpoint
+        """
+        client = Client()
+        url = reverse("AllAuthors")
+
+        # Test unauthenticated 
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test bad non-server user
+        client.force_login(Author.objects.get(pk=cls.author_id_1))
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test good request
+        client.force_login(Author.objects.get(pk=cls.server_id))
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_post_get(cls):
         """
@@ -341,8 +368,29 @@ class TestCases(TestCase):
         response = client.put(url, json, content_type="application/json")
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # TODO: Fill out this test
     def test_all_post_get(cls):
+        """
+        Test the GET posts/ endpoint
+        """
+        client = Client()
+        url = reverse("AllPosts")
+
+        # Test unauthenticated 
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test bad non-server user
+        client.force_login(Author.objects.get(pk=cls.author_id_1))
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Test good request
+        client.force_login(Author.objects.get(pk=cls.server_id))
+        response = client.get(url)
+        cls.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    # TODO: Fill out this test
+    def test_all_author_post_get(cls):
         """
         Test the GET author/{AUTHOR_ID}/posts/ endpoint
         """
@@ -358,7 +406,7 @@ class TestCases(TestCase):
         cls.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # TODO: Fill out this test
-    def test_all_post_post(cls):
+    def test_all_author_post_post(cls):
         """
         Test the POST author/{AUTHOR_ID}/posts/ endpoint
         """
