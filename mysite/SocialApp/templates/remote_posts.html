@@ -59,7 +59,7 @@
                     <ul>
                         {% for comment in post.comments %}
                             <li>
-                                <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}:</strong> {{comment.comment}}
+                                <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment}}
                             </li> 
                         {% endfor %}
                     </ul>
