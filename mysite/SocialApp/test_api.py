@@ -46,6 +46,7 @@ class TestCases(TestCase):
         cls.server_host = settings.HOST_NAME
         cls.server_username = "server"
         server = Author(id=cls.server_id, host=cls.server_host, username=cls.server_username, is_server=True)
+        server.save()
 
         # Set up some test post categories
         cls.category_name_1 = "Test Category One"
