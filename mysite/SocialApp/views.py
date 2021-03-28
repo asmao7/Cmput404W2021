@@ -18,7 +18,7 @@ from rest_framework.views import APIView, status
 from .models import Author, Post, Comment, LikedPost, InboxItem, Followers
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, PostListToJSON, InboxItemToJSON , FollowerFinalJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -90,6 +90,25 @@ def newPost(request):
 def newMessage(request):
     return render(request, 'newMessage.html', {})
 
+
+class AllAuthorsEndpoint(APIView):
+    """
+    The authors/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve all authors on the system
+        """
+        # Check that a user is an authenticated server since this gives access to sensitive data
+        if not request.user.is_authenticated or not request.user.is_server:
+            return HttpResponse(status=401)
+
+        try:
+            json = PostListToJSON(Author.objects.all())
+            return JsonResponse({"authors":json})
+        except:
+            return HttpResponse(status=500)
+
 class AuthorEndpoint(APIView):
     """
     The author/{AUTHOR_ID}/ endpoint
@@ -152,6 +171,25 @@ class AuthorEndpoint(APIView):
         author.save()
 
         return HttpResponse(status=200)
+
+
+class AllPostsEndpoint(APIView):
+    """
+    The posts/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve all posts on the system
+        """
+        # Check that a user is an authenticated server since this gives access to sensitive data
+        if not request.user.is_authenticated or not request.user.is_server:
+            return HttpResponse(status=401)
+
+        try:
+            json = PostListToJSON(Post.objects.all())
+            return JsonResponse({"posts":json})
+        except:
+            return HttpResponse(status=500)
 
 
 class PostEndpoint(APIView):
@@ -373,8 +411,12 @@ class AuthorPostsEndpoint(APIView):
             return HttpResponse(status=400)
 
         posts = Post.objects.filter(author=author)
-        json = PostListToJSON(posts)
-        return JsonResponse({"posts":json})
+
+        try:
+            json = PostListToJSON(posts)
+            return JsonResponse({"posts":json})
+        except:
+            return HttpResponse(status=500)
 
     def post(self, request, *args, **kwargs):
         """
