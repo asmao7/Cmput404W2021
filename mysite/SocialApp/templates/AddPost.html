@@ -27,6 +27,10 @@
                     {{ form.as_p }}
                     <button class="btn btn-secondary">Add Post</button>
             </div>
+            <script>
+                var name = "{{ user.id }}";
+                document.getElementById("uniqueid").value = name;
+            </script>
         </div>
     </body>
 </html>
