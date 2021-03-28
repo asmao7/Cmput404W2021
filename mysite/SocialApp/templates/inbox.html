@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- ** TODO: also account for follows and likes ** -->
+<!-- This CSS should probably have its own sheet -->
+<style>
+    * {
+        color: beige;
+    }
+</style>
+<div style="margin:2em 1em;">
+<h1>Your Inbox</h1>
+<p>Here you can see posts that other authors have shared with you, as well as new follows and likes.</p>
+{% for item in inbox_items %}
+    <p style="margin-top:2em;"><em>Someone shared a {{ item.type }} with you:</em></p>
+    <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
+    <p>at {{ item.published }}</p>
+    <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
+    <p>{{ item.description }}</p>    
+{% endfor %}
+
+<!-- TODO add "Clear inbox" button -->
+
+</div>
+{% endblock %}
