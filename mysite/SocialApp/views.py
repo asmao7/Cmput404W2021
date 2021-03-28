@@ -42,7 +42,8 @@ class PostDetailView(DetailView):
 class AddPostView(CreateView):
     model = Post
     template_name = 'AddPost.html'
-    fields = '__all__'
+    #fields = '__all__'
+    fields = ['title', 'description', 'content', 'content_type', 'unlisted']
     #fields = ('title', 'content', 'visibility')
     success_url = reverse_lazy('author')
 
