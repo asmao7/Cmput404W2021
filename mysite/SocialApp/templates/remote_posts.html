@@ -28,39 +28,43 @@
         <br>
         <h1>REMOTE POSTS</h1> <br/>
 
-        {% for post in posts %}
-            <div class="posti">
-                <h1><a href={{ post.url }}>{{ post.title }}</a></h1>
-                    <small>By: {{ post.author.displayName }}</small><br>
-                    <small>Description: {{ post.description }}</small>
-                    <br>
+        {% if len(posts) > 0 %}
+            {% for post in posts %}
+                <div class="posti">
+                    <h1><a href={{ post.url }}>{{ post.title }}</a></h1>
+                        <small>By: {{ post.author.displayName }}</small><br>
+                        <small>Description: {{ post.description }}</small>
+                        <br>
 
-                    <section>
-                    {% if post.contentType == "text/plain" %}
-                    <!--display a post as text without formatting-->
-                        <p>{{post.content}}</p>
-                    {% elif post.contentType == "text/markdown" %}
-                    <!--render markdown post as sanitized html-->
-                        {{post.content|markdownify}}
-                    {% elif post.contentType == "application/base64" %}
-                    <!--assume this image has full base64 encoding, not just payload-->
-                        <img alt="post image" src={{ post.content }}>
-                    {% else %}
-                    <!--display base64 data as an image - prepend stored content type-->
-                        <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
-                    {% endif %}
-                    </section>
-                
-                <!--COMMENTS-->
-                <br><br/>
-                <h2 class="comment">COMMENTS <br></h2>
-                
-                {% for comment in post.comments%}
-                    <ul>
-                        <small>By: {{comment.author.displayName}}</small> - <strong>{{comment.comment}}</strong>
-                    </ul> 
-                {% endfor %}
-            </div>
-        {% endfor %}
+                        <section>
+                        {% if post.contentType == "text/plain" %}
+                        <!--display a post as text without formatting-->
+                            <p>{{post.content}}</p>
+                        {% elif post.contentType == "text/markdown" %}
+                        <!--render markdown post as sanitized html-->
+                            {{post.content|markdownify}}
+                        {% elif post.contentType == "application/base64" %}
+                        <!--assume this image has full base64 encoding, not just payload-->
+                            <img alt="post image" src={{ post.content }}>
+                        {% else %}
+                        <!--display base64 data as an image - prepend stored content type-->
+                            <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
+                        {% endif %}
+                        </section>
+                    
+                    <!--COMMENTS-->
+                    <br><br/>
+                    <h2 class="comment">COMMENTS <br></h2>
+                    
+                    {% for comment in post.comments%}
+                        <ul>
+                            <small>By: {{comment.author.displayName}}</small> - <strong>{{comment.comment}}</strong>
+                        </ul> 
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <h2>No Posts Available</h2>
+        {% endif %}
     </body>
 </html>
