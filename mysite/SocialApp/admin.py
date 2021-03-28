@@ -55,7 +55,7 @@ class AuthorAdmin(UserAdmin):
     list_filter = ("is_active", "is_server",)
     search_fields = ("username", "email", "first_name", "last_name",)
     fieldsets = (
-        (None, {'fields': ('username', 'email', 'id', 'password')}),
+        (None, {'fields': ('username', 'email', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'github')}),
         ('Permissions', {'fields': ('is_active', 'is_server', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
