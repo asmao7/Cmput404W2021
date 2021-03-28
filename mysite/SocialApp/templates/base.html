@@ -1,6 +1,5 @@
 {% load static %}
 <!Doctype html>
-
 <html>
     <head>
       <title>Socialdistribution App</title>
@@ -14,7 +13,7 @@
 
     <!--Navigation menu-->
 		<nav class="topnav">
-		  <a class="active" href="author.html">Home</a>
+		  <a class="active" href="{% url 'author' %}">Home</a>
       <a href="{% url 'add_post' %}">New Post</a>
       <a href="{% url 'newMessage' %}">New Message</a>
       <a href="{% url 'inbox' %}">Inbox</a>
