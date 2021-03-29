@@ -27,6 +27,13 @@
                     {{ form.as_p }}
                     <button class="btn btn-secondary">Add Post</button>
             </div>
+            <!--auhtor is hidden from the user when adding a new post-->
+            <!--use django user to get the logged in user and aad that value-->
+            <!--these two lines of javascript are editing the custom forms-->
+            <script>
+                var name = "{{ user.id }}";
+                document.getElementById("uniqueid").value = name;
+            </script>
         </div>
     </body>
 </html>

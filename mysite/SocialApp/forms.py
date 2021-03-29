@@ -1,4 +1,5 @@
 from django import forms
+from .models import Post, Comment
 
 #TODO data validation for form data 
 class SignUpForm(forms.Form):
@@ -35,3 +36,35 @@ class SignUpForm(forms.Form):
 class LoginForm(forms.Form):
     UserName = forms.CharField(label='UserName', max_length=1000, required=True, widget=forms.TextInput)
     Password = forms.CharField(label='Password', max_length=32, required=True, widget=forms.PasswordInput)
+
+
+# to customize the form when adding new post
+# user is hidden, will know the auhtor of the post
+# by getting the auhtor whose logged in
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'description', 'author', 'content', 'unlisted', 'visibility']
+
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.TextInput(attrs={'class': 'form-control'}),
+            #'author': forms.Select(attrs={'class': 'form-control'}),
+            'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
+            'content_type': forms.Select(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control'}),
+            'visibility': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+# for customizing the form when adding comments
+# user is hidden, will know the auhtor of the comment
+# we have to hide the post, should which post owns the comments ~ not working for now!
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['post', 'comment', 'author']
+        widgets = {
+            'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
+            'post': forms.Select(attrs={'class': 'form-control'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control'}),
+        }

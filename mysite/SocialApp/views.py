@@ -26,6 +26,8 @@ from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
+from .forms import PostForm, CommentForm
+
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
     template_name = 'signup.html'
@@ -35,6 +37,7 @@ class HomeView(ListView):
     model = Post
     template_name = 'author.html'
     likeModel = LikedPost
+    ordering = ['-published']
 
 class PostDetailView(DetailView):
     model = Post
@@ -42,15 +45,17 @@ class PostDetailView(DetailView):
 
 class AddPostView(CreateView):
     model = Post
+    form_class = PostForm
     template_name = 'AddPost.html'
-    fields = '__all__'
-    #fields = ('title', 'content', 'visibility')
+    #fields = '__all__'
+    #fields = ['title', 'description', 'content', 'content_type', 'unlisted', 'author']
     success_url = reverse_lazy('author')
 
 class AddCommentView(CreateView):
     model = Comment
+    form_class = CommentForm
     template_name = 'AddComment.html'
-    fields = '__all__'
+    #fields = '__all__'
     success_url = reverse_lazy('author')
 
 class UpdatePostView(UpdateView):
