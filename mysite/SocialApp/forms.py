@@ -38,11 +38,13 @@ class LoginForm(forms.Form):
     Password = forms.CharField(label='Password', max_length=32, required=True, widget=forms.PasswordInput)
 
 
-# to add placeholders for posts
+# to customize the form when adding new post
+# user is hidden, will know the auhtor of the post
+# by getting the auhtor whose logged in
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'description', 'author', 'content']
+        fields = ['title', 'description', 'author', 'content', 'unlisted', 'visibility']
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -51,17 +53,18 @@ class PostForm(forms.ModelForm):
             'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
             'content_type': forms.Select(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control'}),
+            'visibility': forms.Select(attrs={'class': 'form-control'}),
         }
 
-# to add placeholders for posts
+# for customizing the form when adding comments
+# user is hidden, will know the auhtor of the comment
+# we have to hide the post, should which post owns the comments ~ not working for now!
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['post', 'comment', 'author']
-
         widgets = {
             'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
-            'post': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
-            #'content_type': forms.Select(attrs={'class': 'form-control'}),
+            'post': forms.TextInput(attrs={'class': 'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }
