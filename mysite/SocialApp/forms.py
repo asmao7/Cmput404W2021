@@ -65,6 +65,6 @@ class CommentForm(forms.ModelForm):
         fields = ['post', 'comment', 'author']
         widgets = {
             'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
-            'post': forms.TextInput(attrs={'class': 'form-control'}),
+            'post': forms.Select(attrs={'class': 'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }
