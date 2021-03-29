@@ -625,7 +625,7 @@ def findFollower(request):
         following_list.append(follower_author.author_from) #append the author being followed
 
 
-    all_authors = Author.objects.exclude(pk=author_id).exclude(is_staff=True)
+    all_authors = Author.objects.exclude(pk=author_id).exclude(is_staff=True, is_server=True)
     authors = []   #list of all authors not followed by the author
 
     for current in all_authors:
