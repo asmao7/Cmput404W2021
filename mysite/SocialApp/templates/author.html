@@ -29,15 +29,17 @@
         <div class="post">
             <h1>ALL POSTS</h1> <br/>
             {% for post in object_list %}
-            		
                 <ul>
                     <li class=posti><br><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
-                    {{ post.author}} -
+                    <small>By</small>: {{ post.author}}
+                    <!--if the current auhtor whose logged in owns this post then they can edit/delete-->
                     {% if user.id == post.author.id%}
-                        <a href="{% url 'update_post' post.pk%}">Edit</a>
-                        - <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
+                        - <a href="{% url 'update_post' post.pk%}">Edit</a>
+                        - <a href="{% url 'delete_post' post.pk%}">Delete Post</a>
                     {% endif%}
-                    {{ post.description }} <br/>
+                    <!--post content and description-->
+                    <br>Description: {{ post.description }} <br/>
+                    {{ post.content }} <br>
                     <!--LIKES pass in url that sends a post id argument and updates the database-->
                     Likes: {{ post.likes.all|length }} <br/><br/>
                     <form action="{% url 'like' post.pk %}" method="POST">
