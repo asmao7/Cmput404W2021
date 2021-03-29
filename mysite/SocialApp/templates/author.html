@@ -32,8 +32,11 @@
             		
                 <ul>
                     <li class=posti><br><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> - 
-                    {{ post.author}} - <a href="{% url 'update_post' post.pk%}">Edit</a>
-                    - <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
+                    {{ post.author}} -
+                    {% if user.id == post.author.id%}
+                        <a href="{% url 'update_post' post.pk%}">Edit</a>
+                        - <a href="{% url 'delete_post' post.pk%}">Delete Post</a> <br/>
+                    {% endif%}
                     {{ post.description }} <br/>
                     <!--LIKES pass in url that sends a post id argument and updates the database-->
                     Likes: {{ post.likes.all|length }} <br/><br/>
