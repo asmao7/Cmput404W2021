@@ -35,6 +35,9 @@
             <script>
                 var name = "{{ user.id }}";
                 document.getElementById("uniqueid").value = name;
+                /*not working, i need to figure out how to get the post id*/
+                var post_name = "{{ post.id }}";
+                document.getElementById("uniquepost").value = post_name;
             </script>
         </div>
     </body>
