@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post
+from .models import Post, Comment
 
 #TODO data validation for form data 
 class SignUpForm(forms.Form):
@@ -51,4 +51,17 @@ class PostForm(forms.ModelForm):
             'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
             'content_type': forms.Select(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+# to add placeholders for posts
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['post', 'comment', 'author']
+
+        widgets = {
+            'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
+            'post': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
+            #'content_type': forms.Select(attrs={'class': 'form-control'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }
