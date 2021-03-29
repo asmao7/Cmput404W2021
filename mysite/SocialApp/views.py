@@ -8,6 +8,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from .forms import SignUpForm, LoginForm
 
+import datetime, uuid, requests
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import escape
@@ -90,6 +91,32 @@ def newPost(request):
 def newMessage(request):
     return render(request, 'newMessage.html', {})
 
+def inbox(request):
+    """
+    Request all of the inbox items using our API endpoint and render out.
+    """
+    # Martijn Pieters https://stackoverflow.com/a/13569789
+    logurl = request.scheme+"://"+request.get_host()+"/SocialApp/login/"
+    client = requests.session()
+    client.get(logurl) # Sets cookie
+    if 'csrftoken' in client.cookies:
+        csrftoken = client.cookies['csrftoken']
+    else: print("No CSRF cookie found")
+    sessionid = request.COOKIES.get('sessionid') # FBI OPEN UP
+    if not sessionid:
+        print("No sessionid cookie found")
+    cookies = dict(csrftoken=csrftoken, sessionid=sessionid)
+    # Now GET the inbox endpoint and pass in our cookies
+    url = request.scheme+"://"+request.get_host()+"/author/"+str(request.user.id)+"/inbox/"
+    resp = client.get(url, cookies=cookies, headers=dict(Referer=logurl))
+    # Pass the resulting inbox items to the template if successful
+    if resp.status_code == 200:
+        inbox_json = dict(resp.json())
+        inbox_items = inbox_json["items"]
+        return render(request, 'inbox.html', { 'inbox_items': inbox_items })
+    else:
+        return HttpResponse(str(resp.text), status=resp.status_code)
+    
 
 class AllAuthorsEndpoint(APIView):
     """
@@ -108,6 +135,7 @@ class AllAuthorsEndpoint(APIView):
             return JsonResponse({"authors":json})
         except:
             return HttpResponse(status=500)
+
 
 class AuthorEndpoint(APIView):
     """
@@ -861,14 +889,12 @@ class InboxEndpoint(APIView):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=400)
-
         try:
             author = Author.objects.get(pk=author_id)
         except:
             return HttpResponse(status=400)
         if not author:
             return HttpResponse(status=404)
-
         # Assuming that nobody else can GET your inbox
         if request.user.is_authenticated and (str(request.user.id) == author_id or request.user.is_server):
             # Get inbox items and format into JSON to return

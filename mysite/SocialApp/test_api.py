@@ -532,7 +532,7 @@ class TestCases(TestCase):
         """Test the GET author/{AUTHOR_ID}/inbox/ endpoint"""
         AUTHOR_ID = cls.author_id_2
         client = Client()
-        url = reverse("inbox", kwargs={"author_id":AUTHOR_ID})
+        url = reverse("Inbox", kwargs={"author_id":AUTHOR_ID})
         # Get inbox without auth
         response = client.get(url)
         cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -555,7 +555,7 @@ class TestCases(TestCase):
         """Test the POST author/{AUTHOR_ID}/inbox/ endpoint"""
         AUTHOR_ID = cls.author_id_2
         client = Client()
-        url = reverse("inbox", kwargs={"author_id":AUTHOR_ID})
+        url = reverse("Inbox", kwargs={"author_id":AUTHOR_ID})
         to_post = { "link":cls.inbox_item_post_link }
         # POST to an author's inbox without auth
         response = client.post(url, to_post, content_type="application/json")
@@ -583,7 +583,7 @@ class TestCases(TestCase):
         """Test the DELETE author/{AUTHOR_ID}/inbox/ endpoint"""
         AUTHOR_ID = cls.author_id_2
         client = Client()
-        url = reverse("inbox", kwargs={"author_id":AUTHOR_ID})
+        url = reverse("Inbox", kwargs={"author_id":AUTHOR_ID})
         # DELETE (clear the inbox) without auth
         response = client.delete(url)
         cls.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
