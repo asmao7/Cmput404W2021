@@ -36,6 +36,7 @@ class HomeView(ListView):
     model = Post
     template_name = 'author.html'
     likeModel = LikedPost
+    ordering = ['-published']
 
 class PostDetailView(DetailView):
     model = Post

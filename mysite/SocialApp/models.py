@@ -98,7 +98,6 @@ class Post(models.Model):
     content = models.TextField(blank=True, default="")
     # The author of this post
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    #author = models.CharField(max_length=200)
     # The categories this post has been tagged with
     categories = models.ManyToManyField(PostCategory, blank=True)
     # The time that the post was originally published
