@@ -41,12 +41,34 @@
                     <br>Description: {{ post.description }} <br/>
                     {{ post.content }} <br>
                     <!--LIKES pass in url that sends a post id argument and updates the database-->
-                    Likes: {{ post.likes.all|length }} <br/><br/>
+
+					<br>
+                    <form action="{% url 'like' post.pk %}" method="POST">
+                    	{% csrf_token %}
+                    	{{ form.as_p }}
+                    	
+                    	{% load app_filters %}
+                    	<input type="submit" value='{{ post.pk|liked_or_not }} {{ post.likes.all|length }}'>
+                    	
+                    	<!--
+                    	{% for liked in post.pk|liked_or_not %}
+                    		{% if liked %}
+                    			<input type="submit" value='🖤  {{ post.likes.all|length }}'>
+                    		{% else %}
+                    			<input type="submit" value='♡  {{ post.likes.all|length }}'>
+                    		{% endif %}
+                    	{% endfor %}-->
+                    	
+                    </form>
+                    
+                    <!--
+                    Likes: {{ post.likes.all|length }} <br/><br/>                    
                     <form action="{% url 'like' post.pk %}" method="POST">
                     	{% csrf_token %}
                     	{{ form.as_p }}
                     	<input type="submit" value="Like">
-                    </form>
+                    </form> -->
+                    
                     </li>
                     <br/>
                     <br/>
