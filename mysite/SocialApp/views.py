@@ -19,7 +19,7 @@ from rest_framework.views import APIView, status
 from .models import Author, Post, Comment, LikedPost, InboxItem, Followers
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -729,8 +729,9 @@ def remotePosts(request):
     for author in authors:
         posts = requests.get("{}/posts/".format(author["url"])).json()
         for post in posts["items"]:
-            if post["visibility"] == "PUBLIC":
-                public_posts.append(post)
+            if ValidateForeignPostJSON(post):
+                if post["visibility"] == "PUBLIC":
+                    public_posts.append(post)
 
     return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
 
