@@ -44,7 +44,7 @@ class LoginForm(forms.Form):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'description', 'author', 'content', 'unlisted', 'visibility']
+        fields = ['title', 'description', 'author', 'content_type', 'content', 'unlisted', 'visibility']
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -62,9 +62,10 @@ class PostForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['post', 'comment', 'author']
+        fields = ['post', 'content_type', 'comment', 'author']
         widgets = {
             'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
             'post': forms.Select(attrs={'class': 'form-control'}),
+            'content_type': forms.Select(attrs={'class': 'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }

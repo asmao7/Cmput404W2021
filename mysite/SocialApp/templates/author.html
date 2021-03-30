@@ -48,12 +48,12 @@
                     	{% load app_filters %}
                     	<input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
                     </form>
-                    
                     </li>
                     <br/>
                     <br/>
+
                 {% endfor %}
-                </ul>
+            </ul>
         </div>
     </body>
 </html>
