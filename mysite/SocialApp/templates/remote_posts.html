@@ -29,33 +29,33 @@
         <h1>REMOTE POSTS</h1> <br/>
 
         {% if has_content %}
-            {% for post in posts %}
-                <div class="posti">
+            <div class="posti">
+                {% for post in posts %}
                     <h1><a href={{ post.origin }}>{{ post.title }}</a></h1>
                         <small>By: <a href={{ post.author.url }}>{{ post.author.displayName }}</a></small><br>
                         <small>Description: {{ post.description }}</small>
                         <br>
 
-                        <section>
-                        {% if post.contentType == "text/plain" %}
-                        <!--display a post as text without formatting-->
-                            <p>{{post.content}}</p>
-                        {% elif post.contentType == "text/markdown" %}
-                        <!--render markdown post as sanitized html-->
-                            {{post.content|markdownify}}
-                        {% elif post.contentType == "application/base64" %}
-                        <!--assume this image has full base64 encoding, not just payload-->
-                            <img alt="post image" src={{ post.content }}>
-                        {% else %}
-                        <!--display base64 data as an image - prepend stored content type-->
-                            <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
+                        {% if post.contentType and post.content %}
+                            <section>
+                            {% if post.contentType == "text/plain" %}
+                            <!--display a post as text without formatting-->
+                                <p>{{post.content}}</p>
+                            {% elif post.contentType == "text/markdown" %}
+                            <!--render markdown post as sanitized html-->
+                                {{post.content|markdownify}}
+                            {% elif post.contentType == "application/base64" %}
+                            <!--assume this image has full base64 encoding, not just payload-->
+                                <img alt="post image" src={{ post.content }}>
+                            {% else %}
+                            <!--display base64 data as an image - prepend stored content type-->
+                                <img alt="post image" src={{ "data:"|add:post.contentType|add:","|add:post.content }}>
+                            {% endif %}
+                            </section>
                         {% endif %}
-                        </section>
-                    
+                        
                     <!--COMMENTS-->
-                    <br><br/>
                     <h2 class="comment">COMMENTS <br></h2>
-                    
                     <ul>
                         {% for comment in post.comments %}
                             <li>
@@ -63,8 +63,9 @@
                             </li> 
                         {% endfor %}
                     </ul>
-                </div>
-            {% endfor %}
+                    <br>
+                {% endfor %}
+            </div>
         {% else %}
             <h2>No Posts Available</h2>
         {% endif %}

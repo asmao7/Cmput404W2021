@@ -225,3 +225,31 @@ def InboxItemToJSON(item):
         }
         print(e)
         return placeholder
+
+
+def ValidateForeignPostJSON(post):
+    """
+    Returns True if JSON conforms to the correct specs. Returns false otherwise.
+    """
+    if "title" not in post:
+        return False
+
+    if "visibility" not in post:
+        return False
+
+    if "contentType" not in post:
+        return False
+
+    if "content" not in post:
+        return False
+
+    if "author" not in post:
+        return False
+
+    contentType = post["contentType"]
+    if(contentType != "text/plain" and contentType != "text/markdown" and
+       contentType != "application/base64" and contentType != "image/png;base64" and
+       contentType != "image/jpeg;base64"):
+       return False
+       
+    return True

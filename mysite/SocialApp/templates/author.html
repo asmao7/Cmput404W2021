@@ -28,6 +28,7 @@
         <!--redirect to edit/delete/or to add comment, (we'll have to find a better way to do this)-->
         <div class="post">
             <h1>ALL POSTS</h1> <br/>
+
             {% for post in object_list %}
                 <ul>
                     <li class=posti><br><a href="{% url 'post-details' post.pk%}">{{ post.title }}</a> 
@@ -50,14 +51,13 @@
                     	{% load app_filters %}
                     	<input type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
                     </form>
-                    
-
-                    
+                                      
                     </li>
                     <br/>
                     <br/>
+
                 {% endfor %}
-                </ul>
+            </ul>
         </div>
     </body>
 </html>
