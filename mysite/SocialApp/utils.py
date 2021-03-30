@@ -247,9 +247,9 @@ def ValidateForeignPostJSON(post):
         return False
 
     contentType = post["contentType"]
-    if contentType != "text/plain" and contentType != "text/markdown" and
+    if(contentType != "text/plain" and contentType != "text/markdown" and
        contentType != "application/base64" and contentType != "image/png;base64" and
-       contentType != "image/jpeg;base64":
+       contentType != "image/jpeg;base64"):
        return False
        
     return True
