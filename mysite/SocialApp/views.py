@@ -19,7 +19,7 @@ from rest_framework.views import APIView, status
 from .models import Author, Post, Comment, LikedPost, InboxItem, Followers
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON , FriendRequestToJson
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -580,8 +580,11 @@ class PostCommentsEndpoint(APIView):
 
 
 def followerView(request):
-    
+    """
+    View shows a list of all the follow/friend requests to the signed in author
+    """   
     current_author_id = request.user.id
+    print('CURRENT ---------------------------------------#####################################################', current_author_id, '\n\n')
     current_author = Author.objects.get(pk=current_author_id)
     followers = []
     followers_list = current_author.followee.all() #all the people currently following this user
@@ -595,6 +598,7 @@ def followerView(request):
         following_list.append(author.author_to)
 
     for follower in followers_list:
+        print('---------------------------------------#####################################################', follower.author_from.id, '\n\n')
         if follower.author_from in following_list:
             pass
         else:
@@ -610,6 +614,9 @@ def followerView(request):
 
 
 def findFollower(request):
+    """
+    View shows a list of all the authors and allows following (sending a friend request to) any author
+    """ 
     author_id = request.user.id
     author_object = Author.objects.get(pk=author_id)
     following_list = []
@@ -643,10 +650,12 @@ def findFollower(request):
 
 
 def addFollower(request, foreign_author_id):
+    """
+    allows following of an author in the system 
+    """ 
     #add new follower and return followers list with new follower included
     #TODO authenticate follower addition
     #TODO check correct save
-    #TODO order of add for unique constraint for friends
     foreign_author =  Author.objects.get(pk=foreign_author_id)
     current_author_id = request.user.id
     current_author =  Author.objects.get(pk=current_author_id)
@@ -658,15 +667,17 @@ def addFollower(request, foreign_author_id):
     is_new_follower = True
     return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
 
-def friendsView(request):
 
+def friendsView(request):
+    """
+    Shows a list of all the people that are friends with the current author
+    """ 
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
     friends = []
     current_followers_list = current_author.followee.all() #all the people currently following this user
 
     #all the people that the user currently follows
-    #TODO move these to the friends tab
     current_following = current_author.following.all()
     current_following_list = []
 
@@ -687,8 +698,9 @@ def friendsView(request):
 
 
 def unFollow(request, foreign_author_id): 
-    """ un follow an author """
-
+    """ 
+    un follow an author 
+    """
     foreign_author =  Author.objects.get(pk=foreign_author_id)
     current_author_id = request.user.id
     current_author =  Author.objects.get(pk=current_author_id)
@@ -737,7 +749,14 @@ def remotePosts(request):
 
 class EditFollowersEndpoint(APIView): 
 
+    """
+    The author/<str:author_id>/followers/<str:foreign_author_id>/ endpoint
+    """
+
     def get(self, request, *args, **kwargs):
+        """
+        Get a specific Follower by providng their ID 
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -777,6 +796,9 @@ class EditFollowersEndpoint(APIView):
     def put(self, request, *args, **kwargs):  
         #TODO need to authenticate
         #TODO modularize getting followers
+        """
+        Follower a specific Author 
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -815,6 +837,9 @@ class EditFollowersEndpoint(APIView):
     
 
     def delete(self, request, *args, **kwargs):
+        """
+        Stop following an Author
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -849,7 +874,9 @@ class EditFollowersEndpoint(APIView):
             
 
 class GetFollowersEndpoint(APIView):
-    """ Get all the followers of a specific user"""
+    """ 
+    Get all the Authors following a specific user
+    """
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -960,3 +987,45 @@ class InboxEndpoint(APIView):
             return HttpResponse("You need to log in first to delete your inbox.", status=401)
 
 
+class FriendRequestEndpoint(APIView):
+    """
+    author/<str:author_id>/friendRequest/<str:foreign_author_id>/
+    """ 
+    def get(self, request, *args, **kwargs):
+        """
+        Returns a friend Request Object 
+        """
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
+        foreign_author_id = kwargs.get("foreign_author_id", -1)
+        if foreign_author_id == -1:
+            return HttpResponse(status=404)
+
+        try:
+            foreign_author = Author.objects.get(pk=foreign_author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=400)
+
+        if not foreign_author:
+            return HttpResponse(status=404)
+
+        if author_id == foreign_author_id:
+            return HttpResponse(status=400)
+
+        requesting_author = AuthorToJSON(author)
+        requested_author = AuthorToJSON(foreign_author)
+
+        json = FriendRequestToJson(requesting_author, requested_author)
+        if json:
+            return JsonResponse(json)
+        else:
+            return HttpResponse(status=500)

@@ -35,4 +35,5 @@ urlpatterns = [
   path('author/<str:author_id>/inbox/', views.InboxEndpoint.as_view(), name="Inbox"),
   path('author/<str:author_id>/followers/<str:foreign_author_id>/', views.EditFollowersEndpoint.as_view(), name='editFollowers'),
   path('author/<str:author_id>/posts/<str:post_id>/comments/', views.PostCommentsEndpoint.as_view(), name="PostComments"),
+  path('author/<str:author_id>/friend_request/<str:foreign_author_id>/', views.FriendRequestEndpoint.as_view(), name='friendRequest')
 ]
