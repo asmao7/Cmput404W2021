@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import Post, Author, PostCategory, Comment, LikedPost, Followers, InboxItem
+from .models import Post, Author, PostCategory, Comment, LikedPost, LikedComment, Followers, InboxItem
 
 class DefaultAdmin(admin.ModelAdmin):
     """
@@ -89,6 +89,16 @@ class InboxItemAdmin(admin.ModelAdmin):
     search_fields = ("author",)
 
 
+class PostLikesAdmin(admin.ModelAdmin):
+    list_display("__str__", "post_id", "user_id")
+    search_fields("post_id", "user_id")
+
+
+class CommentLikesAdmin(admin.ModelAdmin):
+    list_display("__str__", "comment_id", "user_id")
+    search_fields("comment_id", "user_id")
+
+
 # Set some admin site variables
 admin.site.site_header = "Social Distribution Project Admin"
 admin.site.site_title = "Social Distribution Project Admin"
@@ -103,5 +113,6 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(PostCategory, PostCategoryAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Followers, FollowersAdmin)
-admin.site.register(LikedPost, DefaultAdmin)
+admin.site.register(LikedPost, PostLikesAdmin)
+admin.site.register(LikedComment, CommentLikesAdmin)
 admin.site.register(InboxItem, InboxItemAdmin)
