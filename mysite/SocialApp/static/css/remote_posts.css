@@ -3,9 +3,18 @@
   padding: 0;
 }
 
-h1 {
+body {
+  font-size: 20px;
   color: wheat;
   text-align: center;
+}
+
+h1 {
+  font-size: 3em;
+}
+
+h2 {
+  font-size: 2em;
 }
 
 .posts{

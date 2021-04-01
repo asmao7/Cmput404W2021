@@ -40,13 +40,17 @@
 
                 <!--COMMENTS-->
                 <h2 class="comment-header">COMMENTS</h2>
-                <ul>
-                    {% for comment in post.comments %}
-                        <li>
-                            <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment}}
-                        </li> 
-                    {% endfor %}
-                </ul>
+                {% if post.comments %}
+                    <ul>
+                        {% for comment in post.comments %}
+                            <li>
+                                <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment}}
+                            </li> 
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No comments.</p>
+                {% endif %}
             {% endfor %}
         </div>
     {% else %}
