@@ -45,6 +45,11 @@ body{
 background-color: black;
 }
 
+h1 {
+  color: wheat;
+  text-align: center;
+}
+
 .posts{
 padding: 20px 15% 0px 15%;
 /*border: 4px solid maroon;*/
