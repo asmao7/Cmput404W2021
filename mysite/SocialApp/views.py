@@ -155,7 +155,7 @@ class AllAuthorsEndpoint(APIView):
             return HttpResponse(status=401)
 
         try:
-            json = AuthorListToJSON(Author.objects.all())
+            json = AuthorListToJSON(Author.objects.exclude(is_staff=True).exclude(is_server=True))
             return JsonResponse({"authors":json})
         except:
             return HttpResponse(status=500)

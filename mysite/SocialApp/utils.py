@@ -78,10 +78,14 @@ def PostToJSON(post):
 def FollowerFinalJSON(follower_list):
     """
     Converts Followe object into a JSON-compatible dictionary.
-    Returns None on failure.
+    Returns an empty list on failure.
     """
     if not follower_list:
-        return None
+        json = {
+            "type":"followers",
+            "items": []
+        }
+        return json
     try:
         json = {
             "type":"followers",
@@ -89,7 +93,11 @@ def FollowerFinalJSON(follower_list):
         }
         return json
     except:
-        return None
+        json = {
+            "type":"followers",
+            "items": []
+        }
+        return json
 
 
 def PostListToJSON(posts):

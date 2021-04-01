@@ -95,7 +95,7 @@ class PostLikesAdmin(admin.ModelAdmin):
 
 
 class CommentLikesAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "comment_id", "user_id",)
+    list_display = ("__str__", "post_id", "user_id",)
     search_fields = ("post_id", "user_id")
 
 
