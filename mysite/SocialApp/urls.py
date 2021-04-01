@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 from .views import UserRegisterView
-from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, DeletePostView, AddCommentView, FriendsPostView
+from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, DeletePostView, AddCommentView
 
 urlpatterns = [
   path('', views.home, name='home'),
