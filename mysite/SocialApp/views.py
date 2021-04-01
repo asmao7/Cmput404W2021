@@ -48,6 +48,7 @@ class AddPostView(CreateView):
     form_class = PostForm
     template_name = 'AddPost.html'
     success_url = reverse_lazy('author')
+    
 
 class AddCommentView(CreateView):
     model = Comment
