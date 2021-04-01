@@ -1099,7 +1099,9 @@ class InboxEndpoint(APIView):
             return HttpResponse("You need to log in first to delete your inbox.", status=401)
 
 
-
+# passing posts and friends to the friend post template (newMessage)
+# everything except the last line is basically a copy of the friends
+# template, will find a way to get rid of duplicate codes!
 def posts_view(request):
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
@@ -1118,13 +1120,11 @@ def posts_view(request):
         if follower.author_from in current_following_list:
             friends.append(follower)
 
-
     if not friends:
        is_empty = True
     else:
         is_empty = False
 
-    #return render(request, 'friends.html', {"friends":friends, 'is_empty': is_empty} )
     return render(request, "newMessage.html", {'posts': (Post.objects.all()).filter(visibility='FRIENDS').order_by('-published'),
                                                 "friends":friends, 'is_empty': is_empty })
 
