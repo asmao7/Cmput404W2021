@@ -25,9 +25,9 @@
                             - <a href="{% url 'update_post' post.pk%}">Edit</a>
                             - <a href="{% url 'delete_post' post.pk%}">Delete Post</a>
                         {% endif %}
-                        <br> By: {{ post.author}} - <small>{{ post.published}}</small>
+                        <p>By: {{ post.author}} - <small>{{ post.published}}</small></p>
                         <!--post content and description-->
-                        <br><p class='postDescription'>{{ post.description }}</p>
+                        <p class='postDescription'>{{ post.description }}</p>
                         <!--LIKES pass in url that sends a post id argument and updates the database-->
                         <form action="{% url 'like' post.pk %}" method="POST">
                             {% csrf_token %}
