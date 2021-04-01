@@ -15,7 +15,7 @@
 		<div class="topnav">
 		  <a class="active" href="author.html">Home</a>
 			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="{% url 'newMessage' %}">New Message</a>
+			<a href="{% url 'newMessage' %}">Friends Posts</a>
             <a href="{% url 'add_post' %}">New Post</a>
             <a href="{% url 'followers' %}">Followers</a> 
             <a href="{% url 'friends' %}">Friends</a>
@@ -24,19 +24,20 @@
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-        <!--For each 'PUBLIC' post, display the author, content and description-->
-        <!--redirect to edit/delete pages if the user owns the posts-->
+        <!--For each 'FRIENDS' post, display the author, content and description-->
+        <!--Can't edit or deletes friends posts-->
         <div class="posts">
             <h1>Friends Posts</h1> <br/>
             {% for friend in friends %}
                 <!--doesn't do anything-->
+                <!--but should check if the user exists in the author's friend list-->
             {% endfor%}
             {% for post in object_list %}
                 {% if post.visibility == 'FRIENDS'%}
                     <ul>
-                        <!--post title -> it redirects to the post details-->
+                        <!--display the author who sent you a friend message-->    
                         <li class=posti><br> <strong><big>~ {{post.author}} sent you a message. ~ <br></big></strong>
-                        
+                        <!--post title -> it redirects to the post details-->
                         <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
                         <!--post display status-->
                         ~  <small><small>{{post.visibility}}</small></small>
@@ -49,7 +50,6 @@
                         <form action="{% url 'like' post.pk %}" method="POST"> 
                             {% csrf_token %}
                             {{ form.as_p }}
-                            
                             {% load app_filters %}
                             <input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
                         </form>
