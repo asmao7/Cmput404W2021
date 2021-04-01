@@ -1,32 +1,19 @@
+{% extends "base.html" %}
+
 {% load static %}
-<!Doctype html>
 
-<html>
-    <head>
-        <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/signup.css' %}">
-    </head>
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
 
-    <body>
-        <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";>
-
-        <!--Navigation menu-->
-		<div class="topnav">
-			<a class="active" href="author.html">Home</a>
-			<a href="#Login.html">Edit</a>
-			<a href="#signup">Sign up</a>
-            <a href="{% url 'logout' %}">Logout</a>
-		</div>
-
-        <form class="box" action="index.html" method="post">
-            <h1>Edit Profile</h1>
-            <input type="text" name="" placeholder="Name">
-            <input type="text" name="" placeholder="email">
-            <input type="text" name="" placeholder="Username">
-            <input type="password" name="" placeholder="Password">
-            <input type="password" name="" placeholder="Confirm password">
-            <a href="author.html">save changes</a>
-        </form>
-    </body>
-</html>
+{% block content %}
+    <form class="box" action="index.html" method="post">
+        <h1>Edit Profile</h1>
+        <input type="text" name="" placeholder="Name">
+        <input type="text" name="" placeholder="email">
+        <input type="text" name="" placeholder="Username">
+        <input type="password" name="" placeholder="Password">
+        <input type="password" name="" placeholder="Confirm password">
+        <a href="author.html">save changes</a>
+    </form>
+{% endblock %}
