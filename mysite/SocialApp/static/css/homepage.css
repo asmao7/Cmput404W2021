@@ -1,6 +1,7 @@
 *{
     margin: 0;
     padding: 0;
+    font-family: sans-serif;
 }
 
 
@@ -36,9 +37,15 @@
 
   /*Intro part*/
 .wrapper{
-  width: 1000px;  
-  margin: 0 auto;
-  color:white;
+  width: auto;
+  max-width: 800px;
+  margin: 3em auto;
+  color: wheat;
+  border: 5px solid maroon;
+  padding: 2em;
+}
+.wrapper > h1 {
+  text-align:center;
 }
 
 body{
