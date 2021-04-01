@@ -15,11 +15,11 @@
     <!--For each post, display the author and content-->
     <!--redirect to edit/delete/or to add comment, (we'll have to find a better way to do this)-->
     <div class="posts">
-        <h1>All Posts</h1> <br/>
+        <h1>All Posts</h1>
         <ul>
             {% for post in object_list %}
                 {% if post.visibility == "PUBLIC" %}
-                    <li class=posti><br><a class="postTitle" href="{% url 'post-details' post.pk%}">{{ post.title }}</a> 
+                    <li class=posti><a class="postTitle" href="{% url 'post-details' post.pk%}">{{ post.title }}</a> 
                         <!--if the current auhtor whose logged in owns this post then they can edit/delete-->
                         {% if user.id == post.author.id %}
                             - <a href="{% url 'update_post' post.pk%}">Edit</a>
@@ -37,8 +37,6 @@
                             <input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
                         </form>
                     </li>
-                    <br>
-                    <br>
             {% endif %}
             {% endfor %}
         </ul>
