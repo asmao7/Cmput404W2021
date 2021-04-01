@@ -40,18 +40,6 @@ class HomeView(ListView):
     ordering = ['-published']
 
 
-# for friends post
-class FriendsPostView(ListView):
-    model = Post
-    template_name = 'newMessage.html'
-    likeModel = LikedPost
-    ordering = ['-published']
-    
-    def FriendPosts(self, request):
-        friends = [1, 2,3]
-        return render(request, 'newMessage.html', {"friends":friends, 'is_empty': False} )
-
-
 class PostDetailView(DetailView):
     model = Post
     template_name = 'PostDetails.html'
@@ -111,9 +99,6 @@ def editProfile(request):
 
 def newPost(request):
     return render(request, 'newPost.html', {})
-
-def newMessage(request):
-    return render(request, 'newMessage.html', {})
 
 def inbox(request):
     """
@@ -1148,4 +1133,33 @@ class InboxEndpoint(APIView):
         else:
             return HttpResponse("You need to log in first to delete your inbox.", status=401)
 
+
+# passing posts and friends to the friend post template (newMessage)
+# everything except the last line is basically a copy of the friends
+# template, will find a way to get rid of duplicate codes!
+def posts_view(request):
+    current_author_id = request.user.id
+    current_author = Author.objects.get(pk=current_author_id)
+    friends = []
+    current_followers_list = current_author.followee.all() #all the people currently following this user
+
+    #all the people that the user currently follows
+    #TODO move these to the friends tab
+    current_following = current_author.following.all()
+    current_following_list = []
+
+    for author in current_following:
+        current_following_list.append(author.author_to)
+
+    for follower in current_followers_list:
+        if follower.author_from in current_following_list:
+            friends.append(follower)
+
+    if not friends:
+       is_empty = True
+    else:
+        is_empty = False
+
+    return render(request, "newMessage.html", {'posts': (Post.objects.all()).filter(visibility='FRIENDS').order_by('-published'),
+                                                "friends":friends, 'is_empty': is_empty })
 
