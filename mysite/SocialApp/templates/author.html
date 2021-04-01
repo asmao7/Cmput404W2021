@@ -33,7 +33,7 @@
                     <!--post title -> it redirects to the post details-->
                     <li class=posti><br><a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
                     <!--post display status-->
-                    ~  <small>{{post.visibility}}</small>
+                    ~  <small><small>{{post.visibility}}</small></small>
                     <!--if the current auhtor whose logged in owns this post then they can edit/delete-->
                     {% if user.id == post.author.id%}
                         <br><a href="{% url 'update_post' post.pk%}">Edit</a>
