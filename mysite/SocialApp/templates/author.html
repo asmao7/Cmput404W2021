@@ -30,6 +30,7 @@
             <h1>All Posts</h1> <br/>
             {% for post in object_list %}
                 <ul>
+                    <!--post title -> it redirects to the post details-->
                     <li class=posti><br><a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
                     <!--post display status-->
                     ~  <small>{{post.visibility}}</small>
@@ -38,6 +39,7 @@
                         <br><a href="{% url 'update_post' post.pk%}">Edit</a>
                         - <a href="{% url 'delete_post' post.pk%}">Delete Post</a>
                     {% endif%}
+                    <!--post author and date posted-->
                     <br> By: {{ post.author}} - <small>{{ post.published}}</small><br>
                     <!--post content and description-->
                     <br><p class='postDescription'>{{ post.description }} </p><br/>
