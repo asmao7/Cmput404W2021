@@ -7,36 +7,35 @@
 {% endblock %}
 
 {% block content %}
-    <!--For each 'FRIENDS' post, display the author, content and description-->
+    <!--For each 'FRIENDS' post, display the author and description-->
     <!--Can't edit or deletes friends posts-->
     <div class="posts">
         <h1>Friends Posts</h1>
         {% for post in posts %}
             {% for friend in friends%}
-                !!!!!!!!!the firend is: {{friend.author_from}}
                 {% if post.author == friend.author_from%}
-            {% if post.visibility == 'FRIENDS'%}
-                <ul>
-                    <!--display the author who sent you a friend message-->    
-                    <li class=posti> <strong><big>~ {{post.author}} sent you a message. ~ <br></big></strong>
-                    <!--post title -> it redirects to the post details-->
-                    <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
-                    <!--post display status-->
-                    ~  <small><small>{{post.visibility}}</small></small>
-                    <!--post author and date posted-->
-                    <br> By: {{ post.author}} - <small>{{ post.published}}</small><br>
-                    <!--post content and description-->
-                    <p class='postDescription'>{{ post.description }} </p>
-                    <!--LIKES pass in url that sends a post id argument and updates the database-->
-                    <form action="{% url 'like' post.pk %}" method="POST"> 
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        {% load app_filters %}
-                        <input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
-                    </form>
-                    </li>
-            {% endif %}
-            {%endif%}
+                    {% if post.visibility == 'FRIENDS'%}
+                        <ul>
+                            <!--display the author who sent you a friend message-->    
+                            <li class=posti> <p><strong><big>~ {{post.author}} sent you a message. ~ </p></big></strong>
+                            <!--post title -> it redirects to the post details-->
+                            <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
+                            <!--post display status-->
+                            ~  <small><small>{{post.visibility}}</small></small>
+                            <!--post author and date posted-->
+                            <p> By: {{ post.author}} - <small>{{ post.published}}</small></p>
+                            <!--post content and description-->
+                            <p class='postDescription'>{{ post.description }} </p>
+                            <!--LIKES pass in url that sends a post id argument and updates the database-->
+                            <form action="{% url 'like' post.pk %}" method="POST"> 
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                {% load app_filters %}
+                                <input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
+                            </form>
+                            </li>
+                    {% endif %}
+                {%endif%}
             {%endfor%}
         {% endfor %}
         </ul>
