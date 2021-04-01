@@ -11,10 +11,10 @@
     <!--Can't edit or deletes friends posts-->
     <div class="posts">
         <h1>Friends Posts</h1>
-        
-        
         {% for post in posts %}
-            {{post.content}}
+            {% for friend in friends%}
+                !!!!!!!!!the firend is: {{friend.author_from}}
+                {% if post.author == friend.author_from%}
             {% if post.visibility == 'FRIENDS'%}
                 <ul>
                     <!--display the author who sent you a friend message-->    
@@ -35,9 +35,9 @@
                         <input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
                     </form>
                     </li>
-                    <br/>
-                    <br/>
             {% endif %}
+            {%endif%}
+            {%endfor%}
         {% endfor %}
         </ul>
     </div>
