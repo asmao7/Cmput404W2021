@@ -60,13 +60,16 @@ margin: 2em;
 }
 
 .postTitle {
-font-size: larger;
-font-weight: bold;
+  margin: 2em, 1em, 1em, 1em
 }
 
 .postDescription {
 font-style: italic;
 margin: 1em;
+}
+
+.comment-header{
+  margin: 1em, 1em, 0.5em, 1em;
 }
 
 .likeButton {
