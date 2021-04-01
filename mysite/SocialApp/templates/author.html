@@ -7,10 +7,10 @@
 {% endblock %}
 
 {% block content %}
-    <!--For each post, display the author and content-->
-    <!--redirect to edit/delete/or to add comment, (we'll have to find a better way to do this)-->
+    <!--For each 'PUBLIC' post, display the author, content and description-->
+    <!--redirect to edit/delete pages if the user owns the posts-->
     <div class="posts">
-        <h1>All Posts</h1>
+        <h1>Public Posts</h1>
         <ul>
             {% for post in object_list %}
                 {% if post.visibility == "PUBLIC" %}
@@ -20,6 +20,7 @@
                             - <a href="{% url 'update_post' post.pk%}">Edit</a>
                             - <a href="{% url 'delete_post' post.pk%}">Delete Post</a>
                         {% endif %}
+                        ~  <small><small>{{post.visibility}}</small></small>
                         <p>By: {{ post.author}} - <small>{{ post.published}}</small></p>
                         <!--post content and description-->
                         <p class='postDescription'>{{ post.description }}</p>
