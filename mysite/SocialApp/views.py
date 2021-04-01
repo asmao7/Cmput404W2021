@@ -45,6 +45,8 @@ class FriendsPostView(ListView):
     template_name = 'newMessage.html'
     likeModel = LikedPost
     ordering = ['-published']
+    def FriendPosts(self, request):
+        return render(request, 'newMessage.html', {"friends":friends, 'is_empty': is_empty} )
 
 class PostDetailView(DetailView):
     model = Post
@@ -671,11 +673,13 @@ def addFollower(request, foreign_author_id):
     is_new_follower = True
     return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
 
+friends = []
+is_empty = False
 def friendsView(request):
 
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
-    friends = []
+    #friends = []
     current_followers_list = current_author.followee.all() #all the people currently following this user
 
     #all the people that the user currently follows
