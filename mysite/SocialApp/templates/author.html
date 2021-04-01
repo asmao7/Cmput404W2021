@@ -24,8 +24,8 @@
             <a href="{% url 'logout' %}">Logout</a>
 		</div>
 
-        <!--For each post, display the author and content-->
-        <!--redirect to edit/delete/or to add comment, (we'll have to find a better way to do this)-->
+        <!--For each 'PUBLIC' post, display the author, content and description-->
+        <!--redirect to edit/delete pages if the user owns the posts-->
         <div class="posts">
             <h1>All Posts</h1> <br/>
             {% for post in object_list %}
