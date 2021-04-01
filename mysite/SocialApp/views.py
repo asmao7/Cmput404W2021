@@ -100,33 +100,6 @@ def editProfile(request):
 def newPost(request):
     return render(request, 'newPost.html', {})
 
-def newMessage(request):
-    #return render(request, 'newMessage.html', {})
-    current_author_id = request.user.id
-    current_author = Author.objects.get(pk=current_author_id)
-    friends = []
-    current_followers_list = current_author.followee.all() #all the people currently following this user
-
-    #all the people that the user currently follows
-    #TODO move these to the friends tab
-    current_following = current_author.following.all()
-    current_following_list = []
-
-    for author in current_following:
-        current_following_list.append(author.author_to)
-
-    for follower in current_followers_list:
-        if follower.author_from in current_following_list:
-            friends.append(follower)
-
-
-    if not friends:
-       is_empty = True
-    else:
-        is_empty = False
-
-    return render(request, 'newMessage.html', {"friends":friends, 'is_empty': is_empty} )
-
 def inbox(request):
     """
     Request all of the inbox items using our API endpoint and render out.
@@ -1128,5 +1101,30 @@ class InboxEndpoint(APIView):
 
 
 def posts_view(request):
-    return render(request, "newMessage.html", {'posts': (Post.objects.all()).filter(visibility='FRIENDS').order_by('-published')})
+    current_author_id = request.user.id
+    current_author = Author.objects.get(pk=current_author_id)
+    friends = []
+    current_followers_list = current_author.followee.all() #all the people currently following this user
+
+    #all the people that the user currently follows
+    #TODO move these to the friends tab
+    current_following = current_author.following.all()
+    current_following_list = []
+
+    for author in current_following:
+        current_following_list.append(author.author_to)
+
+    for follower in current_followers_list:
+        if follower.author_from in current_following_list:
+            friends.append(follower)
+
+
+    if not friends:
+       is_empty = True
+    else:
+        is_empty = False
+
+    #return render(request, 'friends.html', {"friends":friends, 'is_empty': is_empty} )
+    return render(request, "newMessage.html", {'posts': (Post.objects.all()).filter(visibility='FRIENDS').order_by('-published'),
+                                                "friends":friends, 'is_empty': is_empty })
 
