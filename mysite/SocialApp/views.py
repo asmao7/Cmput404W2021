@@ -39,6 +39,19 @@ class HomeView(ListView):
     likeModel = LikedPost
     ordering = ['-published']
 
+
+# for friends post
+class FriendsPostView(ListView):
+    model = Post
+    template_name = 'newMessage.html'
+    likeModel = LikedPost
+    ordering = ['-published']
+    
+    def FriendPosts(self, request):
+        friends = [1, 2,3]
+        return render(request, 'newMessage.html', {"friends":friends, 'is_empty': False} )
+
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'PostDetails.html'
@@ -47,9 +60,15 @@ class AddPostView(CreateView):
     model = Post
     form_class = PostForm
     template_name = 'AddPost.html'
-    #fields = '__all__'
-    #fields = ['title', 'description', 'content', 'content_type', 'unlisted', 'author']
     success_url = reverse_lazy('author')
+
+    """
+    # this is to redicrect to the appropriate pages
+    def get(self, request):
+        form = PostForm()
+        if form.is_valid():
+            vis = form.cleaned_data['visibility']
+    """
 
 class AddCommentView(CreateView):
     model = Comment
