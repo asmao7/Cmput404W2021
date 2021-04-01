@@ -1,59 +1,39 @@
+{% extends "base.html" %}
+
 {% load static %}
-<!Doctype html>
 
-<html>
-    <head>
-        <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/homepage.css' %}">
-    </head>
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/homepage.css' %}">
+{% endblock %}
 
-    <body>
-        <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper5.jpg"%}')";
-
-        <!--Navigation menu-->
-		<div class="topnav">
-		  <a class="active" href="author.html">Home</a>
-			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="{% url 'newMessage' %}">New Message</a>
-            <a href="{% url 'add_post' %}">New Post</a>
-            <a href="{% url 'followers' %}">Followers</a> 
-            <a href="{% url 'friends' %}">Friends</a>
-            <a href="{% url 'findFollowers' %}">Find Followers</a>
-            <a href="{% url 'remotePosts' %}">Remote Posts</a>
-            <a href="{% url 'logout' %}">Logout</a>
-		</div>
-
-        <!--For each post, display the author and content-->
-        <!--redirect to edit/delete/or to add comment, (we'll have to find a better way to do this)-->
-        <div class="posts">
-            <h1>All Posts</h1> <br/>
+{% block content %}
+    <!--For each post, display the author and content-->
+    <!--redirect to edit/delete/or to add comment, (we'll have to find a better way to do this)-->
+    <div class="posts">
+        <h1>All Posts</h1>
+        <ul>
             {% for post in object_list %}
-                <ul>
-                    <li class=posti><br><a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
-                    <!--if the current auhtor whose logged in owns this post then they can edit/delete-->
-                    {% if user.id == post.author.id%}
-                        <br><a href="{% url 'update_post' post.pk%}">Edit</a>
-                        - <a href="{% url 'delete_post' post.pk%}">Delete Post</a>
-                    {% endif%}
-                    <br> By: {{ post.author}} - <small>{{ post.published}}</small><br>
-                    <!--post content and description-->
-                    <br><p class='postDescription'>{{ post.description }} </p><br/>
-                    <p class="postContent">{{ post.content }}</p><br>
-                    <!--LIKES pass in url that sends a post id argument and updates the database-->
-                    <form action="{% url 'like' post.pk %}" method="POST">
-                    	{% csrf_token %}
-                    	{{ form.as_p }}
-                    	
-                    	{% load app_filters %}
-                    	<input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
-                    </form>
+                {% if post.visibility == "PUBLIC" %}
+                    <li class=posti><a class="postTitle" href="{% url 'post-details' post.pk%}">{{ post.title }}</a> 
+                        <!--if the current auhtor whose logged in owns this post then they can edit/delete-->
+                        {% if user.id == post.author.id %}
+                            - <a href="{% url 'update_post' post.pk%}">Edit</a>
+                            - <a href="{% url 'delete_post' post.pk%}">Delete Post</a>
+                        {% endif %}
+                        <p>By: {{ post.author}} - <small>{{ post.published}}</small></p>
+                        <!--post content and description-->
+                        <p class='postDescription'>{{ post.description }}</p>
+                        <!--LIKES pass in url that sends a post id argument and updates the database-->
+                        <form action="{% url 'like' post.pk %}" method="POST">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            
+                            {% load app_filters %}
+                            <input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
+                        </form>
                     </li>
-                    <br/>
-                    <br/>
-
-                {% endfor %}
-            </ul>
-        </div>
-    </body>
-</html>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
