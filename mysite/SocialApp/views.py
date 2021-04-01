@@ -732,6 +732,41 @@ class CommentLikesEndpoint(APIView):
         return JsonResponse({"likes":likes_json_list})
 
 
+class AuthorLikedEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/liked/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to return the author's likes
+        """
+        # TODO: Paginate results and sort by date
+        # TODO: Authenticate? Or only allow this endpoint to return PUBLIC posts?
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_likes = LikedPost.objects.filter(user_id=author)
+        comment_likes = LikedComment.objects.filter(user_id=author)
+
+        try:
+            all_likes = []
+            for like in PostLikeListToJSON(post_likes):
+                all_likes.append(like)
+            for like in CommentLikeListToJSON(comment_likes):
+                all_likes.append(like)
+            return JsonResponse({"likes":all_likes})
+        except:
+            return HttpResponse(status=500)
+
+
 def followerView(request):
     
     current_author_id = request.user.id
