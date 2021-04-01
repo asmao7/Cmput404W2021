@@ -48,7 +48,14 @@ class AddPostView(CreateView):
     form_class = PostForm
     template_name = 'AddPost.html'
     success_url = reverse_lazy('author')
-    
+
+    """
+    # this is to redicrect to the appropriate pages
+    def get(self, request):
+        form = PostForm()
+        if form.is_valid():
+            vis = form.cleaned_data['visibility']
+    """
 
 class AddCommentView(CreateView):
     model = Comment
