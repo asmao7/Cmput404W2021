@@ -608,7 +608,7 @@ class PostLikesEndpoint(APIView):
         if post.author != author:
             return HttpResponse(status=404)
 
-        likes_json_list = PostLikeListToJSON(Comment.objects.filter(post=post))
+        likes_json_list = PostLikeListToJSON(LikedPost.objects.filter(post_id=post))
 
         return JsonResponse({"likes":likes_json_list})
 
