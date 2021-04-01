@@ -153,6 +153,12 @@ class Comment(models.Model):
             self.url = "https://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
         super(Comment, self).save(*args, **kwargs)
 
+
+class LikedComment(models.Model):
+    post_id = models.ForeignKey(Comment, related_name="likes", on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+
 class Followers(models.Model):
     """ get a specific user's followers """
     author_from = models.ForeignKey(Author, related_name='following', on_delete=models.CASCADE) #person pressing follow
