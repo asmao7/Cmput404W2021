@@ -28,12 +28,20 @@
         <!--redirect to edit/delete pages if the user owns the posts-->
         <div class="posts">
             <h1>All Posts</h1> <br/>
-            {% if not is_empty%}
+             {% if is_empty %}
+                <div class="authorcard_list">
+                <p class="message"> You dont have any friends yet, Use Find Followers to add Followers</p>
+            {% else %}    
+                {% for friend in friends %}
+                    ------- {{friend}}
+                {% endfor%}
                 {% for post in object_list %}
                     {% if post.visibility == 'FRIENDS'%}
                         <ul>
                             <!--post title -> it redirects to the post details-->
-                            <li class=posti><br><a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
+                            <li class=posti><br> <strong><big>~ {{post.author}} sent you a message. ~ <br></big></strong>
+                            
+                            <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
                             <!--post display status-->
                             ~  <small><small>{{post.visibility}}</small></small>
                             <!--post author and date posted-->
