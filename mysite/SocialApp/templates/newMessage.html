@@ -27,7 +27,7 @@
         <!--For each 'FRIENDS' post, display the author, content and description-->
         <!--Can't edit or deletes friends posts-->
         <div class="posts">
-            <h1>Friends Posts</h1> <br/>
+            <h1>Friends Posts</h1>
             {% for friend in friends %}
                 <!--doesn't do anything-->
                 <!--but should check if the user exists in the author's friend list-->
@@ -36,7 +36,7 @@
                 {% if post.visibility == 'FRIENDS'%}
                     <ul>
                         <!--display the author who sent you a friend message-->    
-                        <li class=posti><br> <strong><big>~ {{post.author}} sent you a message. ~ <br></big></strong>
+                        <li class=posti> <strong><big>~ {{post.author}} sent you a message. ~ <br></big></strong>
                         <!--post title -> it redirects to the post details-->
                         <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
                         <!--post display status-->
@@ -44,8 +44,7 @@
                         <!--post author and date posted-->
                         <br> By: {{ post.author}} - <small>{{ post.published}}</small><br>
                         <!--post content and description-->
-                        <br><p class='postDescription'>{{ post.description }} </p><br/>
-                        <p class="postContent">{{ post.content }}</p><br>
+                        <p class='postDescription'>{{ post.description }} </p>
                         <!--LIKES pass in url that sends a post id argument and updates the database-->
                         <form action="{% url 'like' post.pk %}" method="POST"> 
                             {% csrf_token %}
