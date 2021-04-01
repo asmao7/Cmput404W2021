@@ -11,11 +11,10 @@
     <!--Can't edit or deletes friends posts-->
     <div class="posts">
         <h1>Friends Posts</h1>
-        {% for friend in friends %}
-            <!--doesn't do anything-->
-            <!--but should check if the user exists in the author's friend list-->
-        {% endfor%}
-        {% for post in object_list %}
+        
+        
+        {% for post in posts %}
+            {{post.content}}
             {% if post.visibility == 'FRIENDS'%}
                 <ul>
                     <!--display the author who sent you a friend message-->    
