@@ -17,7 +17,7 @@
     {% if has_content %}
         <div class="posts">
             {% for post in posts %}
-                <h1 class="postTitle"><a href={{ post.origin }}>{{ post.title }}</a></h1>
+                <h2><a href={{ post.origin }}>{{ post.title }}</a></h1>
                 <p>By: <a href={{ post.author.url }}>{{ post.author.displayName }}</a> - <small>{{ post.published }}</small></p>
                 <p class='postDescription'>{{ post.description }}</p>
                 {% if post.contentType and post.content %}
@@ -36,10 +36,12 @@
                             <img alt="post image" src={{ "data:"|add:post.contentType|add:","|add:post.content }}>
                         {% endif %}
                     </section>
+                {% else %}
+                    <p>Post content error.</p>
                 {% endif %}
 
                 <!--COMMENTS-->
-                <h2 class="comment-header">COMMENTS</h2>
+                <h3 class="comment-header">COMMENTS</h2>
                 {% if post.comments %}
                     <ul>
                         {% for comment in post.comments %}
