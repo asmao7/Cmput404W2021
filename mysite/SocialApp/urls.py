@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 from .views import UserRegisterView
-from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, DeletePostView, AddCommentView
+from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, DeletePostView, AddCommentView, FriendsPostView
 
 urlpatterns = [
   path('', views.home, name='home'),
@@ -10,6 +10,7 @@ urlpatterns = [
   path('inbox/', views.inbox, name="inbox"),
   path('signup.html', UserRegisterView.as_view(), name="signup"),
   path('author.html', HomeView.as_view(), name="author"),
+  path('newMessage.html', FriendsPostView.as_view(), name="new_message"),
   path('Details/<str:pk>', PostDetailView.as_view(), name="post-details"),
   path('AddPost.html', AddPostView.as_view(), name="add_post"),
   path('details/edit/<str:pk>', UpdatePostView.as_view(), name="update_post"),
