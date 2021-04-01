@@ -522,12 +522,8 @@ class PostCommentsEndpoint(APIView):
         if post.author != author:
             return HttpResponse(status=404)
 
-        comment_json_list = []
-        comments = Comment.objects.filter(post=post)
-        for comment in comments:
-            json = CommentToJSON(comment)
-            if json:
-                comment_json_list.append(json)
+        comment_json_list = CommentListToJSON(Comment.objects.filter(post=post))
+
         return JsonResponse({"comments":comment_json_list})
 
     def post(self, request, *args, **kwargs):
@@ -577,6 +573,45 @@ class PostCommentsEndpoint(APIView):
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=500)
+
+
+class PostLikesEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/likes/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET request for the likes on a post
+        """
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_id = kwargs.get("post_id", -1)
+        if post_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
+
+        likes_json_list = PostLikeListToJSON(Comment.objects.filter(post=post))
+
+        return JsonResponse({"likes":likes_json_list})
+
 
 
 def followerView(request):
