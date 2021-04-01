@@ -39,6 +39,13 @@ class HomeView(ListView):
     likeModel = LikedPost
     ordering = ['-published']
 
+# for friends post
+class FriendsPostView(ListView):
+    model = Post
+    template_name = 'newMessage.html'
+    likeModel = LikedPost
+    ordering = ['-published']
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'PostDetails.html'
