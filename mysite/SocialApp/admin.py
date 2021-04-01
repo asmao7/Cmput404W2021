@@ -90,13 +90,13 @@ class InboxItemAdmin(admin.ModelAdmin):
 
 
 class PostLikesAdmin(admin.ModelAdmin):
-    list_display("__str__", "post_id", "user_id")
-    search_fields("post_id", "user_id")
+    list_display = ("__str__", "post_id", "user_id",)
+    search_fields = ("post_id", "user_id")
 
 
 class CommentLikesAdmin(admin.ModelAdmin):
-    list_display("__str__", "comment_id", "user_id")
-    search_fields("comment_id", "user_id")
+    list_display = ("__str__", "comment_id", "user_id",)
+    search_fields = ("comment_id", "user_id")
 
 
 # Set some admin site variables
