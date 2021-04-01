@@ -184,6 +184,41 @@ def PostLikeListToJSON(likes):
         return []
 
 
+def CommentLikeToJSON(like):
+    """
+    Converts a like on a comment to JSON
+    """
+    if not like:
+        return None
+    try:
+        json = {
+            "type": "Like",
+            "author": AuthorToJSON(like.user_id),
+            "object": like.comment_id.url
+        }
+        return json
+    except:
+        return None
+
+
+def CommentLikeListToJSON(likes):
+    """
+    Converts a list of CommentPost objects to a JSON-compatible list
+    of likes. Returns an empty list on failure.
+    """
+    if not likes:
+        return []
+    try:
+        likes_list = []
+        for like in likes:
+            test_json = CommentLikeToJSON(like)
+            if test_json:
+                likes_list.append(test_json)
+        return likes_list
+    except:
+        return []
+
+
 def PostCategoryListToStringList(categories):
     """
     Converts a collection of Category objects into a JSON-compatible

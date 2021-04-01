@@ -16,10 +16,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
 
-from .models import Author, Post, Comment, LikedPost, InboxItem, Followers
+from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -575,6 +575,57 @@ class PostCommentsEndpoint(APIView):
             return HttpResponse(status=500)
 
 
+class CommentEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET request for a specific comment
+        """
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_id = kwargs.get("post_id", -1)
+        if post_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
+
+        comment_id = kwargs.get("comment_id", -1)
+        if comment_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except Comment.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        json = CommentToJSON(comment)
+        if json:
+            return JsonResponse(json)
+        else:
+            return HttpResponse(status=500)
+
+
 class PostLikesEndpoint(APIView):
     """
     The author/{AUTHOR_ID}/posts/{POST_ID}/likes/ endpoint
@@ -612,6 +663,54 @@ class PostLikesEndpoint(APIView):
 
         return JsonResponse({"likes":likes_json_list})
 
+
+class CommentLikesEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/likes/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET request for the likes on a comment
+        """
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_id = kwargs.get("post_id", -1)
+        if post_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
+
+        comment_id = kwargs.get("comment_id", -1)
+        if comment_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except Comment.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        likes_json_list = CommentLikeListToJSON(LikedComment.objects.filter(comment_id=comment))
+
+        return JsonResponse({"likes":likes_json_list})
 
 
 def followerView(request):

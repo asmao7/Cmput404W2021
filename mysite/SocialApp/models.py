@@ -122,6 +122,11 @@ class LikedPost(models.Model):
     user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
 
 
+class LikedComment(model.Model):
+    post_id = models.ForeignKey(Comment, related_name="likes", on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+
 class Comment(models.Model):
     """
     Models a comment on a post
