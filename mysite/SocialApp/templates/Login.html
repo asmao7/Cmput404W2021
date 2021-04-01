@@ -1,25 +1,36 @@
-{% extends "baseNoAuth.html" %}
 {% load static %}
+<!Doctype html>
 
-{% block head %}
-<link rel="stylesheet" href="{% static 'css/login.css' %}">
-{% endblock %}
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    </head>
 
-{% block content %}
-<form class="box" action="index.html" method="post">
-    <h1>Login</h1>
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="fieldWrapper">
-    <label class="required" for="{{ form.UserName.id_for_label }}">Username </label>
-        {{ form.UserName }}
-    </div>
-    <div class="fieldWrapper">
-    <label class="required" for="{{ form.Password.id_for_label }}">Password </label>
-        {{ form.Password }}
-    </div>
-    <div>
-    <a class="button" href="{% url 'author' %}">Log In</a>
-    </div>
-</form>
-{% endblock %}
+    <body>
+        <!--background wallpaper-->
+        <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
+        
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="index.html">Home</a>
+		</div>
+
+        <form class="box" action="index.html" method="post">
+            <h1>Login</h1>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="fieldWrapper">
+            <label class="required" for="{{ form.UserName.id_for_label }}">Username </label>
+                {{ form.UserName }}
+            </div>
+            <div class="fieldWrapper">
+            <label class="required" for="{{ form.Password.id_for_label }}">Password </label>
+                {{ form.Password }}
+            </div>
+            <div>
+            <a class="button" href="{% url 'author' %}">Log In</a>
+            </div>
+        </form>
+    </body>
+</html>

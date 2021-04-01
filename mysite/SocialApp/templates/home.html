@@ -1,16 +1,33 @@
-{% extends "baseNoAuth.html" %}
+{% load static %}
+<!Doctype html>
 
-{% block content %}
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    </head>
 
-<div class="wrapper">
-    <h1>Social Distribution</h1>
-    <br>
-    <p>
-    Social distribution is a blogging/social network platform that will 
-    allow the importing, distributing, and sharing of other sources of 
-    posts and content. An author sitting on one server can aggregate
-    the posts of their friends on other servers.
-    </p>
-</div>
+    <body>
+        <!--background wallpaper-->
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";
 
-{% endblock %}
+        <!--Navigation menu-->
+		<div class="topnav">
+			<a class="active" href="index.html">Home</a>
+			<a href="{% url 'login'%}">Login</a>
+			<a href="signup.html">Sign up</a>
+			<a href="#logout">Logout</a>
+		</div>
+
+        <br><br><br>
+        <div class="wrapper">
+			<!--ABout-->
+			<artical class="info">
+				<h1>Social Distribution</h1>
+				<p>Social distribution is a blogging/social network platform will allow the importing of other sources of posts (github,
+                 twitter, etc.) as well allow the distributing sharing of posts and content. An author sitting on one server can aggregate
+                the posts of their friends on other servers.</p>
+			</article>
+		</div>
+    </body>
+</html>

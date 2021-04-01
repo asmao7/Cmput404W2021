@@ -1,18 +1,32 @@
-{% extends "baseNoAuth.html" %}
 {% load static %}
+<!Doctype html>
 
-{% block head %}
-<link rel="stylesheet" href="{% static 'css/signup.css' %}">
-{% endblock %}
+<html>
+    <head>
+        <title>Socialdistribution App</title>
+        <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    </head>
 
-{% block content %}
-<div class="box">
-    <div class="form-group">
-        <h1>Sign up</h1>
-        <form method="POST">
-            {% csrf_token %}
-            {{form.as_p}}
-            <button class="btn btn-secondary">Sign up</button>
+    <body>
+        <!--background wallpaper-->
+        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";>
+
+        <!--Navigation menu for Sign Up-->
+		<div class="topnav">
+			<a class="active" href="index.html">Home</a>
+			<a href="{% url 'login'%}">Login</a>
+			<a href="#signup">Sign up</a>
+			<a href="#logout">Logout</a>
+		</div>
+     
+    <div class="box">
+        <div class="form-group">
+            <h1>Sign up</h1>
+            <form method="POST">
+                {% csrf_token %}
+                {{form.as_p}}
+                <button class="btn btn-secondary">Sign up</button>
+        </div>
     </div>
-</div>
-{% endblock %}
+    </body>
+</html>
