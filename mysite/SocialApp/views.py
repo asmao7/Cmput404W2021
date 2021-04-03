@@ -122,7 +122,7 @@ def inbox(request):
     if resp.status_code == 200:
         inbox_json = dict(resp.json())
         inbox_items = inbox_json["items"]
-        return render(request, 'inbox.html', { 'inbox_items': inbox_items })
+        return render(request, 'inbox.html', {"inbox_items":inbox_items, "userid":str(request.user.id)})
     else:
         return HttpResponse(str(resp.text), status=resp.status_code)
     
