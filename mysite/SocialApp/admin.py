@@ -100,9 +100,9 @@ class CommentLikesAdmin(admin.ModelAdmin):
 
 
 class ForeignServerAdmin(admin.ModelAdmin):
-    list_display("server_name", "active",)
-    list_filter("active",)
-    search_fields("server_name",)
+    list_display("name", "is_active",)
+    list_filter("is_active",)
+    search_fields("name",)
 
 
 # Set some admin site variables

@@ -179,19 +179,21 @@ class ForeignServer(models.Model):
     Models a fetch-content relationship with a foreign server
     """
     # A name by which to more easily identify the server
-    server_name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     # Whether or not to try and connect to this server
-    active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     # The url to get all of the authors on the server (leave blank if unsupported)
     authors_url = models.CharField(max_length=200, blank=True)
+    # The key to look at for the JSON list of authors
+    authors_json_key = models.CharField(max_length=25, blank=True)
     # The url to get all of the posts on the server (leave blank if unsupported)
     posts_url = models.CharField(max_length=200, blank=True)
+    # The key to look at for the JSON list of posts
+    posts_json_key = models.CharField(max_length=25, blank=True)
     # The username credentials for connecting to the server with basic auth (leave blank if unsupported)
-    server_username = models.CharField(max_length=100, blank=True)
+    username = models.CharField(max_length=100, blank=True)
     # The password credentials for connecting to the server with basic auth (leave blank if unsupported)
-    server_password = models.CharField(max_length=25, blank=True)
-    # The token for connecting to the server with token auth (leave blank if unsupported)
-    server_token = models.CharField(max_length=50, blank=True)
+    password = models.CharField(max_length=25, blank=True)
 
     class Meta:
         verbose_name = "Foreign Server"
