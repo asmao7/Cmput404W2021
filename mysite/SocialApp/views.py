@@ -893,9 +893,6 @@ def remotePosts(request):
     """
     Display public posts on Team 17's server
     """
-    team_17 = "https://cmput-404-group17.herokuapp.com/"
-    author_endpoint = "author/"
-    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
     public_posts = []
     for server in ForeignServer.objects.filter(is_active=True):
         posts = None
@@ -911,12 +908,18 @@ def remotePosts(request):
             # Do nothing on HTTP error
             pass
         
-        # Append posts to our collection
+        # Append PUBLIC posts to our collection
         if posts:
-            for post in posts[server.posts_json_key]:
-                if ValidateForeignPostJSON(post):
-                    if post["visibility"] == "PUBLIC":
-                        public_posts.append(post)
+            if server.posts_json_key:
+                for post in posts[server.posts_json_key]:
+                    if ValidateForeignPostJSON(post):
+                        if post["visibility"] == "PUBLIC":
+                            public_posts.append(post)
+            else:
+                for post in posts:
+                    if ValidateForeignPostJSON(post):
+                        if post["visibility"] == "PUBLIC":
+                            public_posts.append(post)
 
     return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
 
