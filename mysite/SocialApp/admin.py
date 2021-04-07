@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import Post, Author, PostCategory, Comment, LikedPost, LikedComment, Followers, InboxItem
+from .models import Post, Author, PostCategory, Comment, LikedPost, LikedComment, Followers, InboxItem, ForeignServer
 
 class DefaultAdmin(admin.ModelAdmin):
     """
@@ -99,6 +99,12 @@ class CommentLikesAdmin(admin.ModelAdmin):
     search_fields = ("post_id", "user_id")
 
 
+class ForeignServerAdmin(admin.ModelAdmin):
+    list_display = ("name", "is_active",)
+    list_filter = ("is_active",)
+    search_fields = ("name",)
+
+
 # Set some admin site variables
 admin.site.site_header = "Social Distribution Project Admin"
 admin.site.site_title = "Social Distribution Project Admin"
@@ -116,3 +122,4 @@ admin.site.register(Followers, FollowersAdmin)
 admin.site.register(LikedPost, PostLikesAdmin)
 admin.site.register(LikedComment, CommentLikesAdmin)
 admin.site.register(InboxItem, InboxItemAdmin)
+admin.site.register(ForeignServer, ForeignServerAdmin)

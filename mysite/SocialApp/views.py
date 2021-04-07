@@ -1,14 +1,12 @@
-import datetime
-import requests
-import uuid
-import json
+import datetime, uuid, requests, json
+
+from requests.auth import HTTPBasicAuth
 
 from django.shortcuts import render
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .forms import SignUpForm, LoginForm
 
-import datetime, uuid, requests
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import escape
@@ -16,7 +14,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
 
-from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers
+from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer
 from .admin import AuthorCreationForm
 
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON
@@ -899,12 +897,26 @@ def remotePosts(request):
     author_endpoint = "author/"
     authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
     public_posts = []
-    for author in authors:
-        posts = requests.get("{}/posts/".format(author["url"])).json()
-        for post in posts["items"]:
-            if ValidateForeignPostJSON(post):
-                if post["visibility"] == "PUBLIC":
-                    public_posts.append(post)
+    for server in ForeignServer.objects.filter(is_active=True):
+        posts = None
+        try:
+            if server.username and server.password:
+                posts = requests.get(server.posts_url, auth=HTTPBasicAuth(server.username, server.password)).json()
+            else:
+                posts = requests.get(server.posts_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+        
+        # Append posts to our collection
+        if posts:
+            for post in posts[server.posts_json_key]:
+                if ValidateForeignPostJSON(post):
+                    if post["visibility"] == "PUBLIC":
+                        public_posts.append(post)
 
     return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
 
