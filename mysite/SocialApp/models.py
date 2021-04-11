@@ -40,7 +40,7 @@ class Author(AbstractUser):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "{}://{}/author/{}/".formatsettings.SCHEME, settings.HOST_NAME, self.id)
+            self.url = "{}://{}/author/{}/".format(settings.SCHEME, settings.HOST_NAME, self.id)
         super(Author, self).save(*args, **kwargs)
 
 
