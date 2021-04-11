@@ -575,7 +575,7 @@ class PostCommentsEndpoint(APIView):
 
         try:
             jsonData = request.data
-            comment = Comment(author_url=jsonData.get("author").get("url"), post=post, comment=jsonData.get("comment"),
+            comment = Comment(author_url=jsonData.get("author")["url"], post=post, comment=jsonData.get("comment"),
                               content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)

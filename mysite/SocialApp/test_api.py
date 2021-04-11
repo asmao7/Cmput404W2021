@@ -77,7 +77,7 @@ class TestCases(TestCase):
         cls.comment_id = uuid.uuid4()
         cls.comment_comment = "This is a test comment from a different author."
         cls.comment_content_type = "text/plain"
-        comment = Comment(id=cls.comment_id, post=Post.objects.get(pk=cls.post_id), author=Author.objects.get(pk=cls.author_id_2),
+        comment = Comment(id=cls.comment_id, post=Post.objects.get(pk=cls.post_id), author_url=Author.objects.get(pk=cls.author_id_2).url,
                             comment=cls.comment_comment, content_type=cls.comment_content_type)
         comment.save()
 
@@ -493,7 +493,11 @@ class TestCases(TestCase):
 
         new_content_type = "text/markdown"
         new_comment = "This post is the best."
+        new_url = Author.objects.get(pk=cls.author_id_2).url
         json = {
+            "author":{
+                "url":new_url
+            }
             "contentType":new_content_type,
             "comment":new_comment
         }
