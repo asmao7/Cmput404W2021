@@ -40,7 +40,7 @@ class Author(AbstractUser):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/".format(settings.HOST_NAME, self.id)
+            self.url = "https://{}/author/{}/".format(settings.HOST_NAME, self.id)
         super(Author, self).save(*args, **kwargs)
 
 
@@ -86,10 +86,6 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     # URL that points to the REST api endpoint for this post - also used as the "id" in the protocol
     url = models.CharField(max_length=200, editable=False)
-    # The server we got this from. We can change this programatically
-    source = models.CharField(max_length=200)
-    # The server this originated on. Immutable.
-    origin = models.CharField(max_length=200, editable=False)
     # Short description of the post
     description = models.CharField(max_length=200)
     # The content type of the post. Must be one of a few specific types.
@@ -113,7 +109,7 @@ class Post(models.Model):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/posts/{}/".format(settings.HOST_NAME, self.author.id, self.id)
+            self.url = "https://{}/author/{}/posts/{}/".format(settings.HOST_NAME, self.author.id, self.id)
         super(Post, self).save(*args, **kwargs)
 
 
