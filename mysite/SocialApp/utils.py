@@ -308,5 +308,10 @@ def ValidateForeignPostJSON(post):
        contentType != "application/base64" and contentType != "image/png;base64" and
        contentType != "image/jpeg;base64"):
        return False
+
+    for comment in post["comments"]:
+        commentContentType = comment["contentType"]
+        if (commentContentType != "text/plain" and commentContentType != "text/markdown"):
+            return False
        
     return True
