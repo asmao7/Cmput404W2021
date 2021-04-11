@@ -40,7 +40,7 @@
         {% else %}
             {% for comment in post.comment_set.all%}
                 <ul>
-                    <small>By:{{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
+                    <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
                 </ul>
                 
             {% endfor %}
