@@ -421,8 +421,7 @@ class PostEndpoint(APIView):
 
         try:
             jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
+            post = Post(id=post_id, title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
@@ -487,8 +486,7 @@ class AuthorPostsEndpoint(APIView):
 
         try:
             jsonData = request.data
-            post = Post(title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
+            post = Post(title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
