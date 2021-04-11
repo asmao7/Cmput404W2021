@@ -82,7 +82,7 @@ def like(request):
             # Notify the author of the liked post by POSTing this to their inbox.
             # Remember, we might be posting to a foreign node here.
             like_json = ObjectLikeToJSON(liked_object)
-            object_author_url = requests.get(request.POST["object_url"])
+            object_author_url = requests.get(request.POST["object_url"]).json()["author"]["url"]
             if (object_author_url[-1] != "/"):
                 object_author_url += "/"
             inbox_url = "{}/inbox/".format(object_author_url)
