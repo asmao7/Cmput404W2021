@@ -1,30 +1,22 @@
 import datetime, uuid, requests, json
 
 from requests.auth import HTTPBasicAuth
+from rest_framework.views import APIView, status
 
-from django.shortcuts import render
-from django.shortcuts import render
-from rest_framework.views import APIView
-from .forms import SignUpForm, LoginForm
-
+from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
-from rest_framework.views import APIView, status
+from django.views import generic
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer
 from .admin import AuthorCreationForm
-
+from .forms import SignUpForm, LoginForm, PostForm, CommentForm
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON
 
-from django.views import generic
-from django.urls import reverse_lazy
-
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
-from .forms import PostForm, CommentForm
 
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
@@ -75,16 +67,29 @@ class DeletePostView(DeleteView):
     success_url = reverse_lazy('author')
 
 def like(request, pk):
-	# add a line to database that has user id and post id
-	current_user = request.user
-	post = get_object_or_404(Post, id=pk)
-	
-	liked = len(LikedPost.objects.filter(post_id=post, user_id=current_user))	
-	if liked == 0:
-		liked_post = LikedPost(post_id=post, user_id=current_user)
-		liked_post.save()
-	
-	return HttpResponseRedirect(reverse('author'))
+    # add a line to database that has user id and post id
+    current_user = request.user
+    post = get_object_or_404(Post, id=pk)
+    
+    like = LikedPost.objects.filter(post_id=post, user_id=current_user)
+    liked = len(like)
+    if liked == 0:
+        liked_post = LikedPost(post_id=post, user_id=current_user)
+        liked_post.save()
+        
+        # Notify the author of the liked post by POSTing this to their inbox.
+        # Remember, we might be posting to a foreign node here.
+        like_json = PostLikeToJSON(liked_post)
+        if settings.DEBUG:
+            author_url = request.scheme+"://"+request.get_host()+"/author/"+str(post.author.id)+"/inbox/"
+        else:
+            author_url = post.author.url + "inbox/"
+        session = requests.Session() # do we need cookie/auth to do this?
+        r = session.post(author_url, json=like_json) # Error handling?
+    elif liked == 1:
+        like.delete() # Un-like the post
+    
+    return HttpResponseRedirect(reverse('author'))
 
 def home(request):
     return render(request, 'home.html', {})
@@ -104,10 +109,10 @@ def inbox(request):
     """
     # Martijn Pieters https://stackoverflow.com/a/13569789
     logurl = request.scheme+"://"+request.get_host()+"/SocialApp/login/"
-    client = requests.session()
-    client.get(logurl) # Sets cookie
-    if 'csrftoken' in client.cookies:
-        csrftoken = client.cookies['csrftoken']
+    session = requests.Session()
+    session.get(logurl) # Sets cookie
+    if 'csrftoken' in session.cookies:
+        csrftoken = session.cookies['csrftoken']
     else: print("No CSRF cookie found")
     sessionid = request.COOKIES.get('sessionid') # FBI OPEN UP
     if not sessionid:
@@ -115,7 +120,7 @@ def inbox(request):
     cookies = dict(csrftoken=csrftoken, sessionid=sessionid)
     # Now GET the inbox endpoint and pass in our cookies
     url = request.scheme+"://"+request.get_host()+"/author/"+str(request.user.id)+"/inbox/"
-    resp = client.get(url, cookies=cookies, headers=dict(Referer=logurl))
+    resp = session.get(url, cookies=cookies, headers=dict(Referer=logurl))
     # Pass the resulting inbox items to the template if successful
     if resp.status_code == 200:
         inbox_json = dict(resp.json())
@@ -1099,8 +1104,8 @@ class InboxEndpoint(APIView):
                     item_json_list.append(json)
             response_json = {
                 "type":"inbox",
-                "author":request.scheme+"://"+request.get_host()+"/author/"+str(author_id),
-                "items":item_json_list
+                "author": author.url,
+                "items": item_json_list
             }
             return JsonResponse(response_json)
         else:
@@ -1120,29 +1125,30 @@ class InboxEndpoint(APIView):
         except Exception as e:
             print(e)
             return HttpResponse(status=400)
-        if request.user.is_authenticated: # only logged in users can POST to inboxes
-            link_field = request.data.get("link", "")
-            if link_field != "":
-                try:
-                    new_item = InboxItem(author=author, link=request.data.get("link"))
-                    new_item.save()
-                    return HttpResponse(status=201)
-                except Exception as e:
-                    print(e)
-                    return HttpResponse("Internal Server Error:"+str(e), status=500)
-            else:
-                # Handle POSTed object as JSON string
-                try:
-                    received_json_str = json.dumps(request.data)
-                    print(received_json_str)
-                    new_item = InboxItem(author=author, json_str=received_json_str)
-                    new_item.save()
-                    return HttpResponse(status=201)
-                except Exception as e:
-                    print(e)
-                    return HttpResponse("Internal Server Error:"+str(e), status=500)
+        #if request.user.is_authenticated: # only logged in users can POST to inboxes
+        link_field = request.data.get("link", "")
+        if link_field != "":
+            # Handle as a link to the item
+            try:
+                new_item = InboxItem(author=author, link=request.data.get("link"))
+                new_item.save()
+                return HttpResponse(status=201)
+            except Exception as e:
+                print(e)
+                return HttpResponse("Internal Server Error:"+str(e), status=500)
         else:
-            return HttpResponse("You need to log in first to POST to inboxes.", status=401)
+            # Handle POSTed object as JSON string
+            try:
+                received_json_str = json.dumps(request.data)
+                print(received_json_str)
+                new_item = InboxItem(author=author, json_str=received_json_str)
+                new_item.save()
+                return HttpResponse(status=201)
+            except Exception as e:
+                print(e)
+                return HttpResponse("Internal Server Error:"+str(e), status=500)
+        #else:
+        #    return HttpResponse("You need to log in first to POST to inboxes.", status=401)
 
     def delete(self, request, *args, **kwargs):
         """

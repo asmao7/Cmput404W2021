@@ -2,7 +2,7 @@
 
 
 {% block head %}
-<style>
+<style> /* This should probably be in a sheet */
     * {
         color: wheat;
     }
@@ -19,7 +19,7 @@
         if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
+                let cookie = cookies[i].trim();
                 // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -31,7 +31,7 @@
     }
 
     function clearInbox() {
-        let ask = confirm("Clear out all of the items in your inbox?");
+        let ask = confirm("Clear out everything in your inbox?");
         if (ask) {
             let userid = '{{ userid }}';
             let url = '/author/'+userid+'/inbox/';
@@ -46,7 +46,7 @@
                     location.reload();
                 } else {
                     console.log(response);
-                    alert("Error: couldn't clear the inbox.");
+                    alert("Error: couldn't clear the inbox. Check console for details.");
                 }
             });
         }
@@ -56,7 +56,6 @@
 
 
 {% block content %}
-<!-- ** TODO: also account for follows and likes ** -->
 <div style="margin:2em 1em;">
     <h1>Inbox</h1>
     <p style="margin-bottom:2em;">
@@ -64,14 +63,26 @@
     </p>
     {% if inbox_items|length > 0 %}
         <button onclick="clearInbox();">Clear Inbox</button>
-        <hr>
+        <hr style="margin-bottom:2em;">
         {% for item in inbox_items %}
-            <!-- <p><em>Someone shared a {{ item.type }} with you:</em></p> -->
-            <p style="margin-bottom:2em;">{{ item }}</p>
-            <!-- <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
-            <p>at {{ item.published }}</p>
-            <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
-            <p style="margin-bottom:2em;">{{ item.description }}</p>     -->
+            {% if item.type == "post" %}
+                <p><em>Someone shared a post with you:</em></p>
+                <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
+                <p>{{ item.description }}</p>
+                <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
+                <p>on {{ item.published }}:</p>
+                <!-- Might need to filter for different content types -->
+                <p style="margin:1em;margin-bottom:3em;">{{ item.content }}</p>
+            {% elif item.type == "Follow" %}
+                <p>Someone is trying to follow you</p>
+            {% elif item.type == "Like" %}
+                <p style="margin-bottom:2em;">
+                    <a href={{ item.author.url }}>{{ item.author.displayName }}</a> 
+                    liked your <a href={{ item.object }}>post</a>.
+                </p>
+            {% else %}
+                <p style="margin-bottom:2em;">{{ item }}</p>
+            {% endif %}
         {% endfor %}
     {% else %}
         <p><em>Your inbox is empty.</em></p>
