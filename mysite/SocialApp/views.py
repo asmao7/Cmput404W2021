@@ -1089,13 +1089,12 @@ class InboxEndpoint(APIView):
             return HttpResponse(status=400)
         if not author:
             return HttpResponse(status=404)
-        # Assuming that nobody else can GET your inbox
         if request.user.is_authenticated and (str(request.user.id) == author_id or request.user.is_server):
             # Get inbox items and format into JSON to return
             inbox_items = InboxItem.objects.filter(author=author)
             item_json_list = []
             for item in inbox_items:
-                json = InboxItemToJSON(item) # will request whatever's at link
+                json = InboxItemToJSON(item)
                 if json:
                     item_json_list.append(json)
             response_json = {
@@ -1121,15 +1120,27 @@ class InboxEndpoint(APIView):
         except Exception as e:
             print(e)
             return HttpResponse(status=400)
-        # NOTE: I am assuming that only logged in users can POST to inboxes.
-        if request.user.is_authenticated:
-            try:
-                new_item = InboxItem(author=author, link=request.data.get("link"))
-                new_item.save()
-                return HttpResponse(status=201)
-            except Exception as e:
-                print(e)
-                return HttpResponse("Internal Server Error:"+e, status=500)
+        if request.user.is_authenticated: # only logged in users can POST to inboxes
+            link_field = request.data.get("link", "")
+            if link_field != "":
+                try:
+                    new_item = InboxItem(author=author, link=request.data.get("link"))
+                    new_item.save()
+                    return HttpResponse(status=201)
+                except Exception as e:
+                    print(e)
+                    return HttpResponse("Internal Server Error:"+str(e), status=500)
+            else:
+                # Handle POSTed object as JSON string
+                try:
+                    received_json_str = json.dumps(request.data)
+                    print(received_json_str)
+                    new_item = InboxItem(author=author, json_str=received_json_str)
+                    new_item.save()
+                    return HttpResponse(status=201)
+                except Exception as e:
+                    print(e)
+                    return HttpResponse("Internal Server Error:"+str(e), status=500)
         else:
             return HttpResponse("You need to log in first to POST to inboxes.", status=401)
 
@@ -1142,7 +1153,7 @@ class InboxEndpoint(APIView):
             return HttpResponse(status=400)
         if request.user.is_authenticated and str(request.user.id) == author_id:
             inbox_items = InboxItem.objects.filter(author=request.user.id)
-            # NOTE: does not check to see if Inbox is already empty
+            # Doesn't care if the inbox is already empty
             inbox_items.delete()
             return HttpResponse(status=204)
         else:

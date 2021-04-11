@@ -58,16 +58,20 @@
 {% block content %}
 <!-- ** TODO: also account for follows and likes ** -->
 <div style="margin:2em 1em;">
-    <h1>Your Inbox</h1>
-    <p style="margin-bottom:2em;">Here you can see posts that other authors have shared with you, as well as new follows and likes.</p>
+    <h1>Inbox</h1>
+    <p style="margin-bottom:2em;">
+        Here you can see posts that other authors have shared with you, as well as new follows and likes.
+    </p>
     {% if inbox_items|length > 0 %}
         <button onclick="clearInbox();">Clear Inbox</button>
+        <hr>
         {% for item in inbox_items %}
-            <p><em>Someone shared a {{ item.type }} with you:</em></p>
-            <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
+            <!-- <p><em>Someone shared a {{ item.type }} with you:</em></p> -->
+            <p style="margin-bottom:2em;">{{ item }}</p>
+            <!-- <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
             <p>at {{ item.published }}</p>
             <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
-            <p style="margin-bottom:2em;">{{ item.description }}</p>    
+            <p style="margin-bottom:2em;">{{ item.description }}</p>     -->
         {% endfor %}
     {% else %}
         <p><em>Your inbox is empty.</em></p>

@@ -1,7 +1,7 @@
 """
 Contains useful helper functions
 """
-import requests
+import requests, json
 from .models import Author, Post, Comment, PostCategory, InboxItem, Followers
 
 def AuthorToJSON(author):
@@ -268,41 +268,52 @@ def StringListToPostCategoryList(category_list):
 def InboxItemToJSON(item):
     """
     Converts an InboxItem object into a JSON-compatible dictionary.
-    Request the InboxItem's link and rely on APIs to return the right JSONs.
-    eg. see SocialApp.views.PostEndpoint.get()
-    Returns None on failure.
+    Prefers to just use a json string. If `item` has something in its `link` 
+    field, request the InboxItem's link and rely on APIs to return the 
+    right JSONs. Recommended to just use `json_str`.
+    Returns a placeholder dictionary on failure.
     item - an InboxItem object
     """
     if not item:
         return None
-    try:
-        # NOTE: may need to convert given template urls to API urls
-        # NOTE: Follows added to the inbox need to be "approved" later
-        r = requests.get(item.link)
-        json = r.json() # returns JSON, not Dict
-        return json
-    except Exception as e:
-        # Can't get the object from `link` eg. doesn't exist
-        placeholder = {
-            "type":"post",
-            "title":"Something went wrong.",
-            "id":item.link,
-            "source":"",
-            "origin":"",
-            "description":"There was a shared item here, but we couldn't retrieve it.",
-            "contentType":"text/plain",
-            "content":str(e),
-            "author":{},
-            "categories":"",
-            "count":0,
-            "size":0,
-            "comments":"",
-            "published":"",
-            "visibility":"PUBLIC",
-            "unlisted":True
-        }
-        print(e)
-        return placeholder
+    placeholder = {
+        "type":"",
+        "title":"Something went wrong.",
+        "id":"",
+        "source":"",
+        "origin":"",
+        "description":"There was a shared item here, but we couldn't retrieve it.",
+        "contentType":"text/plain",
+        "content":"",
+        "author":{},
+        "categories":"",
+        "count":0,
+        "size":0,
+        "comments":"",
+        "published":"",
+        "visibility":"PUBLIC",
+        "unlisted":True
+    }
+    if item.link != "" and item.json_str == "":
+        try:
+            r = requests.get(item.link)
+            d = r.json() # returns JSON, not Dict
+            return d
+        except Exception as e:
+            # Can't get the object from `link` eg. doesn't exist
+            print(e)
+            placeholder["id"] = item.link
+            placeholder["content"] = str(e)
+            return placeholder
+    else:
+        # Use json_str instead
+        try:
+            d = json.loads(item.json_str)
+            return d
+        except Exception as e:
+            print(e)
+            placeholder["content"] = str(e)
+            return placeholder
 
 
 def ValidateForeignPostJSON(post):

@@ -207,7 +207,14 @@ def check_self_following(sender, instance, **kwargs):
         raise ValidationError('ERROR!!, you cannot follow yourself ')
 
 class InboxItem(models.Model):
-    """ An item in an Author's inbox. Links to a post, follow, or like. """
+    """ 
+    An item in an Author's inbox. 
+    `author` is the id of the user that you wish to share this item with.
+    `json_str` contains a JSON string. That means an InboxItem can contain
+    a post, like, or follow.
+    `link` is a complete permalink to whatever you're sharing (optional)
+    """
     author = models.ForeignKey(Author, on_delete=models.CASCADE) # the recipient
-    link = models.TextField()
+    link = models.TextField(default="")
+    json_str = models.TextField(default="")
 
