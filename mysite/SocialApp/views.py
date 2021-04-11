@@ -82,8 +82,8 @@ def like(request):
             liked_object.save()
     except:
         pass
-	
-	return HttpResponseRedirect(reverse('author'))
+        
+    return HttpResponseRedirect(reverse('author'))
 
 def home(request):
     return render(request, 'home.html', {})
