@@ -1,67 +1,60 @@
+{% extends "base.html" %}
+
 {% load static %}
+{% load app_filters %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/postdetails.css' %}">
+{% endblock %}
+
+{% block content %}
+
 {% load markdownify %}
-<!Doctype html>
 
-<html>
-    <head>
-        <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/postdetails.css' %}">
-    </head>
-
-    <body>
-        <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";
-
-        <!--Navigation menu-->
-		<div class="topnav">
-			<a class="active" href="{% url 'author'%}" >Home</a>
-			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="{% url 'new_message' %}">Friends Posts</a>
-            <a href="{% url 'add_post' %}">New Post</a>
-            <a href="{% url 'followers' %}">Followers</a> 
-            <a href="{% url 'friends' %}">Friends</a>
-            <a href="{% url 'findFollowers' %}">Find Followers</a>
-            <a href="{% url 'remotePosts' %}">Remote Posts</a>
-            <a href="{% url 'logout' %}">Logout</a>
-		</div>
-
-    <br>
     <div class="posti">
         <h1>{{ post.title }}</h1>
-            <small>By: {{ post.author }}</small><br>
-            <br>
+            <p><small>By: {{ post.author }}</small></p>
 
             <section>
-            {% if post.content_type == "text/plain" %}
-            <!--display a post as text without formatting-->
-                <p>{{post.content}}</p>
-            {% elif post.content_type == "text/markdown" %}
-            <!--render markdown post as sanitized html-->
-                {{post.content|markdownify}}
-            {% elif post.content_type == "application/base64" %}
-            <!--assume this image has full base64 encoding, not just payload-->
-                <img alt="post image" src={{ post.content }}>
-            {% else %}
-            <!--display base64 data as an image - prepend stored content type-->
-                <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
-            {% endif %}
+                {% if post.content_type == "text/plain" %}
+                <!--display a post as text without formatting-->
+                    <p>{{post.content}}</p>
+                {% elif post.content_type == "text/markdown" %}
+                <!--render markdown post as sanitized html-->
+                    {{post.content|markdownify}}
+                {% elif post.content_type == "application/base64" %}
+                <!--assume this image has full base64 encoding, not just payload-->
+                    <img alt="post image" src={{ post.content }}>
+                {% else %}
+                <!--display base64 data as an image - prepend stored content type-->
+                    <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
+                {% endif %}
             </section>
         
          <!--COMMENTS-->
          <br><br/>
-        <h2 class="comment">COMMENTS <br></h2>
+        <h2 class="comment">COMMENTS </h2>
         
         {% if not post.comment_set.all%}
             <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
         {% else %}
-            {% for comment in post.comment_set.all%}
-                <ul>
-                    <small>By: {{comment.author}}</small> - <strong>{{comment.comment}}</strong>
-                </ul>
-                
-            {% endfor %}
+            <ul>
+                {% for comment in post.comment_set.all%}
+                    <li>
+                        <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
+                        <!--LIKES pass in url that sends a post id argument and updates the database-->
+                        <form action="{% url 'like' %}" method="POST">
+                            {% csrf_token %}
+                            
+                            <input type="hidden" name="author_url" value="{{ user.url }}">
+                            <input type="hidden" name="object_url" value="{{ comment.url }}">
+                            <input class="likeButton" type="submit" value='{{ comment|liked_or_not:user }} {{ comment|liked_count }}'>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
         {% endif %}
-        <a href="{% url 'add_comment'%}">Add Comments</a>
+        <a href="{% url 'add_comment' post.id|stringformat:'s' %}">Add Comments</a>
     </div>
-    </body>
-</html>
+
+{% endblock %}

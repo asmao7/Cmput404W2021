@@ -12,10 +12,11 @@ from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer
+from .models import Author, Post, Comment, ObjectLike, InboxItem, Followers, ForeignServer
 from .admin import AuthorCreationForm
 from .forms import SignUpForm, LoginForm, PostForm, CommentForm
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON
+
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON
 
 
 class UserRegisterView(generic.CreateView):
@@ -26,7 +27,6 @@ class UserRegisterView(generic.CreateView):
 class HomeView(ListView):
     model = Post
     template_name = 'author.html'
-    likeModel = LikedPost
     ordering = ['-published']
 
 
@@ -55,6 +55,11 @@ class AddCommentView(CreateView):
     #fields = '__all__'
     success_url = reverse_lazy('author')
 
+    def form_valid(self, form):
+        form.instance.post = Post.objects.get(pk=self.kwargs["pk"])
+        return super().form_valid(form)
+
+
 class UpdatePostView(UpdateView):
     model = Post
     template_name = 'EditPost.html'
@@ -66,30 +71,29 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
-def like(request, pk):
-    # add a line to database that has user id and post id
-    current_user = request.user
-    post = get_object_or_404(Post, id=pk)
-    
-    like = LikedPost.objects.filter(post_id=post, user_id=current_user)
-    liked = len(like)
-    if liked == 0:
-        liked_post = LikedPost(post_id=post, user_id=current_user)
-        liked_post.save()
-        
-        # Notify the author of the liked post by POSTing this to their inbox.
-        # Remember, we might be posting to a foreign node here.
-        like_json = PostLikeToJSON(liked_post)
-        if settings.DEBUG:
-            author_url = request.scheme+"://"+request.get_host()+"/author/"+str(post.author.id)+"/inbox/"
+def like(request):
+    try:
+        # add a line to database that has user url and object url
+        like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+        liked = len(like)
+        if liked == 0:
+            liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+            liked_object.save()
+            # Notify the author of the liked post by POSTing this to their inbox.
+            # Remember, we might be posting to a foreign node here.
+            like_json = ObjectLikeToJSON(liked_object)
+            if settings.DEBUG:
+                author_url = request.scheme+"://"+request.get_host()+"/author/"+str(post.author.id)+"/inbox/"
+            else:
+                author_url = post.author.url + "inbox/"
+            session = requests.Session() # do we need cookie/auth to do this?
+            r = session.post(author_url, json=like_json) # Error handling?
         else:
-            author_url = post.author.url + "inbox/"
-        session = requests.Session() # do we need cookie/auth to do this?
-        r = session.post(author_url, json=like_json) # Error handling?
-    elif liked == 1:
-        like.delete() # Un-like the post
-    
-    return HttpResponseRedirect(reverse('author'))
+            like.delete()
+    except:
+        pass
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def home(request):
     return render(request, 'home.html', {})
@@ -201,7 +205,7 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         # Update author info
@@ -319,7 +323,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         jsonData = request.data
@@ -374,7 +378,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         post.delete()
@@ -415,13 +419,12 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         try:
             jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
+            post = Post(id=post_id, title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
@@ -481,13 +484,12 @@ class AuthorPostsEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         try:
             jsonData = request.data
-            post = Post(title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
+            post = Post(title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
@@ -574,7 +576,7 @@ class PostCommentsEndpoint(APIView):
 
         try:
             jsonData = request.data
-            comment = Comment(author=request.user, post=post, comment=jsonData.get("comment"),
+            comment = Comment(author_url=jsonData.get("author")["url"], post=post, comment=jsonData.get("comment"),
                               content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)
@@ -666,7 +668,7 @@ class PostLikesEndpoint(APIView):
         if post.author != author:
             return HttpResponse(status=404)
 
-        likes_json_list = PostLikeListToJSON(LikedPost.objects.filter(post_id=post))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=post.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -715,7 +717,7 @@ class CommentLikesEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        likes_json_list = CommentLikeListToJSON(LikedComment.objects.filter(comment_id=comment))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=comment.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -741,16 +743,9 @@ class AuthorLikedEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        post_likes = LikedPost.objects.filter(user_id=author)
-        comment_likes = LikedComment.objects.filter(user_id=author)
-
         try:
-            all_likes = []
-            for like in PostLikeListToJSON(post_likes):
-                all_likes.append(like)
-            for like in CommentLikeListToJSON(comment_likes):
-                all_likes.append(like)
-            return JsonResponse({"likes":all_likes})
+            likes = ObjectLikeListToJSON(ObjectLike.objects.filter(author_url=author.url))
+            return JsonResponse({"likes":likes})
         except:
             return HttpResponse(status=500)
 
@@ -896,7 +891,7 @@ def unFollow(request, foreign_author_id):
 
 def remotePosts(request):
     """
-    Display public posts on Team 17's server
+    Display public posts on all added servers
     """
     public_posts = []
     for server in ForeignServer.objects.filter(is_active=True):
