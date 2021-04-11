@@ -80,12 +80,19 @@ def like(request):
             liked_object.save()
             # Notify the author of the liked post by POSTing this to their inbox.
             # Remember, we might be posting to a foreign node here.
+            # Also, `object` might be foreign too. We need its author, though.
             like_json = ObjectLikeToJSON(liked_object)
-            if like_json.author.url[-1] == "/":
-                author_url = like_json.author.url + "inbox/"
+            res = requests.get(like_json["object"])
+            if res.ok:
+                author_url = res.json()["author"]["url"]
+                if author_url[-1] == "/":
+                    author_url += "inbox/"
+                else:
+                    author_url += "/inbox/"
+                r = requests.post(author_url, json=like_json) # Error handling?
             else:
-                author_url = like_json.author.url + "/inbox/"
-            r = requests.post(author_url, json=like_json) # Error handling?
+                # `object` is probably behind authentication or something
+                print("Couldn't get object. "+str(res.text))
         else:
             like.delete()
     except:
@@ -1131,19 +1138,18 @@ class InboxEndpoint(APIView):
         else:
             # Handle POSTed object as JSON string
             try:
+                received_json_str = json.dumps(request.data)                
                 # Save Likes we don't have yet (from foreign nodes)
-                if request.POST["type"] == "Like":
-                    like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+                if request.data["type"] == "Like":
+                    like = ObjectLike.objects.filter(author_url=request.data["author"]["url"], object_url=request.data["object"])
                     if len(like) == 0:
-                        new_like = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+                        new_like = ObjectLike(author_url=request.data["author"]["url"], object_url=request.data["object"])
                         new_like.save()
-                received_json_str = json.dumps(request.data)
-                print(received_json_str)
                 new_item = InboxItem(author=author, json_str=received_json_str)
                 new_item.save()
                 return HttpResponse(status=201)
             except Exception as e:
-                print(e)
+                print(str(e))
                 return HttpResponse("Internal Server Error:"+str(e), status=500)
         #else:
         #    return HttpResponse("You need to log in first to POST to inboxes.", status=401)
