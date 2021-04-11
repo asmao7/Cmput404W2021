@@ -318,38 +318,17 @@ def FriendRequestToJson(requesting_author, requested_author):
 
     try:
         json = {
-            "type":"follow",
-            "author_id":requesting_author
-           
+            "type":"Follow",
+            "summary": requesting_author['displayName'] + " wants to follow " + requested_author['displayName'],
+            "actor":requesting_author,
+            "object":requested_author,
             
         }
-         # "summary": requesting_author['displayName'] + " wants to follow " + requested_author['displayName'],
-
-         # "author_id":requesting_author,
-            # "object":requested_author,
         return json
     except:
         return None
 
-def AuthorJSON(author):  #remove and tell team to fix
-    """
-    Converts an Author object into a JSON-compatible dictionary.
-    Returns None on failure.
-    """
-    if not author:
-        return None
-    try:
-        json = {
-            "type":"author",
-            "id":str(author.id),
-            "host":author.host,
-            "displayName":author.username,
-            "url":author.url,
-            "github":author.github
-        }
-        return json
-    except:
-        return None
+
 def ValidateForeignPostJSON(post):
     """
     Returns True if JSON conforms to the correct specs. Returns false otherwise.

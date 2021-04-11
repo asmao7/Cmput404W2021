@@ -18,7 +18,7 @@ from rest_framework.views import APIView, status
 from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer, RemoteFollow
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON, FriendRequestToJson, AuthorJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON, FriendRequestToJson
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -1008,7 +1008,7 @@ def addRemoteFollower(request, remote_author_id):
                 return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
 
             #Create Json friend request to send to inbox endpoint 
-            requesting_author = AuthorJSON(local_author)
+            requesting_author = AuthorToJSON(local_author)
             requested_author = remote_author #AuthorToJSON(remote_author)
 
             friend_json = FriendRequestToJson(requesting_author, requested_author)
