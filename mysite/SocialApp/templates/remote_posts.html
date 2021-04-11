@@ -31,6 +31,14 @@
                             <img alt="post image" src={{ "data:"|add:post.contentType|add:","|add:post.content }}>
                         {% endif %}
                     </section>
+                    <!--LIKES pass in url that sends a post id argument and updates the database-->
+                    <form action="{% url 'like' %}" method="POST">
+                        {% csrf_token %}
+                        
+                        <input type="hidden" name="author_url" value="{{ user.url }}">
+                        <input type="hidden" name="object_url" value="{{ post.url }}">
+                        <input class="likeButton" type="submit" value='{{ post.url|liked_or_not:user.url }} {{ post.url|liked_count }}'>
+                    </form>
                 {% else %}
                     <p>Post content error.</p>
                 {% endif %}
@@ -46,6 +54,14 @@
                                 {% elif comment.contentType == "text/markdown" %}
                                     <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment|markdownify}}
                                 {% endif %}
+                                <!--LIKES pass in url that sends a post id argument and updates the database-->
+                                <form action="{% url 'like' %}" method="POST">
+                                    {% csrf_token %}
+                                    
+                                    <input type="hidden" name="author_url" value="{{ user.url }}">
+                                    <input type="hidden" name="object_url" value="{{ comment.url }}">
+                                    <input class="likeButton" type="submit" value='{{ comment.url|liked_or_not:user.url }} {{ comment.url|liked_count }}'>
+                                </form>
                             </li> 
                         {% endfor %}
                     </ul>
