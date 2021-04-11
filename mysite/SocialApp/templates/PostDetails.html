@@ -35,9 +35,7 @@
          <br><br/>
         <h2 class="comment">COMMENTS </h2>
         
-        {% if not post.comment_set.all%}
-            <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
-        {% else %}
+        {% if post.comment_set.all%}
             <ul>
                 {% for comment in post.comment_set.all%}
                     <li>
