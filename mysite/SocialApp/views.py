@@ -83,8 +83,6 @@ def like(request):
             # Remember, we might be posting to a foreign node here.
             like_json = ObjectLikeToJSON(liked_object)
             object_author_url = requests.get(request.POST["object_url"]).json()["author"]["url"]
-            if (object_author_url[-1] != "/"):
-                object_author_url += "/"
             inbox_url = "{}/inbox/".format(object_author_url)
             requests.post(inbox_url, json=like_json)
         else:
