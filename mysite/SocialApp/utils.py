@@ -168,7 +168,7 @@ def ObjectLikeToJSON(like):
         author = requests.get(like.author_url).json()
         json = {
             "summary": "{} Likes your post".format(author["displayName"]),
-            "type": "like",
+            "type": "Like",
             "author": author,
             "object": like.object_url
         }
