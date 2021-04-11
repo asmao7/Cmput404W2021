@@ -117,11 +117,6 @@ class Post(models.Model):
         super(Post, self).save(*args, **kwargs)
 
 
-class LikedPost(models.Model):
-    post_id = models.ForeignKey(Post, related_name="likes", on_delete=models.CASCADE)
-    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
-
-
 class Comment(models.Model):
     """
     Models a comment on a post
@@ -154,9 +149,16 @@ class Comment(models.Model):
         super(Comment, self).save(*args, **kwargs)
 
 
-class LikedComment(models.Model):
-    post_id = models.ForeignKey(Comment, related_name="likes", on_delete=models.CASCADE)
-    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
+class ObjectLike(models.Model):
+    author_url = models.CharField(max_length=200)
+    object_url = models.CharField(max_length=200)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["author_url", "object_url"], name="unique_like")
+        ]
+        verbose_name = "Liked Object"
+        verbose_name_plural = "Liked Objects"
 
 
 class Followers(models.Model):

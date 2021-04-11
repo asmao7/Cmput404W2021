@@ -157,26 +157,27 @@ def CommentListToJSON(comments):
         return []
 
 
-def PostLikeToJSON(like):
+def ObjectLikeToJSON(like):
     """
-    Converts a like on a post to JSON
+    Converts a like on an object to JSON
     """
     if not like:
         return None
     try:
+        author = requests.get(like.author_url).json()
         json = {
             "type": "Like",
-            "author": AuthorToJSON(like.user_id),
-            "object": like.post_id.url
+            "author": author,
+            "object": like.object_url
         }
         return json
     except:
         return None
 
 
-def PostLikeListToJSON(likes):
+def ObjectLikeListToJSON(likes):
     """
-    Converts a list of LikePost objects to a JSON-compatible list
+    Converts a list of ObjectLike objects into a JSON-compatible list
     of likes. Returns an empty list on failure.
     """
     if not likes:
@@ -184,42 +185,7 @@ def PostLikeListToJSON(likes):
     try:
         likes_list = []
         for like in likes:
-            test_json = PostLikeToJSON(like)
-            if test_json:
-                likes_list.append(test_json)
-        return likes_list
-    except:
-        return []
-
-
-def CommentLikeToJSON(like):
-    """
-    Converts a like on a comment to JSON
-    """
-    if not like:
-        return None
-    try:
-        json = {
-            "type": "Like",
-            "author": AuthorToJSON(like.user_id),
-            "object": like.comment_id.url
-        }
-        return json
-    except:
-        return None
-
-
-def CommentLikeListToJSON(likes):
-    """
-    Converts a list of CommentPost objects to a JSON-compatible list
-    of likes. Returns an empty list on failure.
-    """
-    if not likes:
-        return []
-    try:
-        likes_list = []
-        for like in likes:
-            test_json = CommentLikeToJSON(like)
+            test_json = ObjectLikeToJSON(like)
             if test_json:
                 likes_list.append(test_json)
         return likes_list

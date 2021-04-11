@@ -14,10 +14,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
 
-from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer
+from .models import Author, Post, Comment, ObjectLike, InboxItem, Followers, ForeignServer
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -34,7 +34,6 @@ class UserRegisterView(generic.CreateView):
 class HomeView(ListView):
     model = Post
     template_name = 'author.html'
-    likeModel = LikedPost
     ordering = ['-published']
 
 
@@ -74,15 +73,15 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
-def like(request, pk):
-	# add a line to database that has user id and post id
-	current_user = request.user
-	post = get_object_or_404(Post, id=pk)
-	
-	liked = len(LikedPost.objects.filter(post_id=post, user_id=current_user))	
-	if liked == 0:
-		liked_post = LikedPost(post_id=post, user_id=current_user)
-		liked_post.save()
+def like(request):
+    try:
+        # add a line to database that has user url and object url
+        liked = len(ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"]))
+        if liked == 0:
+            liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+            liked_object.save()
+    except:
+        pass
 	
 	return HttpResponseRedirect(reverse('author'))
 
@@ -661,7 +660,7 @@ class PostLikesEndpoint(APIView):
         if post.author != author:
             return HttpResponse(status=404)
 
-        likes_json_list = PostLikeListToJSON(LikedPost.objects.filter(post_id=post))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=post.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -710,7 +709,7 @@ class CommentLikesEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        likes_json_list = CommentLikeListToJSON(LikedComment.objects.filter(comment_id=comment))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=comment.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -736,8 +735,7 @@ class AuthorLikedEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        post_likes = LikedPost.objects.filter(user_id=author)
-        comment_likes = LikedComment.objects.filter(user_id=author)
+        likes = ObjectLike.objects.filter(author_url=author.url)
 
         try:
             all_likes = []
