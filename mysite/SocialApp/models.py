@@ -128,7 +128,7 @@ class Comment(models.Model):
     # The post this comment is attached to
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     # The author of this comment (not to be confused with the author of the post)
-    author_url = models.CharField(max_length=200, editable=False)
+    author_url = models.CharField(max_length=200)
     # The text content content of the comment
     comment = models.TextField()
     # The content type of the comment. Must be one of a few specific types.
@@ -146,8 +146,8 @@ class Comment(models.Model):
 
 
 class ObjectLike(models.Model):
-    author_url = models.CharField(max_length=200, editable=False)
-    object_url = models.CharField(max_length=200, editable=False)
+    author_url = models.CharField(max_length=200)
+    object_url = models.CharField(max_length=200)
 
     class Meta:
         constraints = [
