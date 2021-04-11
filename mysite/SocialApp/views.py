@@ -85,7 +85,7 @@ def like(request):
     except:
         pass
 
-    return HttpResponseRedirect(request.path_info)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def home(request):
     return render(request, 'home.html', {})
