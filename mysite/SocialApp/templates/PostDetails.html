@@ -39,7 +39,7 @@
             <ul>
                 {% for comment in post.comment_set.all%}
                     <li>
-                        {% if post.content_type == "text/plain" %}
+                        {% if comment.content_type == "text/plain" %}
                             <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
                         {% else %}
                             <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment|markdownify}}</strong>
