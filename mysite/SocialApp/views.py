@@ -80,9 +80,11 @@ def like(request):
         if liked == 0:
             liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
             liked_object.save()
+        else:
+            ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"]).delete()
     except:
         pass
-        
+
     return HttpResponseRedirect(reverse('author'))
 
 def home(request):
