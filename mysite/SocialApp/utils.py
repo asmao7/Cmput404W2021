@@ -1,7 +1,7 @@
 """
 Contains useful helper functions
 """
-import requests
+import requests, json
 from .models import Author, Post, Comment, PostCategory, InboxItem, Followers
 
 def AuthorToJSON(author):
@@ -57,8 +57,8 @@ def PostToJSON(post):
             "type":"post",
             "title":post.title,
             "id":post.url,
-            "source":post.source,
-            "origin":post.origin,
+            "source":post.url,
+            "origin":post.url,
             "description":post.description,
             "contentType":post.content_type,
             "content":post.content,
@@ -126,9 +126,10 @@ def CommentToJSON(comment):
     if not comment:
         return None
     try:
+        author = requests.get(like.author_url).json()
         json = {
             "type":"comment",
-            "author":AuthorToJSON(comment.author),
+            "author":author,
             "comment":comment.comment,
             "contentType":comment.content_type,
             "published":str(comment.published),
@@ -157,26 +158,27 @@ def CommentListToJSON(comments):
         return []
 
 
-def PostLikeToJSON(like):
+def ObjectLikeToJSON(like):
     """
-    Converts a like on a post to JSON
+    Converts a like on an object to JSON
     """
     if not like:
         return None
     try:
+        author = requests.get(like.author_url).json()
         json = {
             "type": "Like",
-            "author": AuthorToJSON(like.user_id),
-            "object": like.post_id.url
+            "author": author,
+            "object": like.object_url
         }
         return json
     except:
         return None
 
 
-def PostLikeListToJSON(likes):
+def ObjectLikeListToJSON(likes):
     """
-    Converts a list of LikePost objects to a JSON-compatible list
+    Converts a list of ObjectLike objects into a JSON-compatible list
     of likes. Returns an empty list on failure.
     """
     if not likes:
@@ -184,42 +186,7 @@ def PostLikeListToJSON(likes):
     try:
         likes_list = []
         for like in likes:
-            test_json = PostLikeToJSON(like)
-            if test_json:
-                likes_list.append(test_json)
-        return likes_list
-    except:
-        return []
-
-
-def CommentLikeToJSON(like):
-    """
-    Converts a like on a comment to JSON
-    """
-    if not like:
-        return None
-    try:
-        json = {
-            "type": "Like",
-            "author": AuthorToJSON(like.user_id),
-            "object": like.comment_id.url
-        }
-        return json
-    except:
-        return None
-
-
-def CommentLikeListToJSON(likes):
-    """
-    Converts a list of CommentPost objects to a JSON-compatible list
-    of likes. Returns an empty list on failure.
-    """
-    if not likes:
-        return []
-    try:
-        likes_list = []
-        for like in likes:
-            test_json = CommentLikeToJSON(like)
+            test_json = ObjectLikeToJSON(like)
             if test_json:
                 likes_list.append(test_json)
         return likes_list
@@ -268,41 +235,52 @@ def StringListToPostCategoryList(category_list):
 def InboxItemToJSON(item):
     """
     Converts an InboxItem object into a JSON-compatible dictionary.
-    Request the InboxItem's link and rely on APIs to return the right JSONs.
-    eg. see SocialApp.views.PostEndpoint.get()
-    Returns None on failure.
+    Prefers to just use a json string. If `item` has something in its `link` 
+    field, request the InboxItem's link and rely on APIs to return the 
+    right JSONs. Recommended to just use `json_str`.
+    Returns a placeholder dictionary on failure.
     item - an InboxItem object
     """
     if not item:
         return None
-    try:
-        # NOTE: may need to convert given template urls to API urls
-        # NOTE: Follows added to the inbox need to be "approved" later
-        r = requests.get(item.link)
-        json = r.json() # returns JSON, not Dict
-        return json
-    except Exception as e:
-        # Can't get the object from `link` eg. doesn't exist
-        placeholder = {
-            "type":"post",
-            "title":"Something went wrong.",
-            "id":item.link,
-            "source":"",
-            "origin":"",
-            "description":"There was a shared item here, but we couldn't retrieve it.",
-            "contentType":"text/plain",
-            "content":str(e),
-            "author":{},
-            "categories":"",
-            "count":0,
-            "size":0,
-            "comments":"",
-            "published":"",
-            "visibility":"PUBLIC",
-            "unlisted":True
-        }
-        print(e)
-        return placeholder
+    placeholder = {
+        "type":"",
+        "title":"Something went wrong.",
+        "id":"",
+        "source":"",
+        "origin":"",
+        "description":"There was a shared item here, but we couldn't retrieve it.",
+        "contentType":"text/plain",
+        "content":"",
+        "author":{},
+        "categories":"",
+        "count":0,
+        "size":0,
+        "comments":"",
+        "published":"",
+        "visibility":"PUBLIC",
+        "unlisted":True
+    }
+    if item.link != "" and item.json_str == "":
+        try:
+            r = requests.get(item.link)
+            d = r.json() # returns JSON, not Dict
+            return d
+        except Exception as e:
+            # Can't get the object from `link` eg. doesn't exist
+            print(e)
+            placeholder["id"] = item.link
+            placeholder["content"] = str(e)
+            return placeholder
+    else:
+        # Use json_str instead
+        try:
+            d = json.loads(item.json_str)
+            return d
+        except Exception as e:
+            print(e)
+            placeholder["content"] = str(e)
+            return placeholder
 
 
 def FriendRequestToJson(requesting_author, requested_author):

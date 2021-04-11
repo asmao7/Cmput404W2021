@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load app_filters %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/postdetails.css' %}">
@@ -34,17 +35,28 @@
          <br><br/>
         <h2 class="comment">COMMENTS </h2>
         
-        {% if not post.comment_set.all%}
-            <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
-        {% else %}
-            {% for comment in post.comment_set.all%}
-                <ul>
-                    <small>By: {{comment.author}}</small> - <strong>{{comment.comment}}</strong>
-                </ul>
-                
-            {% endfor %}
+        {% if post.comment_set.all%}
+            <ul>
+                {% for comment in post.comment_set.all%}
+                    <li>
+                        {% if comment.content_type == "text/plain" %}
+                            <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
+                        {% else %}
+                            <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment|markdownify}}</strong>
+                        {% endif %}
+                        <!--LIKES pass in url that sends a post id argument and updates the database-->
+                        <form action="{% url 'like' %}" method="POST">
+                            {% csrf_token %}
+                            
+                            <input type="hidden" name="author_url" value="{{ user.url }}">
+                            <input type="hidden" name="object_url" value="{{ comment.url }}">
+                            <input class="likeButton" type="submit" value='{{ comment|liked_or_not:user }} {{ comment|liked_count }}'>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
         {% endif %}
-        <a href="{% url 'add_comment'%}">Add Comments</a>
+        <a href="{% url 'add_comment' post.id|stringformat:'s' %}">Add Comments</a>
     </div>
 
 {% endblock %}

@@ -23,11 +23,8 @@
         <!--use django user to get the logged in user and add that value-->
         <!--these two lines of javascript are editing the custom forms-->
         <script>
-            var name = "{{ user.id }}";
+            var name = "{{ user.url }}";
             document.getElementById("uniqueid").value = name;
-            /*not working, i need to figure out how to get the post id*/
-            var post_name = "{{ post.id }}";
-            document.getElementById("uniquepost").value = post_name;
         </script>
     </div>
 

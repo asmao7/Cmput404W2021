@@ -4,28 +4,29 @@ from requests.auth import HTTPBasicAuth
 
 from django.shortcuts import render
 from django.shortcuts import render
-from rest_framework.views import APIView
+from rest_framework.views import APIView, status
 from .forms import SignUpForm, LoginForm
 from requests.auth import HTTPBasicAuth
 
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
-from rest_framework.views import APIView, status
+from django.views import generic
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer, RemoteFollow
+from .models import Author, Post, Comment,ObjectLike, InboxItem, Followers, ForeignServer, RemoteFollow
 from .admin import AuthorCreationForm
+from .forms import SignUpForm, LoginForm, PostForm, CommentForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON, FriendRequestToJson
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON, FriendRequestToJson
 
 from django.views import generic
 from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .forms import PostForm, CommentForm
 
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
@@ -35,7 +36,6 @@ class UserRegisterView(generic.CreateView):
 class HomeView(ListView):
     model = Post
     template_name = 'author.html'
-    likeModel = LikedPost
     ordering = ['-published']
 
 
@@ -64,6 +64,11 @@ class AddCommentView(CreateView):
     #fields = '__all__'
     success_url = reverse_lazy('author')
 
+    def form_valid(self, form):
+        form.instance.post = Post.objects.get(pk=self.kwargs["pk"])
+        return super().form_valid(form)
+
+
 class UpdatePostView(UpdateView):
     model = Post
     template_name = 'EditPost.html'
@@ -75,17 +80,34 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
-def like(request, pk):
-	# add a line to database that has user id and post id
-	current_user = request.user
-	post = get_object_or_404(Post, id=pk)
-	
-	liked = len(LikedPost.objects.filter(post_id=post, user_id=current_user))	
-	if liked == 0:
-		liked_post = LikedPost(post_id=post, user_id=current_user)
-		liked_post.save()
-	
-	return HttpResponseRedirect(reverse('author'))
+def like(request):
+    try:
+        # add a line to database that has user url and object url
+        like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+        liked = len(like)
+        if liked == 0:
+            liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+            liked_object.save()
+            # Notify the author of the liked post by POSTing this to their inbox.
+            # Remember, we might be posting to a foreign node here.
+            # Also, `object` might be foreign too. We need its author, though.
+            like_json = ObjectLikeToJSON(liked_object)
+            res = requests.get(like_json["object"])
+            if res.ok:
+                author_url = res.json()["author"]["url"]
+                if author_url[-1] == "/":
+                    author_url += "inbox/"
+                else:
+                    author_url += "/inbox/"
+                r = requests.post(author_url, json=like_json) # Error handling?
+            else:
+                # `object` is probably behind authentication or something
+                print("Couldn't get object. "+str(res.text))
+        else:
+            like.delete()
+    except:
+        pass
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def home(request):
     return render(request, 'home.html', {})
@@ -105,10 +127,10 @@ def inbox(request):
     """
     # Martijn Pieters https://stackoverflow.com/a/13569789
     logurl = request.scheme+"://"+request.get_host()+"/SocialApp/login/"
-    client = requests.session()
-    client.get(logurl) # Sets cookie
-    if 'csrftoken' in client.cookies:
-        csrftoken = client.cookies['csrftoken']
+    session = requests.Session()
+    session.get(logurl) # Sets cookie
+    if 'csrftoken' in session.cookies:
+        csrftoken = session.cookies['csrftoken']
     else: print("No CSRF cookie found")
     sessionid = request.COOKIES.get('sessionid') # FBI OPEN UP
     if not sessionid:
@@ -116,7 +138,7 @@ def inbox(request):
     cookies = dict(csrftoken=csrftoken, sessionid=sessionid)
     # Now GET the inbox endpoint and pass in our cookies
     url = request.scheme+"://"+request.get_host()+"/author/"+str(request.user.id)+"/inbox/"
-    resp = client.get(url, cookies=cookies, headers=dict(Referer=logurl))
+    resp = session.get(url, cookies=cookies, headers=dict(Referer=logurl))
     # Pass the resulting inbox items to the template if successful
     if resp.status_code == 200:
         inbox_json = dict(resp.json())
@@ -197,7 +219,7 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         # Update author info
@@ -315,7 +337,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         jsonData = request.data
@@ -370,7 +392,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         post.delete()
@@ -411,13 +433,12 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         try:
             jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
+            post = Post(id=post_id, title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
@@ -477,13 +498,12 @@ class AuthorPostsEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         try:
             jsonData = request.data
-            post = Post(title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
+            post = Post(title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
                         author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
             post.save()
             return HttpResponse(status=200)
@@ -570,7 +590,7 @@ class PostCommentsEndpoint(APIView):
 
         try:
             jsonData = request.data
-            comment = Comment(author=request.user, post=post, comment=jsonData.get("comment"),
+            comment = Comment(author_url=jsonData.get("author")["url"], post=post, comment=jsonData.get("comment"),
                               content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)
@@ -662,7 +682,7 @@ class PostLikesEndpoint(APIView):
         if post.author != author:
             return HttpResponse(status=404)
 
-        likes_json_list = PostLikeListToJSON(LikedPost.objects.filter(post_id=post))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=post.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -711,7 +731,7 @@ class CommentLikesEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        likes_json_list = CommentLikeListToJSON(LikedComment.objects.filter(comment_id=comment))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=comment.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -737,16 +757,9 @@ class AuthorLikedEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        post_likes = LikedPost.objects.filter(user_id=author)
-        comment_likes = LikedComment.objects.filter(user_id=author)
-
         try:
-            all_likes = []
-            for like in PostLikeListToJSON(post_likes):
-                all_likes.append(like)
-            for like in CommentLikeListToJSON(comment_likes):
-                all_likes.append(like)
-            return JsonResponse({"likes":all_likes})
+            likes = ObjectLikeListToJSON(ObjectLike.objects.filter(author_url=author.url))
+            return JsonResponse({"likes":likes})
         except:
             return HttpResponse(status=500)
 
@@ -902,7 +915,7 @@ def unFollow(request, foreign_author_id):
 
 def remotePosts(request):
     """
-    Display public posts on Team 17's server
+    Display public posts on all added servers
     """
     public_posts = []
     for server in ForeignServer.objects.filter(is_active=True):
@@ -1218,19 +1231,18 @@ class InboxEndpoint(APIView):
             return HttpResponse(status=400)
         if not author:
             return HttpResponse(status=404)
-        # Assuming that nobody else can GET your inbox
         if request.user.is_authenticated and (str(request.user.id) == author_id or request.user.is_server):
             # Get inbox items and format into JSON to return
             inbox_items = InboxItem.objects.filter(author=author)
             item_json_list = []
             for item in inbox_items:
-                json = InboxItemToJSON(item) # will request whatever's at link
+                json = InboxItemToJSON(item)
                 if json:
                     item_json_list.append(json)
             response_json = {
                 "type":"inbox",
-                "author":request.scheme+"://"+request.get_host()+"/author/"+str(author_id),
-                "items":item_json_list
+                "author": author.url,
+                "items": item_json_list
             }
             return JsonResponse(response_json)
         else:
@@ -1250,17 +1262,41 @@ class InboxEndpoint(APIView):
         except Exception as e:
             print(e)
             return HttpResponse(status=400)
-        # NOTE: I am assuming that only logged in users can POST to inboxes.
-        if request.user.is_authenticated:
+        #if request.user.is_authenticated: # only logged in users can POST to inboxes
+        link_field = request.data.get("link", "")
+        if link_field != "":
+            # Handle as a link to the item
             try:
                 new_item = InboxItem(author=author, link=request.data.get("link"))
                 new_item.save()
                 return HttpResponse(status=201)
             except Exception as e:
                 print(e)
-                return HttpResponse("Internal Server Error:"+e, status=500)
+                return HttpResponse("Internal Server Error:"+str(e), status=500)
         else:
-            return HttpResponse("You need to log in first to POST to inboxes.", status=401)
+            # Handle POSTed object as JSON string
+            try:
+                team7_data = request.data.get("obj", "")
+                json_data = None
+                if (team7_data == ""):
+                    json_data = request.data
+                else:
+                    json_data = json.loads(team7_data)
+                received_json_str = json.dumps(json_data)          
+                # Save Likes we don't have yet (from foreign nodes)
+                if json_data["type"] == "Like" or json_data["type"] == "like":
+                    like = ObjectLike.objects.filter(author_url=json_data["author"]["url"], object_url=json_data["object"])
+                    if len(like) == 0:
+                        new_like = ObjectLike(author_url=json_data["author"]["url"], object_url=json_data["object"])
+                        new_like.save()
+                new_item = InboxItem(author=author, json_str=received_json_str)
+                new_item.save()
+                return HttpResponse(status=201)
+            except Exception as e:
+                print(str(e))
+                return HttpResponse("Internal Server Error:"+str(e), status=500)
+        #else:
+        #    return HttpResponse("You need to log in first to POST to inboxes.", status=401)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -1271,7 +1307,7 @@ class InboxEndpoint(APIView):
             return HttpResponse(status=400)
         if request.user.is_authenticated and str(request.user.id) == author_id:
             inbox_items = InboxItem.objects.filter(author=request.user.id)
-            # NOTE: does not check to see if Inbox is already empty
+            # Doesn't care if the inbox is already empty
             inbox_items.delete()
             return HttpResponse(status=204)
         else:
