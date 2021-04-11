@@ -82,12 +82,11 @@ def like(request):
             # Notify the author of the liked post by POSTing this to their inbox.
             # Remember, we might be posting to a foreign node here.
             like_json = ObjectLikeToJSON(liked_object)
-            if settings.DEBUG:
-                author_url = request.scheme+"://"+request.get_host()+"/author/"+str(post.author.id)+"/inbox/"
-            else:
-                author_url = post.author.url + "inbox/"
-            session = requests.Session() # do we need cookie/auth to do this?
-            r = session.post(author_url, json=like_json) # Error handling?
+            object_author_url = requests.get(request.POST["object_url"])
+            if (object_author_url[-1] != "/"):
+                object_author_url += "/"
+            inbox_url = "{}/inbox/".format(object_author_url)
+            requests.post(inbox_url, json=like_json)
         else:
             like.delete()
     except:
