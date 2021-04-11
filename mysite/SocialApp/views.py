@@ -99,6 +99,23 @@ def like(request):
         pass
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+def remoteComment(request):
+    """
+    Handles posting a comment to a foreign source
+    """
+    try:
+        json = {
+            "type": "comment",
+            "author": "",
+            "comment": "",
+            "contentType": "",
+            "published": "",
+            "id": ""
+        }
+    except:
+        pass
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 def home(request):
     return render(request, 'home.html', {})
 
