@@ -126,9 +126,10 @@ def CommentToJSON(comment):
     if not comment:
         return None
     try:
+        author = requests.get(like.author_url).json()
         json = {
             "type":"comment",
-            "author":AuthorToJSON(comment.author),
+            "author":author,
             "comment":comment.comment,
             "contentType":comment.content_type,
             "published":str(comment.published),

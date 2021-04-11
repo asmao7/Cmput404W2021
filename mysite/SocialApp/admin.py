@@ -74,9 +74,9 @@ class PostCategoryAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "post", "author", "published",)
+    list_display = ("__str__", "post", "author_url", "published",)
     list_filter = ("published",)
-    search_fields = ("post", "author",)
+    search_fields = ("post", "author_url",)
 
 
 class FollowersAdmin(admin.ModelAdmin):

@@ -197,7 +197,7 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         # Update author info
@@ -315,7 +315,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         jsonData = request.data
@@ -370,7 +370,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         post.delete()
@@ -411,7 +411,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         try:
@@ -477,7 +477,7 @@ class AuthorPostsEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         try:
@@ -570,7 +570,7 @@ class PostCommentsEndpoint(APIView):
 
         try:
             jsonData = request.data
-            comment = Comment(author=request.user, post=post, comment=jsonData.get("comment"),
+            comment = Comment(author_url=jsonData.get("author").get("url"), post=post, comment=jsonData.get("comment"),
                               content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)
@@ -737,15 +737,9 @@ class AuthorLikedEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        likes = ObjectLike.objects.filter(author_url=author.url)
-
         try:
-            all_likes = []
-            for like in PostLikeListToJSON(post_likes):
-                all_likes.append(like)
-            for like in CommentLikeListToJSON(comment_likes):
-                all_likes.append(like)
-            return JsonResponse({"likes":all_likes})
+            likes = ObjectLike.objects.filter(author_url=author.url)
+            return JsonResponse({"likes":likes})
         except:
             return HttpResponse(status=500)
 
