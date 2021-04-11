@@ -59,13 +59,10 @@ class TestCases(TestCase):
         # Set up a test post
         cls.post_id = uuid.uuid4()
         cls.post_title = "Test Post"
-        cls.post_source = "SomeTestWebsite.com/posts/"
-        cls.post_origin = "SomeOtherTestWebsite.com/posts/"
         cls.post_description = "A small test post."
         cls.post_content_type = "text/plain"
         cls.post_content = "This is a test post. It doesn't have much to it."
-        post = Post(id=cls.post_id, title=cls.post_title, source=cls.post_source,
-                    origin=cls.post_origin, description=cls.post_description,
+        post = Post(id=cls.post_id, title=cls.post_title, description=cls.post_description,
                     content_type=cls.post_content_type, content=cls.post_content,
                     author=Author.objects.get(pk=cls.author_id_1))
         post.categories.add(PostCategory.objects.get(pk=1),
