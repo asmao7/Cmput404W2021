@@ -738,7 +738,7 @@ class AuthorLikedEndpoint(APIView):
             return HttpResponse(status=400)
 
         try:
-            likes = ObjectLike.objects.filter(author_url=author.url)
+            likes = ObjectLikeListToJSON(ObjectLike.objects.filter(author_url=author.url))
             return JsonResponse({"likes":likes})
         except:
             return HttpResponse(status=500)
