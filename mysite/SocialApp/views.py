@@ -85,7 +85,7 @@ def like(request):
     except:
         pass
 
-    return HttpResponseRedirect(reverse('author'))
+    return HttpResponseRedirect(request.path_info)
 
 def home(request):
     return render(request, 'home.html', {})
