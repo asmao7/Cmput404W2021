@@ -1134,6 +1134,12 @@ class InboxEndpoint(APIView):
         else:
             # Handle POSTed object as JSON string
             try:
+                # Save Likes we don't have yet (from foreign nodes)
+                if request.POST["type"] == "Like":
+                    like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+                    if len(like) == 0:
+                        new_like = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+                        new_like.save()
                 received_json_str = json.dumps(request.data)
                 print(received_json_str)
                 new_item = InboxItem(author=author, json_str=received_json_str)
