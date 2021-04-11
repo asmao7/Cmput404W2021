@@ -9,7 +9,7 @@
     color: wheat;
     font-size: 20px;
     text-align: center;
-    width: 800px;
+    width:800px;
     padding: 40px;
     padding-top: 5px;
     position: absolute;
@@ -17,5 +17,17 @@
     left:50%;
     transform: translate(-50%, -50%);
     text-align: center;
+}
+
+.post .form-group #id_content{
+    width: 100%;
+}
+
+.post .form-group #id_description{
+    width: 50%;
+}
+
+.post .form-group #id_title{
+    width: 50%;
 }
   
