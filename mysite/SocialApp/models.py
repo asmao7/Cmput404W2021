@@ -40,7 +40,7 @@ class Author(AbstractUser):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/".format(settings.HOST_NAME, self.id)
+            self.url = "{}://{}/author/{}/".format(settings.SCHEME, settings.HOST_NAME, self.id)
         super(Author, self).save(*args, **kwargs)
 
 
@@ -86,10 +86,6 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     # URL that points to the REST api endpoint for this post - also used as the "id" in the protocol
     url = models.CharField(max_length=200, editable=False)
-    # The server we got this from. We can change this programatically
-    source = models.CharField(max_length=200)
-    # The server this originated on. Immutable.
-    origin = models.CharField(max_length=200, editable=False)
     # Short description of the post
     description = models.CharField(max_length=200)
     # The content type of the post. Must be one of a few specific types.
@@ -113,13 +109,8 @@ class Post(models.Model):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "http://{}/author/{}/posts/{}/".format(settings.HOST_NAME, self.author.id, self.id)
+            self.url = "{}://{}/author/{}/posts/{}/".format(settings.SCHEME, settings.HOST_NAME, self.author.id, self.id)
         super(Post, self).save(*args, **kwargs)
-
-
-class LikedPost(models.Model):
-    post_id = models.ForeignKey(Post, related_name="likes", on_delete=models.CASCADE)
-    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
 
 
 class Comment(models.Model):
@@ -137,7 +128,7 @@ class Comment(models.Model):
     # The post this comment is attached to
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     # The author of this comment (not to be confused with the author of the post)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author_url = models.CharField(max_length=200, blank=True, default="")
     # The text content content of the comment
     comment = models.TextField()
     # The content type of the comment. Must be one of a few specific types.
@@ -150,13 +141,20 @@ class Comment(models.Model):
     # Overwrite the default save function so that we can generate our URL
     def save(self, *args, **kwargs):
         if not self.url:
-            self.url = "https://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
+            self.url = "{}://{}/author/{}/posts/{}/comments/{}/".format(settings.SCHEME, settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
         super(Comment, self).save(*args, **kwargs)
 
 
-class LikedComment(models.Model):
-    post_id = models.ForeignKey(Comment, related_name="likes", on_delete=models.CASCADE)
-    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
+class ObjectLike(models.Model):
+    author_url = models.CharField(max_length=200)
+    object_url = models.CharField(max_length=200)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["author_url", "object_url"], name="unique_like")
+        ]
+        verbose_name = "Liked Object"
+        verbose_name_plural = "Liked Objects"
 
 
 class Followers(models.Model):
