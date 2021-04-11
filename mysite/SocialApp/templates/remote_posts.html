@@ -38,7 +38,7 @@
                         
                         <input type="hidden" name="author_url" value="{{ user.url }}">
                         <input type="hidden" name="object_url" value="{{ post.url }}">
-                        <input class="likeButton" type="submit" value='{{ post.url|liked_or_not:user.url }} {{ post.url|liked_count }}'>
+                        <input class="likeButton" type="submit" value='{{ post.origin|liked_or_not:user.url }} {{ post.origin|liked_count }}'>
                     </form>
                 {% else %}
                     <p>Post content error.</p>
@@ -60,8 +60,8 @@
                                     {% csrf_token %}
                                     
                                     <input type="hidden" name="author_url" value="{{ user.url }}">
-                                    <input type="hidden" name="object_url" value="{{ comment.url }}">
-                                    <input class="likeButton" type="submit" value='{{ comment.url|liked_or_not:user.url }} {{ comment.url|liked_count }}'>
+                                    <input type="hidden" name="object_url" value="{{ comment.id }}">
+                                    <input class="likeButton" type="submit" value='{{ comment.id|liked_or_not:user.url }} {{ comment.id|liked_count }}'>
                                 </form>
                             </li> 
                         {% endfor %}
