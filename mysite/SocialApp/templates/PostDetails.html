@@ -39,7 +39,11 @@
             <ul>
                 {% for comment in post.comment_set.all%}
                     <li>
-                        <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
+                        {% if post.content_type == "text/plain" %}
+                            <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
+                        {% else %}
+                            <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment|markdownify}}</strong>
+                        {% endif %}
                         <!--LIKES pass in url that sends a post id argument and updates the database-->
                         <form action="{% url 'like' %}" method="POST">
                             {% csrf_token %}
