@@ -38,12 +38,21 @@
         {% if not post.comment_set.all%}
             <!--No Comments yet <a href="{% url 'add_comment' %}">add comment</a>-->
         {% else %}
-            {% for comment in post.comment_set.all%}
-                <ul>
-                    <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
-                </ul>
-                
-            {% endfor %}
+            <ul>
+                {% for comment in post.comment_set.all%}
+                    <li>
+                        <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
+                        <!--LIKES pass in url that sends a post id argument and updates the database-->
+                        <form action="{% url 'like' %}" method="POST">
+                            {% csrf_token %}
+                            
+                            <input type="hidden" name="author_url" value="{{ user.url }}">
+                            <input type="hidden" name="object_url" value="{{ comment.url }}">
+                            <input class="likeButton" type="submit" value='{{ post|liked_or_not:user }} {{ post|liked_count }}'>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
         {% endif %}
         <a href="{% url 'add_comment'%}">Add Comments</a>
     </div>
