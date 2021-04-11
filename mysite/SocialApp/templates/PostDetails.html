@@ -54,7 +54,7 @@
                 {% endfor %}
             </ul>
         {% endif %}
-        <a href="{% url 'add_comment' post.id|stringformat %}">Add Comments</a>
+        <a href="{% url 'add_comment' post.id|stringformat:'s' %}">Add Comments</a>
     </div>
 
 {% endblock %}
