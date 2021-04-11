@@ -1,7 +1,6 @@
-import datetime
-import requests
-import uuid
-import json
+import datetime, uuid, requests, json
+
+from requests.auth import HTTPBasicAuth
 
 from django.shortcuts import render
 from django.shortcuts import render
@@ -9,7 +8,6 @@ from rest_framework.views import APIView
 from .forms import SignUpForm, LoginForm
 from requests.auth import HTTPBasicAuth
 
-import datetime, uuid, requests
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import escape
@@ -17,10 +15,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
 
-from .models import Author, Post, Comment, LikedPost, InboxItem, Followers, RemoteFollow
+from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer, RemoteFollow
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON , FriendRequestToJson, AuthorJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON, FriendRequestToJson, AuthorJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -40,6 +38,7 @@ class HomeView(ListView):
     likeModel = LikedPost
     ordering = ['-published']
 
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'PostDetails.html'
@@ -48,9 +47,15 @@ class AddPostView(CreateView):
     model = Post
     form_class = PostForm
     template_name = 'AddPost.html'
-    #fields = '__all__'
-    #fields = ['title', 'description', 'content', 'content_type', 'unlisted', 'author']
     success_url = reverse_lazy('author')
+
+    """
+    # this is to redicrect to the appropriate pages
+    def get(self, request):
+        form = PostForm()
+        if form.is_valid():
+            vis = form.cleaned_data['visibility']
+    """
 
 class AddCommentView(CreateView):
     model = Comment
@@ -94,9 +99,6 @@ def editProfile(request):
 def newPost(request):
     return render(request, 'newPost.html', {})
 
-def newMessage(request):
-    return render(request, 'newMessage.html', {})
-
 def inbox(request):
     """
     Request all of the inbox items using our API endpoint and render out.
@@ -119,7 +121,7 @@ def inbox(request):
     if resp.status_code == 200:
         inbox_json = dict(resp.json())
         inbox_items = inbox_json["items"]
-        return render(request, 'inbox.html', { 'inbox_items': inbox_items })
+        return render(request, 'inbox.html', {"inbox_items":inbox_items, "userid":str(request.user.id)})
     else:
         return HttpResponse(str(resp.text), status=resp.status_code)
     
@@ -137,7 +139,7 @@ class AllAuthorsEndpoint(APIView):
             return HttpResponse(status=401)
 
         try:
-            json = AuthorListToJSON(Author.objects.all())
+            json = AuthorListToJSON(Author.objects.exclude(is_staff=True).exclude(is_server=True))
             return JsonResponse({"authors":json})
         except:
             return HttpResponse(status=500)
@@ -523,12 +525,8 @@ class PostCommentsEndpoint(APIView):
         if post.author != author:
             return HttpResponse(status=404)
 
-        comment_json_list = []
-        comments = Comment.objects.filter(post=post)
-        for comment in comments:
-            json = CommentToJSON(comment)
-            if json:
-                comment_json_list.append(json)
+        comment_json_list = CommentListToJSON(Comment.objects.filter(post=post))
+
         return JsonResponse({"comments":comment_json_list})
 
     def post(self, request, *args, **kwargs):
@@ -576,6 +574,179 @@ class PostCommentsEndpoint(APIView):
                               content_type=jsonData.get("contentType"))
             comment.save()
             return HttpResponse(status=200)
+        except:
+            return HttpResponse(status=500)
+
+
+class CommentEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET request for a specific comment
+        """
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_id = kwargs.get("post_id", -1)
+        if post_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
+
+        comment_id = kwargs.get("comment_id", -1)
+        if comment_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except Comment.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        json = CommentToJSON(comment)
+        if json:
+            return JsonResponse(json)
+        else:
+            return HttpResponse(status=500)
+
+
+class PostLikesEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/likes/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET request for the likes on a post
+        """
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_id = kwargs.get("post_id", -1)
+        if post_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
+
+        likes_json_list = PostLikeListToJSON(LikedPost.objects.filter(post_id=post))
+
+        return JsonResponse({"likes":likes_json_list})
+
+
+class CommentLikesEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/likes/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET request for the likes on a comment
+        """
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_id = kwargs.get("post_id", -1)
+        if post_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        if post.author != author:
+            return HttpResponse(status=404)
+
+        comment_id = kwargs.get("comment_id", -1)
+        if comment_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except Comment.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        likes_json_list = CommentLikeListToJSON(LikedComment.objects.filter(comment_id=comment))
+
+        return JsonResponse({"likes":likes_json_list})
+
+
+class AuthorLikedEndpoint(APIView):
+    """
+    The author/{AUTHOR_ID}/liked/ endpoint
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to return the author's likes
+        """
+        # TODO: Paginate results and sort by date
+        # TODO: Authenticate? Or only allow this endpoint to return PUBLIC posts?
+        author_id = kwargs.get("author_id", -1)
+        if author_id == -1:
+            return HttpResponse(status=400)
+
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return HttpResponse(status=404)
+        except Exception:
+            return HttpResponse(status=400)
+
+        post_likes = LikedPost.objects.filter(user_id=author)
+        comment_likes = LikedComment.objects.filter(user_id=author)
+
+        try:
+            all_likes = []
+            for like in PostLikeListToJSON(post_likes):
+                all_likes.append(like)
+            for like in CommentLikeListToJSON(comment_likes):
+                all_likes.append(like)
+            return JsonResponse({"likes":all_likes})
         except:
             return HttpResponse(status=500)
 
@@ -630,7 +801,7 @@ def findFollower(request):
         following_list.append(follower_author.author_from) #append the author being followed
 
 
-    all_authors = Author.objects.exclude(pk=author_id).exclude(is_staff=True)
+    all_authors = Author.objects.exclude(pk=author_id).exclude(is_staff=True).exclude(is_server=True)
     authors = []   #list of all authors not followed by the author
 
     for current in all_authors:
@@ -733,15 +904,33 @@ def remotePosts(request):
     """
     Display public posts on Team 17's server
     """
-    team_17 = "https://cmput-404-group17.herokuapp.com/"
-    author_endpoint = "author/"
-    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
     public_posts = []
-    for author in authors:
-        posts = requests.get("{}/posts/".format(author["url"])).json()
-        for post in posts["items"]:
-            if post["visibility"] == "PUBLIC":
-                public_posts.append(post)
+    for server in ForeignServer.objects.filter(is_active=True):
+        posts = None
+        try:
+            if server.username and server.password:
+                posts = requests.get(server.posts_url, auth=HTTPBasicAuth(server.username, server.password)).json()
+            else:
+                posts = requests.get(server.posts_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+        
+        # Append PUBLIC posts to our collection
+        if posts:
+            if server.posts_json_key:
+                for post in posts[server.posts_json_key]:
+                    if ValidateForeignPostJSON(post):
+                        if post["visibility"] == "PUBLIC":
+                            public_posts.append(post)
+            else:
+                for post in posts:
+                    if ValidateForeignPostJSON(post):
+                        if post["visibility"] == "PUBLIC":
+                            public_posts.append(post)
 
     return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
 
@@ -1092,47 +1281,32 @@ class InboxEndpoint(APIView):
             return HttpResponse("You need to log in first to delete your inbox.", status=401)
 
 
-class FriendRequestEndpoint(APIView):
-    """
-    author/<str:author_id>/friendRequest/<str:foreign_author_id>/
-    """ 
-    def get(self, request, *args, **kwargs):
-        """
-        Returns a friend Request Object 
-        """  
-        author_id = kwargs.get("author_id", -1)
-        if author_id == -1:
-            return HttpResponse(status=404)
+# passing posts and friends to the friend post template (newMessage)
+# everything except the last line is basically a copy of the friends
+# template, will find a way to get rid of duplicate codes!
+def posts_view(request):
+    current_author_id = request.user.id
+    current_author = Author.objects.get(pk=current_author_id)
+    friends = []
+    current_followers_list = current_author.followee.all() #all the people currently following this user
 
-        try:
-            author = Author.objects.get(pk=author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
-            return HttpResponse(status=404)
+    #all the people that the user currently follows
+    #TODO move these to the friends tab
+    current_following = current_author.following.all()
+    current_following_list = []
 
-        foreign_author_id = kwargs.get("foreign_author_id", -1)
-        if foreign_author_id == -1:
-            return HttpResponse(status=404)
+    for author in current_following:
+        current_following_list.append(author.author_to)
 
-        try:
-            foreign_author = Author.objects.get(pk=foreign_author_id)
-        except Author.DoesNotExist:
-            return HttpResponse(status=400)
+    for follower in current_followers_list:
+        if follower.author_from in current_following_list:
+            friends.append(follower)
 
-        if not foreign_author:
-            return HttpResponse(status=404)
+    if not friends:
+       is_empty = True
+    else:
+        is_empty = False
 
-        if author_id == foreign_author_id:
-            return HttpResponse(status=400)
-        
-        #check if there is a follow relationship from current author to foreign
+    return render(request, "newMessage.html", {'posts': (Post.objects.all()).filter(visibility='FRIENDS').order_by('-published'),
+                                                "friends":friends, 'is_empty': is_empty })
 
-        requesting_author = AuthorToJSON(author)
-        requested_author = AuthorToJSON(foreign_author)
-
-        json = FriendRequestToJson(requesting_author, requested_author)
-        if json:
-            return JsonResponse(json)
-        else:
-            return HttpResponse(status=500)

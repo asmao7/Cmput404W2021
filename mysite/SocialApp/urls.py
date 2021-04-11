@@ -7,18 +7,17 @@ from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, Delete
 urlpatterns = [
   path('', views.home, name='home'),
   path('index.html', views.home, name='home'),
-  #path('', views.Login, name='Login'),  
-  #path('Login.html', views.Login, name='Login'),
   path('inbox/', views.inbox, name="inbox"),
   path('signup.html', UserRegisterView.as_view(), name="signup"),
   path('author.html', HomeView.as_view(), name="author"),
+  #path('newMessage.html', FriendsPostView.as_view(), name="new_message"),
   path('Details/<str:pk>', PostDetailView.as_view(), name="post-details"),
   path('AddPost.html', AddPostView.as_view(), name="add_post"),
   path('details/edit/<str:pk>', UpdatePostView.as_view(), name="update_post"),
   path('details/<str:pk>/delete', DeletePostView.as_view(), name="delete_post"),
   path('editProfile.html', views.editProfile, name='editProfile'),
   path('post/str:pk/comment', AddCommentView.as_view(), name="add_comment"),
-  path('newMessage.html', views.newMessage, name='newMessage'),
+  #path('newMessage.html', views.newMessage, name='newMessage'),
   path('author/<str:author_id>/', views.AuthorEndpoint.as_view(), name='Author'),
   path('author/<str:author_id>/posts/<str:post_id>/', views.PostEndpoint.as_view(), name='Post'),
   path('author.html/<str:pk>/like/', views.like, name='like'),
@@ -28,13 +27,20 @@ urlpatterns = [
   path('unfollow/<str:foreign_author_id>', views.unFollow, name='unfollow'),
   path('friends', views.friendsView, name="friends"),
   path('remotePosts', views.remotePosts, name="remotePosts"),
+<<<<<<< HEAD
   path('findRemoteFollowers', views.findRemoteFollowers, name="findRemoteFollowers"),
   path('addRemoteFollower/<str:remote_author_id>', views.addRemoteFollower, name="addRemoteFollower"),
+=======
+  path('newMessage.html', views. posts_view, name="new_message"),   #######
+>>>>>>> ff7eb602681a7c91481bcaab5699df32bb54c6ec
   path('posts/', views.AllPostsEndpoint.as_view(), name="AllPosts"),
   path('authors/', views.AllAuthorsEndpoint.as_view(), name="AllAuthors"),
   path('author/<str:author_id>/posts/', views.AuthorPostsEndpoint.as_view(), name='AuthorPosts'),
   path('author/<str:author_id>/followers', views.GetFollowersEndpoint.as_view(), name='getFollowers'),
   path('author/<str:author_id>/inbox/', views.InboxEndpoint.as_view(), name="Inbox"),
+  path('author/<str:author_id>/liked/', views.AuthorLikedEndpoint.as_view(), name="AuthorLiked"),
   path('author/<str:author_id>/followers/<str:foreign_author_id>/', views.EditFollowersEndpoint.as_view(), name='editFollowers'),
+  path('author/<str:author_id>/posts/<str:post_id>/likes/', views.PostLikesEndpoint.as_view(), name="PostLikes"),
   path('author/<str:author_id>/posts/<str:post_id>/comments/', views.PostCommentsEndpoint.as_view(), name="PostComments"),
+  path('author/<str:author_id>/posts/<str:post_id>/comments/likes/', views.CommentLikesEndpoint.as_view(), name="CommentLikes"),
 ]

@@ -1,25 +1,76 @@
 {% extends "base.html" %}
 
-{% block content %}
-<!-- ** TODO: also account for follows and likes ** -->
-<!-- This CSS should probably have its own sheet -->
+
+{% block head %}
 <style>
     * {
-        color: beige;
+        color: wheat;
+    }
+    button {
+        color: black;
+        margin-bottom: 2em;
     }
 </style>
+<script>
+    // anonymous https://stackoverflow.com/a/57635969 
+    // https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function clearInbox() {
+        let ask = confirm("Clear out all of the items in your inbox?");
+        if (ask) {
+            let userid = '{{ userid }}';
+            let url = '/author/'+userid+'/inbox/';
+            let csrftoken = getCookie('csrftoken');
+            fetch(url, {
+                method: 'DELETE',
+                headers: { "X-CSRFToken": csrftoken }
+            })
+            .then(response => {
+                if (response.status == 204 || response.status == 200) {
+                    // All done, reload the page
+                    location.reload();
+                } else {
+                    console.log(response);
+                    alert("Error: couldn't clear the inbox.");
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+
+{% block content %}
+<!-- ** TODO: also account for follows and likes ** -->
 <div style="margin:2em 1em;">
-<h1>Your Inbox</h1>
-<p>Here you can see posts that other authors have shared with you, as well as new follows and likes.</p>
-{% for item in inbox_items %}
-    <p style="margin-top:2em;"><em>Someone shared a {{ item.type }} with you:</em></p>
-    <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
-    <p>at {{ item.published }}</p>
-    <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
-    <p>{{ item.description }}</p>    
-{% endfor %}
-
-<!-- TODO add "Clear inbox" button -->
-
+    <h1>Your Inbox</h1>
+    <p style="margin-bottom:2em;">Here you can see posts that other authors have shared with you, as well as new follows and likes.</p>
+    {% if inbox_items|length > 0 %}
+        <button onclick="clearInbox();">Clear Inbox</button>
+        {% for item in inbox_items %}
+            <p><em>Someone shared a {{ item.type }} with you:</em></p>
+            <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
+            <p>at {{ item.published }}</p>
+            <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
+            <p style="margin-bottom:2em;">{{ item.description }}</p>    
+        {% endfor %}
+    {% else %}
+        <p><em>Your inbox is empty.</em></p>
+    {% endif %}
 </div>
 {% endblock %}

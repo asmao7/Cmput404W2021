@@ -1,34 +1,24 @@
+{% extends "base.html" %}
+
 {% load static %}
-<!Doctype html>
 
-<html>
-    <head>
-        <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/editpost.css' %}">
-    </head>
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/editpost.css' %}">
+{% endblock %}
 
-    <body>
-        <!--Background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper4.jpg"%}')";
+{% block content %}
 
-        <!--Navigation menu-->
-		<div class="topnav">
-			<a class="active" href="{% url 'author' %}">Home</a>
-			<a href="#">Delete Post</a>
-			<a href="#logout">Logout</a>
-		</div>
-
+    <!-- use django forms to auto generate the edit fields, (only title and content for now)-->
+    <div class="edit">
+        <h1>Edit Post</h1>
         <br/><br/>
-        <!-- use django forms to auto generate the edit fields, (only title and cintent for now)-->
-        <div class="edit">
-            <h1>Edit Post</h1>
-            <br/><br/>
-            <div class="form-group">
-                <form method="POST">
-                    {% csrf_token%}
-                    {{ form.as_p }}
-                    <button class="btn btn-secondary">Update</button>
-            </div>
+        <div class="form-group">
+            <form method="POST">
+                {% csrf_token%}
+                {{ form.as_p }}
+                <button class="btn btn-secondary">Update</button>
         </div>
-    </body>
-</html>
+    </div>
+
+{% endblock %}
+   

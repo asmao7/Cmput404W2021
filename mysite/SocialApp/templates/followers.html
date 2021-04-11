@@ -1,50 +1,31 @@
+{% extends "base.html" %}
+
 {% load static %}
-<!Doctype html>
 
-<html>
-    <head>
-        <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/followers.css' %}">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    </head>
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/followers.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
 
-    <body>
-        <!--background wallpaper-->
-        <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
-
-        <!--Navigation menu-->
-		<div class="topnav">
-			<a class="active" href="author.html">Home</a>
-			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="{% url 'newMessage' %}">New Message</a>
-            <a href="{% url 'add_post' %}">New Post</a>
-            <a href="{% url 'followers' %}">Followers</a> 
-            <a href="{% url 'friends' %}">Friends</a>
-            <a href="{% url 'findFollowers' %}">Find Followers</a>
-            <a href="{% url 'remotePosts' %}">Remote Posts</a>
-            <a href="{% url 'logout' %}">Logout</a>
-		</div>
-
-        <!--Followers-->
-        {% if is_empty %}
-        <div class="authorcard_list">
-            <p class="message"> No new followers, Use Find Followers to follow new users</p>
-        {% else %}                  
-            {% for follower in followers %}
-            <li>
+{% block content %}
+<!--Followers-->
+    {% if is_empty %}
+    <div class="authorcard_list">
+        <p class="message"> No new followers, Use Find Followers to follow new users</p>
+    </div>
+    {% else %}                  
+        {% for follower in followers %}
+        <li>
             <div class="authorcard_list">
-                    <div class="user-info">
-                         <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
-                            <p class="message">{{ follower.author_from}}</p>
-                            </div>
-                     <div class="button-container"> 
-                        <a class="button" href="{% url 'addfollower' follower.author_from.id %}">Follow Back</a>
-                    </div>
+                <div class="user-info">
+                    <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
+                    <p class="message">{{ follower.author_from}}</p>
                 </div>
-            </li>
-            {% endfor%}
-        {% endif %}
-        </div>
-        
-    </body>
-</html>
+                <div class="button-container"> 
+                    <a class="button" href="{% url 'addfollower' follower.author_from.id %}">Follow Back</a>
+                </div>
+            </div>
+        </li>
+        {% endfor%}
+    {% endif %}
+{% endblock %}

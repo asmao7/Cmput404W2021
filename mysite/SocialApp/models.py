@@ -153,6 +153,12 @@ class Comment(models.Model):
             self.url = "https://{}/author/{}/posts/{}/comments/{}/".format(settings.HOST_NAME, self.post.author.id, self.post.id, self.id)
         super(Comment, self).save(*args, **kwargs)
 
+
+class LikedComment(models.Model):
+    post_id = models.ForeignKey(Comment, related_name="likes", on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+
 class Followers(models.Model):
     """ get a specific user's followers """
     #the author sending the follow request 
@@ -170,6 +176,33 @@ class Followers(models.Model):
         # Helpful for Django Admin
         verbose_name = "Followers"
         verbose_name_plural = "Followers"
+
+
+class ForeignServer(models.Model):
+    """
+    Models a fetch-content relationship with a foreign server
+    """
+    # A name by which to more easily identify the server
+    name = models.CharField(max_length=100)
+    # Whether or not to try and connect to this server
+    is_active = models.BooleanField(default=True)
+    # The url to get all of the authors on the server (leave blank if unsupported)
+    authors_url = models.CharField(max_length=200, blank=True)
+    # The key to look at for the JSON list of authors
+    authors_json_key = models.CharField(max_length=25, blank=True)
+    # The url to get all of the posts on the server (leave blank if unsupported)
+    posts_url = models.CharField(max_length=200, blank=True)
+    # The key to look at for the JSON list of posts
+    posts_json_key = models.CharField(max_length=25, blank=True)
+    # The username credentials for connecting to the server with basic auth (leave blank if unsupported)
+    username = models.CharField(max_length=100, blank=True)
+    # The password credentials for connecting to the server with basic auth (leave blank if unsupported)
+    password = models.CharField(max_length=25, blank=True)
+
+    class Meta:
+        verbose_name = "Foreign Server"
+        verbose_name_plural = "Foreign Servers"
+
 
 #prohibit self following 
 @receiver(pre_save, sender=Followers)
