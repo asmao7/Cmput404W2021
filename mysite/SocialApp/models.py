@@ -156,8 +156,10 @@ class Comment(models.Model):
 class Followers(models.Model):
     """ get a specific user's followers """
     #the author sending the follow request 
+    #reverse relationship author.following get all the people the author is  following
     author_from = models.ForeignKey(Author, related_name='following', on_delete=models.CASCADE) 
     #the author that is being followed
+    #reverse relationship author.followee get all their followers (all the people currently following the user) 
     author_to = models.ForeignKey(Author, related_name='followee', on_delete=models.CASCADE, default=None) 
 
     # prohibit following same person twice
@@ -180,3 +182,15 @@ class InboxItem(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE) # the recipient
     link = models.TextField()
 
+class RemoteFollow(models.Model):
+    """ get a specific user's followers """
+    #the author sending the follow request 
+    local_author_from = models.ForeignKey(Author, related_name='remote_following', on_delete=models.CASCADE) 
+    #the author that is being followed
+    remote_author_to = models.UUIDField(primary_key=False, default=None) 
+
+    # make relatiuonship unique
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['local_author_from','remote_author_to'],  name="remote_follow")
+        ]

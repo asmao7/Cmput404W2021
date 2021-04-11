@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import Post, Author, PostCategory, Comment, LikedPost, Followers, InboxItem
+from .models import Post, Author, PostCategory, Comment, LikedPost, Followers, InboxItem, RemoteFollow
 
 class DefaultAdmin(admin.ModelAdmin):
     """
@@ -88,6 +88,10 @@ class InboxItemAdmin(admin.ModelAdmin):
     list_display = ("__str__", "author", "link",)
     search_fields = ("author",)
 
+class RemoteFollowAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "local_author_from", "remote_author_to",)
+    search_fields = ("local_author_from", "remote_author_to",)
+
 
 # Set some admin site variables
 admin.site.site_header = "Social Distribution Project Admin"
@@ -105,3 +109,4 @@ admin.site.register(Comment, CommentAdmin)
 admin.site.register(Followers, FollowersAdmin)
 admin.site.register(LikedPost, DefaultAdmin)
 admin.site.register(InboxItem, InboxItemAdmin)
+admin.site.register(RemoteFollow, RemoteFollowAdmin)

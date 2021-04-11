@@ -240,11 +240,34 @@ def FriendRequestToJson(requesting_author, requested_author):
 
     try:
         json = {
-            "type":"inbox",
-            "summary": "",
-            "actor":requesting_author,
-            "object":requested_author,
+            "type":"follow",
+            "author_id":requesting_author
+           
             
+        }
+         # "summary": requesting_author['displayName'] + " wants to follow " + requested_author['displayName'],
+
+         # "author_id":requesting_author,
+            # "object":requested_author,
+        return json
+    except:
+        return None
+
+def AuthorJSON(author):
+    """
+    Converts an Author object into a JSON-compatible dictionary.
+    Returns None on failure.
+    """
+    if not author:
+        return None
+    try:
+        json = {
+            "type":"author",
+            "id":str(author.id),
+            "host":author.host,
+            "displayName":author.username,
+            "url":author.url,
+            "github":author.github
         }
         return json
     except:

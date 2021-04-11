@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .forms import SignUpForm, LoginForm
+from requests.auth import HTTPBasicAuth
 
 import datetime, uuid, requests
 from django.http import HttpResponseRedirect
@@ -16,10 +17,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView, status
 
-from .models import Author, Post, Comment, LikedPost, InboxItem, Followers
+from .models import Author, Post, Comment, LikedPost, InboxItem, Followers, RemoteFollow
 from .admin import AuthorCreationForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON , FriendRequestToJson
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON , FriendRequestToJson, AuthorJSON
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -584,13 +585,11 @@ def followerView(request):
     View shows a list of all the follow/friend requests to the signed in author
     """   
     current_author_id = request.user.id
-    print('CURRENT ---------------------------------------#####################################################', current_author_id, '\n\n')
     current_author = Author.objects.get(pk=current_author_id)
     followers = []
     followers_list = current_author.followee.all() #all the people currently following this user
 
     #all the people that the user currently follows 
-    #TODO move these to the friends tab
     following = current_author.following.all()
     following_list = []
 
@@ -598,7 +597,6 @@ def followerView(request):
         following_list.append(author.author_to)
 
     for follower in followers_list:
-        print('---------------------------------------#####################################################', follower.author_from.id, '\n\n')
         if follower.author_from in following_list:
             pass
         else:
@@ -661,11 +659,14 @@ def addFollower(request, foreign_author_id):
     current_author =  Author.objects.get(pk=current_author_id)
 
     if current_author_id == foreign_author_id:
-            is_new_follower = False
-            return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+            following = False
+            return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':following} )
+
     new_follower = Followers.objects.create(author_from=current_author, author_to=foreign_author)
-    is_new_follower = True
-    return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+    following = True
+    #send friend request through inbox
+
+    return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':following} )
 
 
 def friendsView(request):
@@ -725,8 +726,6 @@ def unFollow(request, foreign_author_id):
     else:
         is_empty = False
 
-
-   # chnage to render friends template
     return friendsView(request)
 
 
@@ -745,6 +744,104 @@ def remotePosts(request):
                 public_posts.append(post)
 
     return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
+
+
+def findRemoteFollowers(request):
+    """
+    list all the remote Followers for the author
+    """
+    team_17 = "https://cmput-404-group17.herokuapp.com/"
+    author_endpoint = "author/"
+    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
+
+    #check if current author already follows some of them
+    current_author_id = request.user.id
+    current_author =  Author.objects.get(pk=current_author_id)
+    following = []
+    following_query = current_author.remote_following.all()  #all the people the current user follows on remote
+
+    for follower in following_query:
+        following.append(follower.remote_author_to) 
+
+    final_authorlist = []
+    for author in authors:
+        if uuid.UUID(author["id"]) in following:
+            pass
+        else:
+            final_authorlist.append(author)
+
+    if not authors:
+       is_empty = True
+    else:
+        is_empty = False
+
+    return render(request, 'findRemoteFollower.html', {"remote_authors":final_authorlist,'is_empty':is_empty })
+
+
+def addRemoteFollower(request, remote_author_id):
+    """
+    Follow a remote follower and send friend request to their inbox endpoint
+    """
+    #TODO authenticate follower addition
+    #TODO check correct save
+    #TODO handle when unique fails cleanly
+    team_17 = "https://cmput-404-group17.herokuapp.com/"
+    author_endpoint = "author/"
+    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
+
+    for author in authors:
+        if author["id"] == remote_author_id:
+            remote_author = author
+    
+    if not remote_author:
+        is_new_follower = False
+        return render(request, 'addRemoteFollower.html', {"remote_author":None, 'new_follower':is_new_follower} )
+
+    local_author_id = request.user.id
+    local_author =  Author.objects.get(pk=local_author_id)
+
+    if local_author_id == remote_author_id:
+        is_new_follower = False
+        return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
+
+    #Create Json friend request to send to inbox endpoint 
+    requesting_author = AuthorJSON(local_author)
+    requested_author = remote_author #AuthorToJSON(remote_author)
+
+    friend_json = FriendRequestToJson(requesting_author, requested_author)
+    # request_json = json.dumps(friend_json)
+    
+    if friend_json:
+        # send request remote inbox Object 
+        #inbox_endpoint = team_17 + "author/" + remote_author_id + "/inbox/"
+
+        # logurl = request.scheme+"://"+request.get_host()+"/SocialApp/login/"
+        # r = requests.post(logurl, auth=('username', 'password'))
+        # # token = r.cookies['token']
+        # print(r.cookies)
+        # header = {'token': token}
+        # local_user = request.user
+        # token, created = Token.objects.get_or_create(user=local_user)
+        # header = {'Content-Type': 'application/json', 'username': request.username}  
+        inbox_endpoint = "https://cmput-404-group17.herokuapp.com/author/" + remote_author_id + "/inbox/"
+        #get authorisation
+        
+        # res = requests.get(logurl, auth=HTTPBasicAuth('author', 'pass'))
+        # print(res.json())
+        # requests.get(server.posts_url, auth=HTTPBasicAuth(server.username, server.password))
+        send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json, stream=True, headers={'Authorization': 'Token {}'.format(token)})#auth=('user', 'pass'))
+        print(send_request_json.status_code)
+        # print(send_request_json.text)
+        if send_request_json.status_code == 200:
+            #create record of follow 
+            remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_id)
+            is_new_follower = True
+            return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
+        else:
+            return HttpResponse(status=500)
+    else:
+        return HttpResponse(status=500)
+
 
 
 class EditFollowersEndpoint(APIView): 
@@ -795,9 +892,8 @@ class EditFollowersEndpoint(APIView):
 
     def put(self, request, *args, **kwargs):  
         #TODO need to authenticate
-        #TODO modularize getting followers
         """
-        Follower a specific Author 
+        Follower a specific Author (Friend Request)
         """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -833,7 +929,17 @@ class EditFollowersEndpoint(APIView):
 
         else:
             new_follower = Followers.objects.create(author_from=author, author_to=foreign_author)
-            return HttpResponse(status=200)
+            #compile friend Request Json to sedn to inbox 
+            requesting_author = AuthorToJSON(author)
+            requested_author = AuthorToJSON(foreign_author)
+
+            json = FriendRequestToJson(requesting_author, requested_author)
+            if json:
+                #TODO sending json to inbox endpoint and return 200 if done correctly
+                return JsonResponse(json)
+            else:
+                return HttpResponse(status=500)
+            # return HttpResponse(status=200)
     
 
     def delete(self, request, *args, **kwargs):
@@ -894,7 +1000,6 @@ class GetFollowersEndpoint(APIView):
         follower_json_list = []
 
         followers_list = author.followed_by.all()
-        # followers_list = author.followee.all()
 
         for follower in followers_list:
             followers.append(follower)
@@ -994,7 +1099,7 @@ class FriendRequestEndpoint(APIView):
     def get(self, request, *args, **kwargs):
         """
         Returns a friend Request Object 
-        """
+        """  
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -1020,6 +1125,8 @@ class FriendRequestEndpoint(APIView):
 
         if author_id == foreign_author_id:
             return HttpResponse(status=400)
+        
+        #check if there is a follow relationship from current author to foreign
 
         requesting_author = AuthorToJSON(author)
         requested_author = AuthorToJSON(foreign_author)

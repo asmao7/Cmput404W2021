@@ -28,6 +28,8 @@ urlpatterns = [
   path('unfollow/<str:foreign_author_id>', views.unFollow, name='unfollow'),
   path('friends', views.friendsView, name="friends"),
   path('remotePosts', views.remotePosts, name="remotePosts"),
+  path('findRemoteFollowers', views.findRemoteFollowers, name="findRemoteFollowers"),
+  path('addRemoteFollower/<str:remote_author_id>', views.addRemoteFollower, name="addRemoteFollower"),
   path('posts/', views.AllPostsEndpoint.as_view(), name="AllPosts"),
   path('authors/', views.AllAuthorsEndpoint.as_view(), name="AllAuthors"),
   path('author/<str:author_id>/posts/', views.AuthorPostsEndpoint.as_view(), name='AuthorPosts'),
@@ -35,5 +37,4 @@ urlpatterns = [
   path('author/<str:author_id>/inbox/', views.InboxEndpoint.as_view(), name="Inbox"),
   path('author/<str:author_id>/followers/<str:foreign_author_id>/', views.EditFollowersEndpoint.as_view(), name='editFollowers'),
   path('author/<str:author_id>/posts/<str:post_id>/comments/', views.PostCommentsEndpoint.as_view(), name="PostComments"),
-  path('author/<str:author_id>/friend_request/<str:foreign_author_id>/', views.FriendRequestEndpoint.as_view(), name='friendRequest')
 ]
