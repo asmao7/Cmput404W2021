@@ -54,7 +54,7 @@
                 {% endfor %}
             </ul>
         {% endif %}
-        <a href="{% url 'add_comment' post.id %}">Add Comments</a>
+        <a href="{% url 'add_comment' post.pk %}">Add Comments</a>
     </div>
 
 {% endblock %}
