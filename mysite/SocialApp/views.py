@@ -939,30 +939,35 @@ def findRemoteFollowers(request):
     """
     list all the remote Followers for the author
     """
-    team_17 = "https://cmput-404-group17.herokuapp.com/"
-    author_endpoint = "author/"
-    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
-
-    #check if current author already follows some of them
-    current_author_id = request.user.id
-    current_author =  Author.objects.get(pk=current_author_id)
-    following = []
-    following_query = current_author.remote_following.all()  #all the people the current user follows on remote
-
-    for follower in following_query:
-        following.append(follower.remote_author_to) 
-
     final_authorlist = []
-    for author in authors:
-        if uuid.UUID(author["id"]) in following:
+    is_empty = True
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
             pass
-        else:
-            final_authorlist.append(author)
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
 
-    if not authors:
-       is_empty = True
-    else:
-        is_empty = False
+        if authors:
+            is_empty = False
+            #check if current author already follows some of them
+            current_author_id = request.user.id
+            current_author =  Author.objects.get(pk=current_author_id)
+            following = []
+            following_query = current_author.remote_following.all()  #all the people the current user follows on remote
+
+            for follower in following_query:
+                following.append(follower.remote_author_to) 
+
+            for author in authors:
+                if author["url"] in following:
+                    pass
+                else:
+                    final_authorlist.append(author) 
 
     return render(request, 'findRemoteFollower.html', {"remote_authors":final_authorlist,'is_empty':is_empty })
 
@@ -974,62 +979,54 @@ def addRemoteFollower(request, remote_author_id):
     #TODO authenticate follower addition
     #TODO check correct save
     #TODO handle when unique fails cleanly
-    team_17 = "https://cmput-404-group17.herokuapp.com/"
-    author_endpoint = "author/"
-    authors = requests.get("{}{}".format(team_17, author_endpoint)).json()
 
-    for author in authors:
-        if author["id"] == remote_author_id:
-            remote_author = author
-    
-    if not remote_author:
-        is_new_follower = False
-        return render(request, 'addRemoteFollower.html', {"remote_author":None, 'new_follower':is_new_follower} )
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
 
-    local_author_id = request.user.id
-    local_author =  Author.objects.get(pk=local_author_id)
+        if authors:
+            for author in authors:
+                if author["id"] == remote_author_id:
+                    remote_author = author
+            
+            if not remote_author:
+                is_new_follower = False
+                return render(request, 'addRemoteFollower.html', {"remote_author":None, 'new_follower':is_new_follower} )
 
-    if local_author_id == remote_author_id:
-        is_new_follower = False
-        return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
+            local_author_id = request.user.id
+            local_author =  Author.objects.get(pk=local_author_id)
 
-    #Create Json friend request to send to inbox endpoint 
-    requesting_author = AuthorJSON(local_author)
-    requested_author = remote_author #AuthorToJSON(remote_author)
+            if local_author_id == remote_author_id:
+                is_new_follower = False
+                return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
 
-    friend_json = FriendRequestToJson(requesting_author, requested_author)
-    # request_json = json.dumps(friend_json)
-    
-    if friend_json:
-        # send request remote inbox Object 
-        #inbox_endpoint = team_17 + "author/" + remote_author_id + "/inbox/"
+            #Create Json friend request to send to inbox endpoint 
+            requesting_author = AuthorJSON(local_author)
+            requested_author = remote_author #AuthorToJSON(remote_author)
 
-        # logurl = request.scheme+"://"+request.get_host()+"/SocialApp/login/"
-        # r = requests.post(logurl, auth=('username', 'password'))
-        # # token = r.cookies['token']
-        # print(r.cookies)
-        # header = {'token': token}
-        # local_user = request.user
-        # token, created = Token.objects.get_or_create(user=local_user)
-        # header = {'Content-Type': 'application/json', 'username': request.username}  
-        inbox_endpoint = "https://cmput-404-group17.herokuapp.com/author/" + remote_author_id + "/inbox/"
-        #get authorisation
-        
-        # res = requests.get(logurl, auth=HTTPBasicAuth('author', 'pass'))
-        # print(res.json())
-        # requests.get(server.posts_url, auth=HTTPBasicAuth(server.username, server.password))
-        send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json, stream=True, headers={'Authorization': 'Token {}'.format(token)})#auth=('user', 'pass'))
-        print(send_request_json.status_code)
-        # print(send_request_json.text)
-        if send_request_json.status_code == 200:
-            #create record of follow 
-            remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_id)
-            is_new_follower = True
-            return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
-        else:
-            return HttpResponse(status=500)
-    else:
-        return HttpResponse(status=500)
+            friend_json = FriendRequestToJson(requesting_author, requested_author)
+            
+            if friend_json:  
+                inbox_endpoint = server.authors_url + remote_author_id + "/inbox/"
+                send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json)
+                if send_request_json.status_code == 200:
+                    #create record of follow 
+                    remote_author_url = remote_author['url']
+                    # print(remote_author_url)
+                    remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_url)
+                    is_new_follower = True
+                    return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
+                else:
+                    return HttpResponse(status=500)
+            else:
+                return HttpResponse(status=500)
 
 
 

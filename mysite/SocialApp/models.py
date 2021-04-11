@@ -220,7 +220,7 @@ class RemoteFollow(models.Model):
     #the author sending the follow request 
     local_author_from = models.ForeignKey(Author, related_name='remote_following', on_delete=models.CASCADE) 
     #the author that is being followed
-    remote_author_to = models.UUIDField(primary_key=False, default=None) 
+    remote_author_to = models.CharField(max_length=200, editable=False)
 
     # make relatiuonship unique
     class Meta:

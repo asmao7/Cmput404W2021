@@ -10,17 +10,16 @@
 {% block content %}
     <h1 class="authors-title">Authors</h1>
     <!-- <li class="no-author">No authors with that ID.</li> -->
+        <div class="button-container">
+                <a class="button" href="{% url 'findRemoteFollowers'%}">Find Remote Friends</a>
+        </div>
     {% if is_empty %}
         <div class="authorcard_list">
             <p class="message"> No new Followers to add </p>
         </div>
-
-        <h1 class="authors-title">Authors</h1>
-               <!-- <li class="no-author">No authors with that ID.</li> -->
-            <div class="button-container">
-                <a class="button" href="{% url 'findRemoteFollowers'%}">Find Remote Friends</a>
-            </div>
-            {% if is_empty %}
+    {% else %}                  
+        {% for author in author_list %}
+            <li>
                 <div class="authorcard_list">
                     <div class="user-info">
                         <i class="fa fa-user-circle" style="font-size: 150px;"></i> 

@@ -331,7 +331,7 @@ def FriendRequestToJson(requesting_author, requested_author):
     except:
         return None
 
-def AuthorJSON(author):
+def AuthorJSON(author):  #remove and tell team to fix
     """
     Converts an Author object into a JSON-compatible dictionary.
     Returns None on failure.

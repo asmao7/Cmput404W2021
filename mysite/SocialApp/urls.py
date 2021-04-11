@@ -27,12 +27,9 @@ urlpatterns = [
   path('unfollow/<str:foreign_author_id>', views.unFollow, name='unfollow'),
   path('friends', views.friendsView, name="friends"),
   path('remotePosts', views.remotePosts, name="remotePosts"),
-<<<<<<< HEAD
   path('findRemoteFollowers', views.findRemoteFollowers, name="findRemoteFollowers"),
   path('addRemoteFollower/<str:remote_author_id>', views.addRemoteFollower, name="addRemoteFollower"),
-=======
   path('newMessage.html', views. posts_view, name="new_message"),   #######
->>>>>>> ff7eb602681a7c91481bcaab5699df32bb54c6ec
   path('posts/', views.AllPostsEndpoint.as_view(), name="AllPosts"),
   path('authors/', views.AllAuthorsEndpoint.as_view(), name="AllAuthors"),
   path('author/<str:author_id>/posts/', views.AuthorPostsEndpoint.as_view(), name='AuthorPosts'),

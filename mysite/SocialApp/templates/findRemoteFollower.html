@@ -1,54 +1,35 @@
+{% extends "base.html" %}
+
 {% load static %}
-<!Doctype html>
 
-<html>
-    <head>
-        <title>Socialdistribution App</title>
-        <link rel="stylesheet" href="{% static 'css/followers.css' %}">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    </head>
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/followers.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
 
-    <body>
-    <body id="bg" style="background-image: url('{% static "wallpaper3.jpg"%}')";>
-
-        <!--Navigation menu-->
-        <div class="topnav">
-            <a class="active" href="author.html">Home</a>
-			<a href="{% url 'editProfile' %}">Edit Profile</a>
-			<a href="{% url 'newMessage' %}">New Message</a>
-            <a href="{% url 'add_post' %}">New Post</a>
-            <a href="{% url 'followers' %}">Followers</a> 
-            <a href="{% url 'friends' %}">Friends</a>
-            <a href="{% url 'findFollowers' %}">Find Followers</a>
-            <a href="{% url 'remotePosts' %}">Remote Posts</a>
-            <a href="{% url 'logout' %}">Logout</a>
+{% block content %}
+    <h1 class="authors-title">Authors</h1>
+            <!-- <li class="no-author">No authors with that ID.</li> -->
+        <div class="button-container">
+            <a class="button" href="{% url 'findFollowers'%}">Find local Friends</a>
         </div>
-
-        <h1 class="authors-title">Authors</h1>
-               <!-- <li class="no-author">No authors with that ID.</li> -->
-            <div class="button-container">
-                <a class="button" href="{% url 'findFollowers'%}">Find local Friends</a>
-            </div>
-            {% if is_empty %}
-                <div class="authorcard_list">
-                    <p class="message"> No new Followers to add </p>
-                {% else %}                  
-                    {% for author in remote_authors %}
-                        <li>
-                        <div class="authorcard_list">
-                                <div class="user-info">
-                                    <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
-                                        <p class="message">{{ author.displayName}}</p>
-                                        </div>
-                                <div class="button-container">
-                                        <a class="button" href="{% url 'addRemoteFollower' author.id %}">Follow</a>
-                                </div>
+        {% if is_empty %}
+            <div class="authorcard_list">
+                <p class="message"> No new Followers to add </p>
+            {% else %}                  
+                {% for author in remote_authors %}
+                    <li>
+                    <div class="authorcard_list">
+                            <div class="user-info">
+                                <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
+                                    <p class="message">{{ author.displayName}}</p>
+                                    </div>
+                            <div class="button-container">
+                                    <a class="button" href="{% url 'addRemoteFollower' author.id %}">Follow</a>
                             </div>
-                        </li>
-                {% endfor %}
-            {% endif %}
-            </div>
-
-            <!-- change to reflect no unfollowed authors -->
-    </body>
-</html>   
+                        </div>
+                    </li>
+            {% endfor %}
+        {% endif %}
+        </div>
+{% endblock %}
