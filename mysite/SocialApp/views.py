@@ -3,7 +3,6 @@ import datetime, uuid, requests, json
 from requests.auth import HTTPBasicAuth
 from rest_framework.views import APIView, status
 
-from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
@@ -82,17 +81,15 @@ def like(request):
             # Notify the author of the liked post by POSTing this to their inbox.
             # Remember, we might be posting to a foreign node here.
             like_json = ObjectLikeToJSON(liked_object)
-            if settings.DEBUG:
-                author_url = request.scheme+"://"+request.get_host()+"/author/"+str(post.author.id)+"/inbox/"
+            if like_json.author.url[-1] == "/":
+                author_url = like_json.author.url + "inbox/"
             else:
-                author_url = post.author.url + "inbox/"
-            session = requests.Session() # do we need cookie/auth to do this?
-            r = session.post(author_url, json=like_json) # Error handling?
+                author_url = like_json.author.url + "/inbox/"
+            r = requests.post(author_url, json=like_json) # Error handling?
         else:
             like.delete()
     except:
         pass
-
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def home(request):

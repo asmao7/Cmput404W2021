@@ -74,7 +74,8 @@
                 <!-- Might need to filter for different content types -->
                 <p style="margin:1em;margin-bottom:3em;">{{ item.content }}</p>
             {% elif item.type == "Follow" %}
-                <p>Someone is trying to follow you</p>
+                <p>{{ item.actor.displayName }} wants to follow you.</p>
+                <p>{{ item }}</p>
             {% elif item.type == "Like" %}
                 <p style="margin-bottom:2em;">
                     <a href={{ item.author.url }}>{{ item.author.displayName }}</a> 
