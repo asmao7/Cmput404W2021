@@ -102,4 +102,4 @@ class TestCases(TestCase):
         comments on other servers.
         """
         test_url = "{}://{}/author/{}/posts/{}/comments/{}/".format(settings.SCHEME, settings.HOST_NAME, cls.author_id_1, cls.post_id, cls.comment_id)
-        cls.assertEqual(test_url, Comment.objects.get(pk=cls.comment_id).url){}
+        cls.assertEqual(test_url, Comment.objects.get(pk=cls.comment_id).url)

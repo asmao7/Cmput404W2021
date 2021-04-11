@@ -497,7 +497,7 @@ class TestCases(TestCase):
         json = {
             "author":{
                 "url":new_url
-            }
+            },
             "contentType":new_content_type,
             "comment":new_comment
         }
