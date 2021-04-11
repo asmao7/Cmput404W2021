@@ -1138,10 +1138,12 @@ class InboxEndpoint(APIView):
         else:
             # Handle POSTed object as JSON string
             try:
-                raw_data = request.data.get("obj", "")
-                if (raw_data == ""):
-                    raw_data = request.data
-                json_data = json.loads(raw_data)
+                team7_data = request.data.get("obj", "")
+                json_data = None
+                if (team7_data == ""):
+                    json_data = request.data
+                else:
+                    json_data = json.loads(raw_data)
                 received_json_str = json.dumps(json_data)          
                 # Save Likes we don't have yet (from foreign nodes)
                 if json_data["type"] == "Like" or json_data["type"] == "like":
