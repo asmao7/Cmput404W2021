@@ -62,6 +62,11 @@ class AddCommentView(CreateView):
     #fields = '__all__'
     success_url = reverse_lazy('author')
 
+    def form_valid(self, form):
+        form.instance.post = Post.objects.get(pk=self.kwargs["pk"])
+        return super().form_valid(form)
+
+
 class UpdatePostView(UpdateView):
     model = Post
     template_name = 'EditPost.html'
