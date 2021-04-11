@@ -1,3 +1,4 @@
+import requests
 from django import template
 from SocialApp.models import ObjectLike
 
@@ -14,3 +15,8 @@ def liked_or_not(post, author):
 @register.filter(name='liked_count')
 def liked_count(post):
 	return len(ObjectLike.objects.filter(object_url=post.url))
+
+@register.filter(name='comment_author_name')
+def comment_author_name(comment):
+	author = requests.get(comment.author_url).json()
+	return author["displayName"]

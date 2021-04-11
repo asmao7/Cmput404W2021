@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load app_filters %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/postdetails.css' %}">
@@ -39,7 +40,7 @@
         {% else %}
             {% for comment in post.comment_set.all%}
                 <ul>
-                    <small>By: {{comment.author}}</small> - <strong>{{comment.comment}}</strong>
+                    <small>By:{{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
                 </ul>
                 
             {% endfor %}

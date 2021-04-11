@@ -885,7 +885,7 @@ def unFollow(request, foreign_author_id):
 
 def remotePosts(request):
     """
-    Display public posts on Team 17's server
+    Display public posts on all added servers
     """
     public_posts = []
     for server in ForeignServer.objects.filter(is_active=True):
