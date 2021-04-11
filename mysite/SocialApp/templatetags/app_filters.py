@@ -5,7 +5,7 @@ register = template.Library()
 
 @register.filter(name='liked_or_not')
 def liked_or_not(value, arg):
-	liked = len(ObjectLike.objects.filter(author_url=arg.url, object_id=value.url))
+	liked = len(ObjectLike.objects.filter(author_url=arg.url, object_url=value.url))
 	if liked == 0:
 		return '♡'
 	else:
