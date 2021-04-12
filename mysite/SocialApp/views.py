@@ -1182,8 +1182,6 @@ def posts_view(request):
                                                 "friends":friends, 'is_empty': is_empty })
 
 
-
-
 def shared_post(request, pk):
     sharing_author = request.user
     post = get_object_or_404(Post, id=pk)
