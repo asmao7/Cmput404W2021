@@ -77,13 +77,13 @@ class CommentForm(forms.ModelForm):
 class SharedPostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'description', 'author', 'content_type', 'content', 'unlisted', 'visibility']
+        fields = ['title', 'description', 'author', 'content', 'unlisted', 'visibility']
 
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.TextInput(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'type':'hidden' }),
+            'description': forms.TextInput(attrs={'class': 'form-control', 'type':'hidden'}),
             'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
-            'content_type': forms.Select(attrs={'class': 'form-control'}),
-            'content': forms.Textarea(attrs={'class': 'form-control'}),
+            #'content_type': forms.Select(attrs={'class': 'form-control', 'type':'hidden'}),
+            'content': forms.TextInput(attrs={'class': 'form-control', 'type':'hidden'}),
             'visibility': forms.Select(attrs={'class': 'form-control'}),
         }

@@ -24,7 +24,7 @@ from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, SharedPostForm
 
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
@@ -1178,17 +1178,19 @@ def posts_view(request):
     return render(request, "newMessage.html", {'posts': (Post.objects.all()).filter(visibility='FRIENDS').order_by('-published'),
                                                 "friends":friends, 'is_empty': is_empty })
 
-
+# pre-populate the form
+# I made a different customized from because I wanted to hide the fields
+# from the user, so they can't edit the content, but they have the choice of 
+# changing the visibility
 def shared_post(request, pk):
     sharing_author = request.user
     post = get_object_or_404(Post, id=pk)
     original_author = post.author
-    
     if request.method == "GET":
-        form = PostForm(instance=post, initial={'title': post.title + f' - Shared from {str(original_author)}', 'visibility': post.visibility})
+        form = SharedPostForm(instance=post, initial={'title': post.title + f' - Shared from {str(original_author)}', 'visibility': post.visibility})
         return render(request, "SharePost.html", {'form':form})
     else:
-        form = PostForm(data=request.POST)
+        form = SharedPostForm(data=request.POST)
         form.instance.author = sharing_author
         if form.is_valid():
             (form.save(commit=False)).save()
