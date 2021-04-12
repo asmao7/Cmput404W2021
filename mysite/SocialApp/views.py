@@ -24,7 +24,10 @@ from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, SharedPostForm
+
+from django.shortcuts import redirect
+
 
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
@@ -1178,3 +1181,21 @@ def posts_view(request):
     return render(request, "newMessage.html", {'posts': (Post.objects.all()).filter(visibility='FRIENDS').order_by('-published'),
                                                 "friends":friends, 'is_empty': is_empty })
 
+
+
+
+def shared_post(request, pk):
+    sharing_author = request.user
+    post = get_object_or_404(Post, id=pk)
+    original_author = post.author
+    
+    if request.method == "GET":
+        form = PostForm(instance=post, initial={'title': post.title + f' - Shared from {str(original_author)}', 'visibility': post.visibility})
+        return render(request, "SharePost.html", {'form':form})
+    else:
+        form = PostForm(data=request.POST)
+        form.instance.author = sharing_author
+        if form.is_valid():
+            (form.save(commit=False)).save()
+            return HttpResponseRedirect(reverse('author'))
+            

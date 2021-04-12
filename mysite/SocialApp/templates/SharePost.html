@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/newpost.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="post">
+        <h1>Share this Post</h1>
+        <br/>
+        <div class="form-group">
+            <form method="POST">
+                {% csrf_token%}
+                {{ form.as_p }}
+                <button class="btn btn-secondary">Add Post</button>
+        </div>
+        <!--auhtor is hidden from the user when adding a new post-->
+        <!--use django user to get the logged in user and aad that value-->
+        <!--these two lines of javascript are editing the custom forms-->
+        <script>
+            var name = "{{ user.id }}";
+            document.getElementById("uniqueid").value = name;
+        </script>
+    </div>
+{% endblock %}
