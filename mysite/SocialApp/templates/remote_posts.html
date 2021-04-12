@@ -69,6 +69,17 @@
                 {% else %}
                     <p>No comments.</p>
                 {% endif %}
+                <form action="{% url 'remote_comment' %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" name="post_url" value="{{ post.origin }}">
+                    <select name="content_type" class="form-control" id="id_content_type">
+                        <option value="text/plain" selected>Plain Text</option>
+                        <option value="text/markdown">Markdown</option>
+                    </select>
+                    <textarea name="comment" cols="40" rows="10" class="form-control" id="id_comment" spellcheck="false"></textarea>
+                    <input class="likeButton" type="submit" value="Add Comment">
+                </form>
             {% endfor %}
         </div>
     {% else %}
