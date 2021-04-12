@@ -129,6 +129,8 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     # The author of this comment (not to be confused with the author of the post)
     author_url = models.CharField(max_length=200, blank=True, default="")
+    # Backup author JSON (will go stale)
+    author_json = models.TextField(default="")
     # The text content content of the comment
     comment = models.TextField()
     # The content type of the comment. Must be one of a few specific types.
@@ -146,7 +148,14 @@ class Comment(models.Model):
 
 
 class ObjectLike(models.Model):
+    """
+    Models a liked object
+    """
+    # URL of the author who liked the object
     author_url = models.CharField(max_length=200)
+    # JSON of the author who liked the object (will go stale)
+    author_json = models.TextField(default="")
+    # URL of the object being liked
     object_url = models.CharField(max_length=200)
 
     class Meta:
@@ -184,6 +193,8 @@ class ForeignServer(models.Model):
     name = models.CharField(max_length=100)
     # Whether or not to try and connect to this server
     is_active = models.BooleanField(default=True)
+    # Host name - used to check URLs for matches
+    host_name = models.CharField(max_length=100, blank=True)
     # The url to get all of the authors on the server (leave blank if unsupported)
     authors_url = models.CharField(max_length=200, blank=True)
     # The key to look at for the JSON list of authors

@@ -2,7 +2,8 @@
 Contains useful helper functions
 """
 import requests, json
-from .models import Author, Post, Comment, PostCategory, InboxItem, Followers
+from requests.auth import HTTPBasicAuth
+from .models import Author, Post, Comment, PostCategory, InboxItem, Followers, ForeignServer
 
 def AuthorToJSON(author):
     """
@@ -12,7 +13,7 @@ def AuthorToJSON(author):
     if not author:
         return None
     try:
-        json = {
+        json_dict = {
             "type":"author",
             "id":author.url,
             "host":author.host,
@@ -20,7 +21,7 @@ def AuthorToJSON(author):
             "url":author.url,
             "github":author.github
         }
-        return json
+        return json_dict
     except:
         return None
 
@@ -53,7 +54,7 @@ def PostToJSON(post):
         return None
 
     try:
-        json = {
+        json_dict = {
             "type":"post",
             "title":post.title,
             "id":post.url,
@@ -71,7 +72,7 @@ def PostToJSON(post):
             "visibility":post.visibility,
             "unlisted":post.unlisted
         }
-        return json
+        return json_dict
     except:
         return None
 
@@ -81,23 +82,23 @@ def FollowerFinalJSON(follower_list):
     Returns an empty list on failure.
     """
     if not follower_list:
-        json = {
+        json_dict = {
             "type":"followers",
             "items": []
         }
         return json
     try:
-        json = {
+        json_dict = {
             "type":"followers",
             "items": follower_list
         }
-        return json
+        return json_dict
     except:
-        json = {
+        json_dict = {
             "type":"followers",
             "items": []
         }
-        return json
+        return json_dict
 
 
 def PostListToJSON(posts):
@@ -126,22 +127,20 @@ def CommentToJSON(comment):
     if not comment:
         return None
     try:
-        response = requests.get(comment.author_url)
+        basic_auth = GetURLBasicAuth(comment.author_url)
+        response = None
+        if (basic_auth):
+            response = requests.get(comment.author_url, auth=basic_auth)
+        else:
+            response = requests.get(comment.author_url)
 
         # backup author if get request fails
-        author = {
-            "type": "author",
-            "id": comment.author_url,
-            "host": "",
-            "displayName": "",
-            "url": comment.author_url,
-            "github": ""
-        }
+        author = json.loads(comment.author_json)
 
         if response.ok:
             author = response.json()
 
-        json = {
+        json_dict = {
             "type":"comment",
             "author":author,
             "comment":comment.comment,
@@ -150,7 +149,7 @@ def CommentToJSON(comment):
             "id":comment.url
         }
 
-        return json
+        return json_dict
     except:
         return None
 
@@ -180,18 +179,26 @@ def ObjectLikeToJSON(like):
     if not like:
         return None
     try:
-        response = requests.get(like.author_url)
-        author = ""
+        basic_auth = GetURLBasicAuth(like.author_url)
+        response = None
+        if (basic_auth):
+            response = requests.get(like.author_url, auth=basic_auth)
+        else:
+            response = requests.get(like.author_url)
+
+        # backup author if get request fails
+        author = json.loads(like.author_json)
+
         if response.ok:
             author = response.json()
             
-        json = {
+        json_dict = {
             "summary": "{} Likes your post".format(author["displayName"]),
             "type": "Like",
             "author": author,
             "object": like.object_url
         }
-        return json
+        return json_dict
     except:
         return None
 
@@ -315,14 +322,14 @@ def FriendRequestToJson(requesting_author, requested_author):
         return None
 
     try:
-        json = {
+        json_dict = {
             "type":"Follow",
             "summary": requesting_author['displayName'] + " wants to follow " + requested_author['displayName'],
             "actor":requesting_author,
             "object":requested_author,
             
         }
-        return json
+        return json_dict
     except:
         return None
 
@@ -358,3 +365,13 @@ def ValidateForeignPostJSON(post):
             return False
        
     return True
+
+
+def GetURLBasicAuth(url):
+    """
+    Gets basic auth credentials for this URL
+    """
+    for server in ForeignServer.objects.all():
+        if server.host_name:
+            if server.host_name in url and server.username and server.password:
+                return HTTPBasicAuth(server.username, server.password)
