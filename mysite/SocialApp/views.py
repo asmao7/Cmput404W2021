@@ -28,6 +28,8 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
+from .forms import PostForm, CommentForm, SharedPostForm
+
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
     template_name = 'signup.html'
