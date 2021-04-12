@@ -20,7 +20,7 @@ from .models import Author, Post, Comment,ObjectLike, InboxItem, Followers, Fore
 from .admin import AuthorCreationForm
 from .forms import SignUpForm, LoginForm, PostForm, CommentForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON, FriendRequestToJson
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON, FriendRequestToJson, GetURLBasicAuth
 
 from django.views import generic
 from django.urls import reverse_lazy
@@ -86,20 +86,33 @@ def like(request):
         like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
         liked = len(like)
         if liked == 0:
-            liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+            liked_object = ObjectLike(author_url=request.POST["author_url"], author_json=json.dumps(AuthorToJSON(request.user)), object_url=request.POST["object_url"])
             liked_object.save()
             # Notify the author of the liked post by POSTing this to their inbox.
             # Remember, we might be posting to a foreign node here.
             # Also, `object` might be foreign too. We need its author, though.
             like_json = ObjectLikeToJSON(liked_object)
-            res = requests.get(like_json["object"])
-            if res.ok:
-                author_url = res.json()["author"]["url"]
+
+            basic_auth = GetURLBasicAuth(request.POST["object_url"])
+            response = None
+            if (basic_auth):
+                response = requests.get(request.POST["object_url"], auth=basic_auth)
+            else:
+                response = requests.get(request.POST["object_url"])
+
+            if response.ok:
+                author_url = response.json()["author"]["url"]
                 if author_url[-1] == "/":
                     author_url += "inbox/"
                 else:
                     author_url += "/inbox/"
-                r = requests.post(author_url, json=like_json) # Error handling?
+                
+                basic_auth2 = GetURLBasicAuth(author_url)
+                response2 = None
+                if (basic_auth2):
+                    response2 = requests.get(author_url, auth=basic_auth2)
+                else:
+                    response2 = requests.get(author_url)
             else:
                 # `object` is probably behind authentication or something
                 print("Couldn't get object. "+str(res.text))
@@ -119,16 +132,19 @@ def remoteComment(request):
             "type": "comment",
             "author": AuthorToJSON(request.user),
             "comment": request.POST["comment"],
-            "contentType": request.POST["content_type"],
-            "published": str(datetime.now()),
-            "id": ""
+            "contentType": request.POST["content_type"]
         }
         post_url = request.POST["post_url"]
         if post_url[-1] == "/":
             post_url += "comments/"
         else:
             post_url += "/comments/"
-        requests.post(post_url, json=comment_json)
+
+        basic_auth = GetURLBasicAuth(post_url)
+        if (basic_auth):
+            requests.post(post_url, json=comment_json, auth=basic_auth)
+        else:
+            requests.post(post_url, json=comment_json)
     except:
         pass
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -673,7 +689,7 @@ class PostCommentsEndpoint(APIView):
 
         if (author_url != "" and comment != "" and valid_content_type):
             try:
-                comment = Comment(author_url=author_url, post=post, comment=comment, content_type=content_type)
+                comment = Comment(author_url=author_url, author_json=json.dumps(author), post=post, comment=comment, content_type=content_type)
                 comment.save()
                 return HttpResponse(status=200)
             except:
@@ -1360,18 +1376,13 @@ class InboxEndpoint(APIView):
         else:
             # Handle POSTed object as JSON string
             try:
-                team7_data = request.data.get("obj", "")
-                json_data = None
-                if (team7_data == ""):
-                    json_data = request.data
-                else:
-                    json_data = json.loads(team7_data)
+                json_data = request.data
                 received_json_str = json.dumps(json_data)          
                 # Save Likes we don't have yet (from foreign nodes)
                 if json_data["type"] == "Like" or json_data["type"] == "like":
                     like = ObjectLike.objects.filter(author_url=json_data["author"]["url"], object_url=json_data["object"])
                     if len(like) == 0:
-                        new_like = ObjectLike(author_url=json_data["author"]["url"], object_url=json_data["object"])
+                        new_like = ObjectLike(author_url=json_data["author"]["url"], author_json=json.dumps(json_data["author"]), object_url=json_data["object"])
                         new_like.save()
                 new_item = InboxItem(author=author, json_str=received_json_str)
                 new_item.save()

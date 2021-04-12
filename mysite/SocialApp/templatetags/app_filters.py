@@ -1,4 +1,4 @@
-import requests
+import requests, json
 from django import template
 from SocialApp.models import ObjectLike
 
@@ -17,11 +17,14 @@ def liked_count(object_url):
 	return len(ObjectLike.objects.filter(object_url=object_url))
 
 @register.filter(name='comment_author_name')
-def comment_author_name(author_url):
+def comment_author_name(comment):
 	try:
 		# Try to get the latest display name for the author
-		author = requests.get(author_url).json()
+		author = requests.get(comment.author_url).json()
 		return author["displayName"]
 	except:
-		# If we can't fetch author data, display the username as Anonymous
-		return "Anonymous"
+		try:
+			return json.loads(comment.author_json)
+		except:
+			# If we can't fetch author data, display the username as Anonymous
+			return "Anonymous"

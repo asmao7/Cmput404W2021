@@ -2,7 +2,8 @@
 Contains useful helper functions
 """
 import requests, json
-from .models import Author, Post, Comment, PostCategory, InboxItem, Followers
+from requests.auth import HTTPBasicAuth
+from .models import Author, Post, Comment, PostCategory, InboxItem, Followers, ForeignServer
 
 def AuthorToJSON(author):
     """
@@ -126,17 +127,15 @@ def CommentToJSON(comment):
     if not comment:
         return None
     try:
-        response = requests.get(comment.author_url)
+        basic_auth = GetURLBasicAuth(comment.author_url)
+        response = None
+        if (basic_auth):
+            response = requests.get(comment.author_url, auth=basic_auth)
+        else:
+            response = requests.get(comment.author_url)
 
         # backup author if get request fails
-        author = {
-            "type": "author",
-            "id": comment.author_url,
-            "host": "",
-            "displayName": "",
-            "url": comment.author_url,
-            "github": ""
-        }
+        author = json.loads(comment.author_json)
 
         if response.ok:
             author = response.json()
@@ -180,8 +179,16 @@ def ObjectLikeToJSON(like):
     if not like:
         return None
     try:
-        response = requests.get(like.author_url)
-        author = ""
+        basic_auth = GetURLBasicAuth(like.author_url)
+        response = None
+        if (basic_auth):
+            response = requests.get(like.author_url, auth=basic_auth)
+        else:
+            response = requests.get(like.author_url)
+
+        # backup author if get request fails
+        author = json.loads(like.author_json)
+
         if response.ok:
             author = response.json()
             
@@ -358,3 +365,13 @@ def ValidateForeignPostJSON(post):
             return False
        
     return True
+
+
+def GetURLBasicAuth(url):
+    """
+    Gets basic auth credentials for this URL
+    """
+    for server in ForeignServer.objects.all():
+        if server.host_name:
+            if server.host_name in url and server.username and server.password:
+                return HTTPBasicAuth(server.username, server.password)
