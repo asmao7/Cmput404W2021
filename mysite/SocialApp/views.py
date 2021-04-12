@@ -224,12 +224,21 @@ class AuthorEndpoint(APIView):
 
         # Update author info
         jsonData = request.data
-        author.username = jsonData.get("displayName")
-        author.github = jsonData.get("github")
-        author.save()
 
-        return HttpResponse(status=200)
+        username = jsonData.get("displayName", "")
+        github = jsonData.get("github", "")
 
+        if (username != "" and github != ""):
+            try:
+                author.username = username
+                author.github = github
+                author.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponseRedirect(status=500)
+        else:
+            return HttpResponse(status=400)
+        
 
 class AllPostsEndpoint(APIView):
     """
@@ -341,16 +350,31 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         jsonData = request.data
-        post.title = jsonData.get("title")
-        post.description = jsonData.get("description")
-        post.content_type = jsonData.get("contentType")
-        post.content = jsonData.get("content")
-        post.visibility = jsonData.get("visibility")
-        post.unlisted = bool(jsonData.get("unlisted"))
-        post.categories.set(StringListToPostCategoryList(jsonData.get("categories")))
-        post.save()
 
-        return HttpResponse(status=200)
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted = bool(jsonData.get("unlisted", "false"))
+        categories = jsonData.get("categories", "")
+
+        if (content_type != ""):
+            try:
+                post.title = title
+                post.description = description
+                post.content_type = content_type
+                post.content = content
+                post.visibility = visibility
+                post.unlisted = unlisted
+                post.categories.set(StringListToPostCategoryList(categories))
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
+
 
     def delete(self, request, *args, **kwargs):
         """
@@ -436,14 +460,25 @@ class PostEndpoint(APIView):
         if request.user != author:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
-                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
-            post.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted=bool(jsonData.get("unlisted", "false")
+
+        if (content_type != ""):
+            try:
+                post = Post(id=post_id, title=title, description=description, content_type=content_type, content=content,
+                            author=author, visibility=visibility, unlisted=unlisted)
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class AuthorPostsEndpoint(APIView):
@@ -501,14 +536,25 @@ class AuthorPostsEndpoint(APIView):
         if request.user != author:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            post = Post(title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
-                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
-            post.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted=bool(jsonData.get("unlisted", "false")
+
+        if (content_type != ""):
+            try:
+                post = Post(title=title, description=description, content_type=content_type, content=content,
+                            author=author, visibility=visibility, unlisted=unlisted)
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class PostCommentsEndpoint(APIView):
@@ -588,14 +634,28 @@ class PostCommentsEndpoint(APIView):
         if not request.user.is_authenticated:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            comment = Comment(author_url=jsonData.get("author")["url"], post=post, comment=jsonData.get("comment"),
-                              content_type=jsonData.get("contentType"))
-            comment.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+        
+        author = jsonData.get("author", "")
+        author_url = ""
+        if (author != ""):
+            author_url = author.get("url", "")
+        comment = jsonData.get("comment")
+        content_type = jsonData.get("contentType")
+
+        valid_content_type = false
+        if (content_type == "text/plain" or content_type == "text/markdown"):
+            valid_content_type = true
+
+        if (author_url != "" and comment != "" and valid_content_type):
+            try:
+                comment = Comment(author_url=author_url, post=post, comment=comment, content_type=content_type)
+                comment.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class CommentEndpoint(APIView):
@@ -792,7 +852,7 @@ def followerView(request):
     else:
         is_empty = False
 
-    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty} )
+    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty})
 
 
 def findFollower(request):

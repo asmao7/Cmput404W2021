@@ -126,7 +126,11 @@ def CommentToJSON(comment):
     if not comment:
         return None
     try:
-        author = requests.get(like.author_url).json()
+        response = requests.get(like.author_url)
+        author = ""
+        if response.ok:
+            author = response.json()
+
         json = {
             "type":"comment",
             "author":author,
@@ -135,6 +139,7 @@ def CommentToJSON(comment):
             "published":str(comment.published),
             "id":comment.url
         }
+
         return json
     except:
         return None
@@ -165,7 +170,11 @@ def ObjectLikeToJSON(like):
     if not like:
         return None
     try:
-        author = requests.get(like.author_url).json()
+        response = requests.get(like.author_url)
+        author = ""
+        if response.ok:
+            author = response.json()
+            
         json = {
             "type": "Like",
             "author": author,
