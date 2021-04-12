@@ -1,4 +1,4 @@
-import datetime, uuid, requests, json
+import datetime, uuid, requests, json, sys
 
 from requests.auth import HTTPBasicAuth
 
@@ -100,10 +100,10 @@ def like(request):
                 else:
                     author_url += "/inbox/"
                 r = requests.post(author_url, json=like_json, auth=HTTPBasicAuth("node", "password")) # Error handling?
-                print(r.status_code)
-                print(r.request.url)
-                print(r.request.body)
-                print(r.request.headers)
+                print >> sys.stderr, r.status_code
+                print >> sys.stderr, r.request.url
+                print >> sys.stderr, r.request.body
+                print >> sys.stderr, r.request.headers
             else:
                 # `object` is probably behind authentication or something
                 print("Couldn't get object. "+str(res.text))
