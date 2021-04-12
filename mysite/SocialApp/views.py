@@ -81,36 +81,33 @@ class DeletePostView(DeleteView):
     success_url = reverse_lazy('author')
 
 def like(request):
-    try:
-        # add a line to database that has user url and object url
-        like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
-        liked = len(like)
-        if liked == 0:
-            liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
-            liked_object.save()
-            # Notify the author of the liked post by POSTing this to their inbox.
-            # Remember, we might be posting to a foreign node here.
-            # Also, `object` might be foreign too. We need its author, though.
-            like_json = ObjectLikeToJSON(liked_object)
-            res = requests.get(like_json["object"])
-            if res.ok:
-                author_url = res.json()["author"]["url"]
-                if author_url[-1] == "/":
-                    author_url += "inbox/"
-                else:
-                    author_url += "/inbox/"
-                r = requests.post(author_url, json=like_json, auth=HTTPBasicAuth("node", "password")) # Error handling?
-                print >> sys.stderr, r.status_code
-                print >> sys.stderr, r.request.url
-                print >> sys.stderr, r.request.body
-                print >> sys.stderr, r.request.headers
+    # add a line to database that has user url and object url
+    like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+    liked = len(like)
+    if liked == 0:
+        liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+        liked_object.save()
+        # Notify the author of the liked post by POSTing this to their inbox.
+        # Remember, we might be posting to a foreign node here.
+        # Also, `object` might be foreign too. We need its author, though.
+        like_json = ObjectLikeToJSON(liked_object)
+        res = requests.get(like_json["object"])
+        if res.ok:
+            author_url = res.json()["author"]["url"]
+            if author_url[-1] == "/":
+                author_url += "inbox/"
             else:
-                # `object` is probably behind authentication or something
-                print("Couldn't get object. "+str(res.text))
+                author_url += "/inbox/"
+            r = requests.post(author_url, json=like_json, auth=HTTPBasicAuth("node", "password")) # Error handling?
+            print >> sys.stderr, r.status_code
+            print >> sys.stderr, r.request.url
+            print >> sys.stderr, r.request.body
+            print >> sys.stderr, r.request.headers
         else:
-            like.delete()
-    except:
-        pass
+            # `object` is probably behind authentication or something
+            print("Couldn't get object. "+str(res.text))
+    else:
+        like.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 #
