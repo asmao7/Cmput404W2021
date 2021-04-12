@@ -469,7 +469,7 @@ class PostEndpoint(APIView):
         visibility = jsonData.get("visibility", "PUBLIC")
         unlisted=bool(jsonData.get("unlisted", "false")
 
-        if (content_type != ""):
+        if content_type != "":
             try:
                 post = Post(id=post_id, title=title, description=description, content_type=content_type, content=content,
                             author=author, visibility=visibility, unlisted=unlisted)
