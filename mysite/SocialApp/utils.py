@@ -126,7 +126,7 @@ def CommentToJSON(comment):
     if not comment:
         return None
     try:
-        response = requests.get(like.author_url)
+        response = requests.get(comment.author_url)
         author = ""
         if response.ok:
             author = response.json()
