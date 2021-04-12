@@ -109,19 +109,26 @@ def like(request):
         pass
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+#
 def remoteComment(request):
     """
     Handles posting a comment to a foreign source
     """
     try:
-        json = {
+        comment_json = {
             "type": "comment",
-            "author": "",
-            "comment": "",
-            "contentType": "",
-            "published": "",
+            "author": AuthorToJSON(request.user),
+            "comment": request.POST["comment"],
+            "contentType": request.POST["content_type"],
+            "published": str(datetime.now()),
             "id": ""
         }
+        post_url = request.POST["post_url"]
+        if post_url[-1] == "/":
+            post_url += "comments/"
+        else:
+            post_url += "/comments/"
+        requests.post(post_url, json=comment_json)
     except:
         pass
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

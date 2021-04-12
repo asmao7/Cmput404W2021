@@ -18,5 +18,8 @@ def liked_count(object_url):
 
 @register.filter(name='comment_author_name')
 def comment_author_name(author_url):
-	author = requests.get(author_url).json()
-	return author["displayName"]
+	try:
+		author = requests.get(author_url).json()
+		return author["displayName"]
+	except:
+		return "Anonymous"
