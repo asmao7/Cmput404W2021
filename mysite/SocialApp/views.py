@@ -645,7 +645,7 @@ class PostCommentsEndpoint(APIView):
 
         valid_content_type = False
         if (content_type == "text/plain" or content_type == "text/markdown"):
-            valid_content_type = true
+            valid_content_type = True
 
         if (author_url != "" and comment != "" and valid_content_type):
             try:
