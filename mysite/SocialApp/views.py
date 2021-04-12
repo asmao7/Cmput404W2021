@@ -24,10 +24,7 @@ from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .forms import PostForm, CommentForm, SharedPostForm
-
-from django.shortcuts import redirect
-
+from .forms import PostForm, CommentForm
 
 class UserRegisterView(generic.CreateView):
     form_class = AuthorCreationForm
