@@ -126,7 +126,21 @@ def CommentToJSON(comment):
     if not comment:
         return None
     try:
-        author = requests.get(like.author_url).json()
+        response = requests.get(comment.author_url)
+
+        # backup author if get request fails
+        author = {
+            "type": "author",
+            "id": comment.author_url,
+            "host": "",
+            "displayName": "",
+            "url": comment.author_url,
+            "github": ""
+        }
+
+        if response.ok:
+            author = response.json()
+
         json = {
             "type":"comment",
             "author":author,
@@ -135,6 +149,7 @@ def CommentToJSON(comment):
             "published":str(comment.published),
             "id":comment.url
         }
+
         return json
     except:
         return None
@@ -165,8 +180,13 @@ def ObjectLikeToJSON(like):
     if not like:
         return None
     try:
-        author = requests.get(like.author_url).json()
+        response = requests.get(like.author_url)
+        author = ""
+        if response.ok:
+            author = response.json()
+            
         json = {
+            "summary": "{} Likes your post".format(author["displayName"]),
             "type": "Like",
             "author": author,
             "object": like.object_url
@@ -217,7 +237,7 @@ def StringListToPostCategoryList(category_list):
     Return empty list on failure.
     """
     if not category_list:
-        return [];
+        return []
     try:
         categories = []
         for category in category_list:
@@ -283,6 +303,30 @@ def InboxItemToJSON(item):
             return placeholder
 
 
+def FriendRequestToJson(requesting_author, requested_author):
+    """
+    Converts a Friend Request object into a JSON-compatible dictionary.
+    Return None on failure.
+    """
+    if not requesting_author:
+        return None
+
+    if not requested_author:
+        return None
+
+    try:
+        json = {
+            "type":"Follow",
+            "summary": requesting_author['displayName'] + " wants to follow " + requested_author['displayName'],
+            "actor":requesting_author,
+            "object":requested_author,
+            
+        }
+        return json
+    except:
+        return None
+
+
 def ValidateForeignPostJSON(post):
     """
     Returns True if JSON conforms to the correct specs. Returns false otherwise.
@@ -307,5 +351,10 @@ def ValidateForeignPostJSON(post):
        contentType != "application/base64" and contentType != "image/png;base64" and
        contentType != "image/jpeg;base64"):
        return False
+
+    for comment in post["comments"]:
+        commentContentType = comment["contentType"]
+        if (commentContentType != "text/plain" and commentContentType != "text/markdown"):
+            return False
        
     return True

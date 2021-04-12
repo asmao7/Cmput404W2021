@@ -50,7 +50,7 @@
                             
                             <input type="hidden" name="author_url" value="{{ user.url }}">
                             <input type="hidden" name="object_url" value="{{ comment.url }}">
-                            <input class="likeButton" type="submit" value='{{ comment|liked_or_not:user }} {{ comment|liked_count }}'>
+                            <input class="likeButton" type="submit" value='{{ comment.url|liked_or_not:user }} {{ comment.url|liked_count }}'>
                         </form>
                     </li>
                 {% endfor %}

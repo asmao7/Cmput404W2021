@@ -10,6 +10,9 @@
 {% block content %}
     <h1 class="authors-title">Authors</h1>
     <!-- <li class="no-author">No authors with that ID.</li> -->
+        <div class="button-container">
+                <a class="button" href="{% url 'findRemoteFollowers'%}">Find Remote Friends</a>
+        </div>
     {% if is_empty %}
         <div class="authorcard_list">
             <p class="message"> No new Followers to add </p>
@@ -29,5 +32,4 @@
             </li>
         {% endfor %}
     {% endif %}
-    <!-- change to reflect no unfollowed authors -->
 {% endblock %}
