@@ -16,14 +16,13 @@ def liked_or_not(object_url, author_url):
 @register.filter(name='liked_count')
 def liked_count(object_url):
     return len(ObjectLike.objects.filter(object_url=object_url))
-	
 
 @register.filter(name='comment_author_name')
 def comment_author_name(comment):
     # Try to get the latest display name for the author
     basic_auth = GetURLBasicAuth(comment.author_url)
     request = None
-	display_name = None
+    display_name = None
     if (basic_auth):
         request = requests.get(comment.author_url, auth=basic_auth)
     else:
@@ -38,7 +37,7 @@ def comment_author_name(comment):
             except:
                 pass
 
-	if (display_name):
-		return display_name
-	else:
-		return "Anonymous"
+    if (display_name):
+        return display_name
+    else:
+        return "Anonymous"
