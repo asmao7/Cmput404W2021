@@ -99,7 +99,7 @@ def like(request):
                     author_url += "inbox/"
                 else:
                     author_url += "/inbox/"
-                r = requests.post(author_url, json=like_json) # Error handling?
+                r = requests.post(author_url, json=like_json, auth=HTTPBasicAuth("node", "password")) # Error handling?
             else:
                 # `object` is probably behind authentication or something
                 print("Couldn't get object. "+str(res.text))
