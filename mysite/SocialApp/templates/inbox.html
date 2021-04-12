@@ -1,13 +1,26 @@
 {% extends "base.html" %}
+{% load markdownify %}
 
 
 {% block head %}
-<style>
+<style> /* This should probably be in a sheet */
     * {
         color: wheat;
     }
+    .inbox {
+        margin: 2em auto;
+        max-width: 600px;
+        font-size: 20px;
+    }
+    h1 {
+        margin-bottom: 0.5em;
+        text-align: center;
+    }
     button {
         color: black;
+        margin-bottom: 2em;
+    }
+    .item {
         margin-bottom: 2em;
     }
 </style>
@@ -19,7 +32,7 @@
         if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
+                let cookie = cookies[i].trim();
                 // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -31,7 +44,7 @@
     }
 
     function clearInbox() {
-        let ask = confirm("Clear out all of the items in your inbox?");
+        let ask = confirm("Clear out everything in your inbox?");
         if (ask) {
             let userid = '{{ userid }}';
             let url = '/author/'+userid+'/inbox/';
@@ -46,7 +59,7 @@
                     location.reload();
                 } else {
                     console.log(response);
-                    alert("Error: couldn't clear the inbox.");
+                    alert("Error: couldn't clear the inbox. Check console for details.");
                 }
             });
         }
@@ -56,18 +69,58 @@
 
 
 {% block content %}
-<!-- ** TODO: also account for follows and likes ** -->
-<div style="margin:2em 1em;">
-    <h1>Your Inbox</h1>
-    <p style="margin-bottom:2em;">Here you can see posts that other authors have shared with you, as well as new follows and likes.</p>
+<div class="inbox">
+    <h1>Inbox</h1>
+    <p style="margin-bottom:2em;">
+        Here you can see posts that other authors have shared with you, as well as new follows and likes.
+    </p>
     {% if inbox_items|length > 0 %}
         <button onclick="clearInbox();">Clear Inbox</button>
+        <hr style="margin-bottom:2em;">
         {% for item in inbox_items %}
-            <p><em>Someone shared a {{ item.type }} with you:</em></p>
-            <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
-            <p>at {{ item.published }}</p>
-            <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
-            <p style="margin-bottom:2em;">{{ item.description }}</p>    
+            {% if item.type == "post"  or item.type == "Post" %}
+                <div class="item">
+                    <p><em>Someone shared a post with you:</em></p>
+                    <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
+                    <p>{{ item.description }}</p>
+                    <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
+                    <p>on {{ item.published }}:</p>
+                    <!-- Might need to filter for different content types -->
+                    <p>{{ item.content | markdownify }}</p>
+                </div>
+            {% elif item.type == "Follow" or item.type == "follow" %}
+                <div class="item">
+                    <p>
+                        <a href={{ item.actor.url }}>
+                            {{ item.actor.displayName }}
+                        </a> 
+                        <a href={{ item.actor.github }}>
+                            [github]
+                        </a> 
+                        wants to follow you.
+                    </p>
+                </div>
+            {% elif item.type == "Like" or item.type == "like" %}
+                <div class="item">
+                    <p>
+                        <a href={{ item.author.url }}>{{ item.author.displayName }}</a> 
+                        liked your <a href={{ item.object }}>post</a>.
+                    </p>
+                </div>
+            {% elif item.type == "Comment" or item.type == "comment" %}
+                <div class="item">
+                    <p>
+                        <a href={{ item.author.url }}>{{ item.author.displayName }}</a> 
+                        <a href={{ item.id }}>commented on your post</a>.
+                    </p>
+                    <p>on {{ item.published }}</p>
+                    <p>{{ item.comment | markdownify }}</p>
+                </div>
+            {% else %}
+                <div class="item">
+                    <p>{{ item }}</p>                    
+                </div>
+            {% endif %}
         {% endfor %}
     {% else %}
         <p><em>Your inbox is empty.</em></p>

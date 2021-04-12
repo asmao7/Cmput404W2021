@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load markdownify %}
+{% load app_filters %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/remote_posts.css' %}">
@@ -31,6 +32,14 @@
                             <img alt="post image" src={{ "data:"|add:post.contentType|add:","|add:post.content }}>
                         {% endif %}
                     </section>
+                    <!--LIKES pass in url that sends a post id argument and updates the database-->
+                    <form action="{% url 'like' %}" method="POST">
+                        {% csrf_token %}
+                        
+                        <input type="hidden" name="author_url" value="{{ user.url }}">
+                        <input type="hidden" name="object_url" value="{{ post.origin }}">
+                        <input class="likeButton" type="submit" value='{{ post.origin|liked_or_not:user.url }} {{ post.origin|liked_count }}'>
+                    </form>
                 {% else %}
                     <p>Post content error.</p>
                 {% endif %}
@@ -46,12 +55,36 @@
                                 {% elif comment.contentType == "text/markdown" %}
                                     <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment|markdownify}}
                                 {% endif %}
+                                <!--LIKES pass in url that sends a post id argument and updates the database-->
+                                <form action="{% url 'like' %}" method="POST">
+                                    {% csrf_token %}
+                                    
+                                    <input type="hidden" name="author_url" value="{{ user.url }}">
+                                    <input type="hidden" name="object_url" value="{{ comment.id }}">
+                                    <input class="likeButton" type="submit" value='{{ comment.id|liked_or_not:user.url }} {{ comment.id|liked_count }}'>
+                                </form>
                             </li> 
                         {% endfor %}
                     </ul>
                 {% else %}
                     <p>No comments.</p>
                 {% endif %}
+                <form action="{% url 'remote_comment' %}" method="POST" class="comment_form">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" name="post_url" value="{{ post.origin }}">
+                    <p>
+                        <label for="id_content_type">Content type:</label>
+                        <select name="content_type" class="form-control" id="id_content_type">
+                            <option value="text/plain" selected>Plain Text</option>
+                            <option value="text/markdown">Markdown</option>
+                        </select>
+                    </p>
+                    <p>
+                        <textarea name="comment" placeholder="Share your comment..." cols="40" rows="3" class="form-control" id="id_comment" spellcheck="false"></textarea>
+                    </p>
+                    <input class="likeButton" type="submit" value="Add Comment">
+                </form>
             {% endfor %}
         </div>
     {% else %}

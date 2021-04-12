@@ -31,16 +31,20 @@ if os.path.isfile(dotenv_file):
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '810b^kjjo!b695&$!er^)^$&!o)3s9@y@4f7bs+%a5n^t4_3@y'
+SECRET_KEY = os.getenv("SECRET_KEY", "810b^kjjo!b695&$!er^)^$&!o)3s9@y@4f7bs+%a5n^t4_3@y")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Debug is off by default, but can be turned on if .env is present to override it
 DEBUG = ast.literal_eval(os.getenv('DEV_DEBUG', 'False'))
 
+# Scheme information - are people connecting with HTTPS or HTTP?
+SCHEME = os.getenv("SCHEME", "HTTP")
+
 # Host information - needs to be configured on a per-server basis
-HOST_NAME = 'socialdistributionproject.herokuapp.com'
+HOST_NAME = os.getenv("HOST_NAME", "localhost:8000")
+
 # Whether or not new accounts are automatically approved or need manual approval
-NEW_ACCOUNTS_AUTO_APPROVED = True
+NEW_ACCOUNTS_AUTO_APPROVED = ast.literal_eval(os.getenv('NEW_ACCOUNTS_AUTO_APPROVED', 'True'))
 
 ALLOWED_HOSTS = [
     '0.0.0.0',

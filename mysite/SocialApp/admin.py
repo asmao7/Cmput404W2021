@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import Post, Author, PostCategory, Comment, LikedPost, LikedComment, Followers, InboxItem, ForeignServer
+from .models import Post, Author, PostCategory, Comment, Followers, InboxItem, ForeignServer, InboxItem, RemoteFollow, ObjectLike
 
 class DefaultAdmin(admin.ModelAdmin):
     """
@@ -74,9 +74,9 @@ class PostCategoryAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "post", "author", "published",)
+    list_display = ("__str__", "post", "author_url", "published",)
     list_filter = ("published",)
-    search_fields = ("post", "author",)
+    search_fields = ("post", "author_url",)
 
 
 class FollowersAdmin(admin.ModelAdmin):
@@ -88,15 +88,14 @@ class InboxItemAdmin(admin.ModelAdmin):
     list_display = ("__str__", "author", "link",)
     search_fields = ("author",)
 
+class RemoteFollowAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "local_author_from", "remote_author_to",)
+    search_fields = ("local_author_from", "remote_author_to",)
 
-class PostLikesAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "post_id", "user_id",)
-    search_fields = ("post_id", "user_id")
 
-
-class CommentLikesAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "post_id", "user_id",)
-    search_fields = ("post_id", "user_id")
+class ObjectLikeAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "author_url", "object_url",)
+    search_fields = ("author_url", "object_url")
 
 
 class ForeignServerAdmin(admin.ModelAdmin):
@@ -119,7 +118,7 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(PostCategory, PostCategoryAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Followers, FollowersAdmin)
-admin.site.register(LikedPost, PostLikesAdmin)
-admin.site.register(LikedComment, CommentLikesAdmin)
+admin.site.register(ObjectLike, ObjectLikeAdmin)
 admin.site.register(InboxItem, InboxItemAdmin)
+admin.site.register(RemoteFollow, RemoteFollowAdmin)
 admin.site.register(ForeignServer, ForeignServerAdmin)

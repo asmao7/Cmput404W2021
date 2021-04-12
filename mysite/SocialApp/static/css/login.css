@@ -37,22 +37,19 @@
 }
 
 /*Login form styling*/
-.box{
-    width: 400px;
-    padding: 5px;
-    position: absolute;
-    top: 50%;
-    left:50%;
-    transform: translate(-50%, -50%);
-    background: #D3D3D3;;
-    text-align: center;
-    border: 0.5px solid maroon;
-
+.box {
+	max-width: 400px;
+	padding: 1em;
+	margin-top: 3em;
+	text-align: center;
+	border: 0.5px solid rgb(150, 17, 61);
+	background-color: #D3D3D3;
+	margin: 3em auto;
 }
 
 .box h1{
-    color: black;
-    background: none;
+  color: #696969;
+  background: none;
 }
 
 .box input[type="text"], .box input[type="password"]{

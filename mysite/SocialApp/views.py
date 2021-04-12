@@ -4,25 +4,29 @@ from requests.auth import HTTPBasicAuth
 
 from django.shortcuts import render
 from django.shortcuts import render
-from rest_framework.views import APIView
+from rest_framework.views import APIView, status
 from .forms import SignUpForm, LoginForm
+from requests.auth import HTTPBasicAuth
 
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
-from rest_framework.views import APIView, status
+from django.views import generic
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .models import Author, Post, Comment, LikedPost, LikedComment, InboxItem, Followers, ForeignServer
+from .models import Author, Post, Comment,ObjectLike, InboxItem, Followers, ForeignServer, RemoteFollow
 from .admin import AuthorCreationForm
+from .forms import SignUpForm, LoginForm, PostForm, CommentForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, PostLikeToJSON, PostLikeListToJSON, CommentLikeToJSON, CommentLikeListToJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON, FriendRequestToJson
 
 from django.views import generic
 from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+
 
 from .forms import PostForm, CommentForm, SharedPostForm
 
@@ -34,7 +38,6 @@ class UserRegisterView(generic.CreateView):
 class HomeView(ListView):
     model = Post
     template_name = 'author.html'
-    likeModel = LikedPost
     ordering = ['-published']
 
 
@@ -63,6 +66,11 @@ class AddCommentView(CreateView):
     #fields = '__all__'
     success_url = reverse_lazy('author')
 
+    def form_valid(self, form):
+        form.instance.post = Post.objects.get(pk=self.kwargs["pk"])
+        return super().form_valid(form)
+
+
 class UpdatePostView(UpdateView):
     model = Post
     template_name = 'EditPost.html'
@@ -74,17 +82,58 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
-def like(request, pk):
-	# add a line to database that has user id and post id
-	current_user = request.user
-	post = get_object_or_404(Post, id=pk)
-	
-	liked = len(LikedPost.objects.filter(post_id=post, user_id=current_user))	
-	if liked == 0:
-		liked_post = LikedPost(post_id=post, user_id=current_user)
-		liked_post.save()
-	
-	return HttpResponseRedirect(reverse('author'))
+def like(request):
+    try:
+        # add a line to database that has user url and object url
+        like = ObjectLike.objects.filter(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+        liked = len(like)
+        if liked == 0:
+            liked_object = ObjectLike(author_url=request.POST["author_url"], object_url=request.POST["object_url"])
+            liked_object.save()
+            # Notify the author of the liked post by POSTing this to their inbox.
+            # Remember, we might be posting to a foreign node here.
+            # Also, `object` might be foreign too. We need its author, though.
+            like_json = ObjectLikeToJSON(liked_object)
+            res = requests.get(like_json["object"])
+            if res.ok:
+                author_url = res.json()["author"]["url"]
+                if author_url[-1] == "/":
+                    author_url += "inbox/"
+                else:
+                    author_url += "/inbox/"
+                r = requests.post(author_url, json=like_json) # Error handling?
+            else:
+                # `object` is probably behind authentication or something
+                print("Couldn't get object. "+str(res.text))
+        else:
+            like.delete()
+    except:
+        pass
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+#
+def remoteComment(request):
+    """
+    Handles posting a comment to a foreign source
+    """
+    try:
+        comment_json = {
+            "type": "comment",
+            "author": AuthorToJSON(request.user),
+            "comment": request.POST["comment"],
+            "contentType": request.POST["content_type"],
+            "published": str(datetime.now()),
+            "id": ""
+        }
+        post_url = request.POST["post_url"]
+        if post_url[-1] == "/":
+            post_url += "comments/"
+        else:
+            post_url += "/comments/"
+        requests.post(post_url, json=comment_json)
+    except:
+        pass
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def home(request):
     return render(request, 'home.html', {})
@@ -104,10 +153,10 @@ def inbox(request):
     """
     # Martijn Pieters https://stackoverflow.com/a/13569789
     logurl = request.scheme+"://"+request.get_host()+"/SocialApp/login/"
-    client = requests.session()
-    client.get(logurl) # Sets cookie
-    if 'csrftoken' in client.cookies:
-        csrftoken = client.cookies['csrftoken']
+    session = requests.Session()
+    session.get(logurl) # Sets cookie
+    if 'csrftoken' in session.cookies:
+        csrftoken = session.cookies['csrftoken']
     else: print("No CSRF cookie found")
     sessionid = request.COOKIES.get('sessionid') # FBI OPEN UP
     if not sessionid:
@@ -115,7 +164,7 @@ def inbox(request):
     cookies = dict(csrftoken=csrftoken, sessionid=sessionid)
     # Now GET the inbox endpoint and pass in our cookies
     url = request.scheme+"://"+request.get_host()+"/author/"+str(request.user.id)+"/inbox/"
-    resp = client.get(url, cookies=cookies, headers=dict(Referer=logurl))
+    resp = session.get(url, cookies=cookies, headers=dict(Referer=logurl))
     # Pass the resulting inbox items to the template if successful
     if resp.status_code == 200:
         inbox_json = dict(resp.json())
@@ -196,17 +245,26 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         # Update author info
         jsonData = request.data
-        author.username = jsonData.get("displayName")
-        author.github = jsonData.get("github")
-        author.save()
 
-        return HttpResponse(status=200)
+        username = jsonData.get("displayName", "")
+        github = jsonData.get("github", "")
 
+        if (username != "" and github != ""):
+            try:
+                author.username = username
+                author.github = github
+                author.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponseRedirect(status=500)
+        else:
+            return HttpResponse(status=400)
+        
 
 class AllPostsEndpoint(APIView):
     """
@@ -314,20 +372,35 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         jsonData = request.data
-        post.title = jsonData.get("title")
-        post.description = jsonData.get("description")
-        post.content_type = jsonData.get("contentType")
-        post.content = jsonData.get("content")
-        post.visibility = jsonData.get("visibility")
-        post.unlisted = bool(jsonData.get("unlisted"))
-        post.categories.set(StringListToPostCategoryList(jsonData.get("categories")))
-        post.save()
 
-        return HttpResponse(status=200)
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted = bool(jsonData.get("unlisted", "false"))
+        categories = jsonData.get("categories", "")
+
+        if (content_type != ""):
+            try:
+                post.title = title
+                post.description = description
+                post.content_type = content_type
+                post.content = content
+                post.visibility = visibility
+                post.unlisted = unlisted
+                post.categories.set(StringListToPostCategoryList(categories))
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
+
 
     def delete(self, request, *args, **kwargs):
         """
@@ -369,7 +442,7 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
         post.delete()
@@ -410,18 +483,28 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
-                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
-            post.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted=bool(jsonData.get("unlisted", "false"))
+
+        if content_type != "":
+            try:
+                post = Post(id=post_id, title=title, description=description, content_type=content_type, content=content,
+                            author=author, visibility=visibility, unlisted=unlisted)
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class AuthorPostsEndpoint(APIView):
@@ -476,18 +559,28 @@ class AuthorPostsEndpoint(APIView):
             return HttpResponse(status=401)
 
         # Check that the right user is authenticated
-        if request.user != author and not request.user.is_server:
+        if request.user != author:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            post = Post(title=jsonData.get("title"), source=jsonData.get("source"), origin=jsonData.get("origin"),
-                        description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
-                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
-            post.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted=bool(jsonData.get("unlisted", "false"))
+
+        if content_type != "":
+            try:
+                post = Post(title=title, description=description, content_type=content_type, content=content,
+                            author=author, visibility=visibility, unlisted=unlisted)
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class PostCommentsEndpoint(APIView):
@@ -567,14 +660,28 @@ class PostCommentsEndpoint(APIView):
         if not request.user.is_authenticated:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            comment = Comment(author=request.user, post=post, comment=jsonData.get("comment"),
-                              content_type=jsonData.get("contentType"))
-            comment.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+        
+        author = jsonData.get("author", "")
+        author_url = ""
+        if (author != ""):
+            author_url = author.get("url", "")
+        comment = jsonData.get("comment")
+        content_type = jsonData.get("contentType")
+
+        valid_content_type = False
+        if (content_type == "text/plain" or content_type == "text/markdown"):
+            valid_content_type = True
+
+        if (author_url != "" and comment != "" and valid_content_type):
+            try:
+                comment = Comment(author_url=author_url, post=post, comment=comment, content_type=content_type)
+                comment.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class CommentEndpoint(APIView):
@@ -661,7 +768,7 @@ class PostLikesEndpoint(APIView):
         if post.author != author:
             return HttpResponse(status=404)
 
-        likes_json_list = PostLikeListToJSON(LikedPost.objects.filter(post_id=post))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=post.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -710,7 +817,7 @@ class CommentLikesEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        likes_json_list = CommentLikeListToJSON(LikedComment.objects.filter(comment_id=comment))
+        likes_json_list = ObjectLikeListToJSON(ObjectLike.objects.filter(object_url=comment.url))
 
         return JsonResponse({"likes":likes_json_list})
 
@@ -736,29 +843,23 @@ class AuthorLikedEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        post_likes = LikedPost.objects.filter(user_id=author)
-        comment_likes = LikedComment.objects.filter(user_id=author)
-
         try:
-            all_likes = []
-            for like in PostLikeListToJSON(post_likes):
-                all_likes.append(like)
-            for like in CommentLikeListToJSON(comment_likes):
-                all_likes.append(like)
-            return JsonResponse({"likes":all_likes})
+            likes = ObjectLikeListToJSON(ObjectLike.objects.filter(author_url=author.url))
+            return JsonResponse({"likes":likes})
         except:
             return HttpResponse(status=500)
 
 
 def followerView(request):
-    
+    """
+    View shows a list of all the follow/friend requests to the signed in author
+    """   
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
     followers = []
     followers_list = current_author.followee.all() #all the people currently following this user
 
     #all the people that the user currently follows 
-    #TODO move these to the friends tab
     following = current_author.following.all()
     following_list = []
 
@@ -777,10 +878,13 @@ def followerView(request):
     else:
         is_empty = False
 
-    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty} )
+    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty})
 
 
 def findFollower(request):
+    """
+    View shows a list of all the authors and allows following (sending a friend request to) any author
+    """ 
     author_id = request.user.id
     author_object = Author.objects.get(pk=author_id)
     following_list = []
@@ -814,30 +918,37 @@ def findFollower(request):
 
 
 def addFollower(request, foreign_author_id):
+    """
+    allows following of an author in the system 
+    """ 
     #add new follower and return followers list with new follower included
     #TODO authenticate follower addition
     #TODO check correct save
-    #TODO order of add for unique constraint for friends
     foreign_author =  Author.objects.get(pk=foreign_author_id)
     current_author_id = request.user.id
     current_author =  Author.objects.get(pk=current_author_id)
 
     if current_author_id == foreign_author_id:
-            is_new_follower = False
-            return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+            following = False
+            return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':following} )
+
     new_follower = Followers.objects.create(author_from=current_author, author_to=foreign_author)
-    is_new_follower = True
-    return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+    following = True
+    #send friend request through inbox
+
+    return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':following} )
+
 
 def friendsView(request):
-
+    """
+    Shows a list of all the people that are friends with the current author
+    """ 
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
     friends = []
     current_followers_list = current_author.followee.all() #all the people currently following this user
 
     #all the people that the user currently follows
-    #TODO move these to the friends tab
     current_following = current_author.following.all()
     current_following_list = []
 
@@ -858,8 +969,9 @@ def friendsView(request):
 
 
 def unFollow(request, foreign_author_id): 
-    """ un follow an author """
-
+    """ 
+    un follow an author 
+    """
     foreign_author =  Author.objects.get(pk=foreign_author_id)
     current_author_id = request.user.id
     current_author =  Author.objects.get(pk=current_author_id)
@@ -884,14 +996,12 @@ def unFollow(request, foreign_author_id):
     else:
         is_empty = False
 
-
-   # chnage to render friends template
     return friendsView(request)
 
 
 def remotePosts(request):
     """
-    Display public posts on Team 17's server
+    Display public posts on all added servers
     """
     public_posts = []
     for server in ForeignServer.objects.filter(is_active=True):
@@ -924,9 +1034,111 @@ def remotePosts(request):
     return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
 
 
+def findRemoteFollowers(request):
+    """
+    list all the remote Followers for the author
+    """
+    final_authorlist = []
+    is_empty = True
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+
+        if authors:
+            is_empty = False
+            #check if current author already follows some of them
+            current_author_id = request.user.id
+            current_author =  Author.objects.get(pk=current_author_id)
+            following = []
+            following_query = current_author.remote_following.all()  #all the people the current user follows on remote
+
+            for follower in following_query:
+                following.append(follower.remote_author_to) 
+
+            for author in authors:
+                if author["url"] in following:
+                    pass
+                else:
+                    final_authorlist.append(author) 
+
+    return render(request, 'findRemoteFollower.html', {"remote_authors":final_authorlist,'is_empty':is_empty })
+
+
+def addRemoteFollower(request, remote_author_id):
+    """
+    Follow a remote follower and send friend request to their inbox endpoint
+    """
+    #TODO authenticate follower addition
+    #TODO check correct save
+    #TODO handle when unique fails cleanly
+
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+
+        if authors:
+            for author in authors:
+                if author["id"] == remote_author_id:
+                    remote_author = author
+            
+            if not remote_author:
+                is_new_follower = False
+                return render(request, 'addRemoteFollower.html', {"remote_author":None, 'new_follower':is_new_follower} )
+
+            local_author_id = request.user.id
+            local_author =  Author.objects.get(pk=local_author_id)
+
+            if local_author_id == remote_author_id:
+                is_new_follower = False
+                return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
+
+            #Create Json friend request to send to inbox endpoint 
+            requesting_author = AuthorToJSON(local_author)
+            requested_author = remote_author #AuthorToJSON(remote_author)
+
+            friend_json = FriendRequestToJson(requesting_author, requested_author)
+            
+            if friend_json:  
+                inbox_endpoint = server.authors_url + remote_author_id + "/inbox/"
+                send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json)
+                if send_request_json.status_code == 200:
+                    #create record of follow 
+                    remote_author_url = remote_author['url']
+                    # print(remote_author_url)
+                    remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_url)
+                    is_new_follower = True
+                    return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
+                else:
+                    return HttpResponse(status=500)
+            else:
+                return HttpResponse(status=500)
+
+
+
 class EditFollowersEndpoint(APIView): 
 
+    """
+    The author/<str:author_id>/followers/<str:foreign_author_id>/ endpoint
+    """
+
     def get(self, request, *args, **kwargs):
+        """
+        Get a specific Follower by providng their ID 
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -965,7 +1177,9 @@ class EditFollowersEndpoint(APIView):
 
     def put(self, request, *args, **kwargs):  
         #TODO need to authenticate
-        #TODO modularize getting followers
+        """
+        Follower a specific Author (Friend Request)
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -1000,10 +1214,23 @@ class EditFollowersEndpoint(APIView):
 
         else:
             new_follower = Followers.objects.create(author_from=author, author_to=foreign_author)
-            return HttpResponse(status=200)
+            #compile friend Request Json to sedn to inbox 
+            requesting_author = AuthorToJSON(author)
+            requested_author = AuthorToJSON(foreign_author)
+
+            json = FriendRequestToJson(requesting_author, requested_author)
+            if json:
+                #TODO sending json to inbox endpoint and return 200 if done correctly
+                return JsonResponse(json)
+            else:
+                return HttpResponse(status=500)
+            # return HttpResponse(status=200)
     
 
     def delete(self, request, *args, **kwargs):
+        """
+        Stop following an Author
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -1038,7 +1265,9 @@ class EditFollowersEndpoint(APIView):
             
 
 class GetFollowersEndpoint(APIView):
-    """ Get all the followers of a specific user"""
+    """ 
+    Get all the Authors following a specific user
+    """
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -1056,7 +1285,6 @@ class GetFollowersEndpoint(APIView):
         follower_json_list = []
 
         followers_list = author.followed_by.all()
-        # followers_list = author.followee.all()
 
         for follower in followers_list:
             followers.append(follower)
@@ -1089,19 +1317,18 @@ class InboxEndpoint(APIView):
             return HttpResponse(status=400)
         if not author:
             return HttpResponse(status=404)
-        # Assuming that nobody else can GET your inbox
         if request.user.is_authenticated and (str(request.user.id) == author_id or request.user.is_server):
             # Get inbox items and format into JSON to return
             inbox_items = InboxItem.objects.filter(author=author)
             item_json_list = []
             for item in inbox_items:
-                json = InboxItemToJSON(item) # will request whatever's at link
+                json = InboxItemToJSON(item)
                 if json:
                     item_json_list.append(json)
             response_json = {
                 "type":"inbox",
-                "author":request.scheme+"://"+request.get_host()+"/author/"+str(author_id),
-                "items":item_json_list
+                "author": author.url,
+                "items": item_json_list
             }
             return JsonResponse(response_json)
         else:
@@ -1121,17 +1348,41 @@ class InboxEndpoint(APIView):
         except Exception as e:
             print(e)
             return HttpResponse(status=400)
-        # NOTE: I am assuming that only logged in users can POST to inboxes.
-        if request.user.is_authenticated:
+        #if request.user.is_authenticated: # only logged in users can POST to inboxes
+        link_field = request.data.get("link", "")
+        if link_field != "":
+            # Handle as a link to the item
             try:
                 new_item = InboxItem(author=author, link=request.data.get("link"))
                 new_item.save()
                 return HttpResponse(status=201)
             except Exception as e:
                 print(e)
-                return HttpResponse("Internal Server Error:"+e, status=500)
+                return HttpResponse("Internal Server Error:"+str(e), status=500)
         else:
-            return HttpResponse("You need to log in first to POST to inboxes.", status=401)
+            # Handle POSTed object as JSON string
+            try:
+                team7_data = request.data.get("obj", "")
+                json_data = None
+                if (team7_data == ""):
+                    json_data = request.data
+                else:
+                    json_data = json.loads(team7_data)
+                received_json_str = json.dumps(json_data)          
+                # Save Likes we don't have yet (from foreign nodes)
+                if json_data["type"] == "Like" or json_data["type"] == "like":
+                    like = ObjectLike.objects.filter(author_url=json_data["author"]["url"], object_url=json_data["object"])
+                    if len(like) == 0:
+                        new_like = ObjectLike(author_url=json_data["author"]["url"], object_url=json_data["object"])
+                        new_like.save()
+                new_item = InboxItem(author=author, json_str=received_json_str)
+                new_item.save()
+                return HttpResponse(status=201)
+            except Exception as e:
+                print(str(e))
+                return HttpResponse("Internal Server Error:"+str(e), status=500)
+        #else:
+        #    return HttpResponse("You need to log in first to POST to inboxes.", status=401)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -1142,7 +1393,7 @@ class InboxEndpoint(APIView):
             return HttpResponse(status=400)
         if request.user.is_authenticated and str(request.user.id) == author_id:
             inbox_items = InboxItem.objects.filter(author=request.user.id)
-            # NOTE: does not check to see if Inbox is already empty
+            # Doesn't care if the inbox is already empty
             inbox_items.delete()
             return HttpResponse(status=204)
         else:
