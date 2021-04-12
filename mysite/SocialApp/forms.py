@@ -68,3 +68,21 @@ class CommentForm(forms.ModelForm):
             'content_type': forms.Select(attrs={'class': 'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+
+# to customize the form when adding new post
+# user is hidden, will know the auhtor of the post
+# by getting the auhtor whose logged in
+class SharedPostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'description', 'author', 'content', 'unlisted', 'visibility']
+
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'type':'hidden' }),
+            'description': forms.TextInput(attrs={'class': 'form-control', 'type':'hidden'}),
+            'author': forms.TextInput(attrs={'class': 'form-control', 'value':'', 'id':'uniqueid', 'type':'hidden'}),
+            #'content_type': forms.Select(attrs={'class': 'form-control', 'type':'hidden'}),
+            'content': forms.TextInput(attrs={'class': 'form-control', 'type':'hidden'}),
+            'visibility': forms.Select(attrs={'class': 'form-control'}),
+        }

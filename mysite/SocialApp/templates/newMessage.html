@@ -14,13 +14,15 @@
         {% for post in posts %}
             {% if not is_empty%}
                 {% for friend in friends%}
-                    {% if post.author == friend.author_from%}
+                    {% if post.author == friend.author_from or post.author == user%}
                         {% if post.visibility == 'FRIENDS'%}
                             <ul>
                                 <!--display the author who sent you a friend message-->    
                                 <li class=posti> <p><strong><big>~ {{post.author}} sent you a message. ~ </p></big></strong>
                                 <!--post title -> it redirects to the post details-->
                                 <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
+                                <!--sharing post -->
+                                - <a href="{% url 'share_post' post.pk%}">Share Post</a>
                                 <!--post display status-->
                                 ~  <small><small>{{post.visibility}}</small></small>
                                 <!--post author and date posted-->
