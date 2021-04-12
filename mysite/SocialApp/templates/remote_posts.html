@@ -69,7 +69,7 @@
                 {% else %}
                     <p>No comments.</p>
                 {% endif %}
-                <form action="{% url 'remote_comment' %}" method="POST">
+                <form action="{% url 'remote_comment' %}" method="POST" class="comment_form">
                     {% csrf_token %}
                     
                     <input type="hidden" name="post_url" value="{{ post.origin }}">
