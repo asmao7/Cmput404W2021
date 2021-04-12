@@ -1475,9 +1475,9 @@ def shared_post(request, pk):
 
                 basic_auth = GetURLBasicAuth(inbox_url)
                 if (basic_auth):
-                    requests.post(post_url, json=PostToJSON(post), auth=basic_auth)
+                    requests.post(inbox_url, json=PostToJSON(post), auth=basic_auth)
                 else:
-                    requests.post(post_url, json=PostToJSON(post))
+                    requests.post(inbox_url, json=PostToJSON(post))
     except:
         pass
 
