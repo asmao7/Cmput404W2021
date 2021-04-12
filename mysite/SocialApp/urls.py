@@ -21,6 +21,7 @@ urlpatterns = [
   path('author/<str:author_id>/', views.AuthorEndpoint.as_view(), name='Author'),
   path('author/<str:author_id>/posts/<str:post_id>/', views.PostEndpoint.as_view(), name='Post'),
   path('author.html/like/', views.like, name='like'),
+  path('remote_posts.html/remote_comment/', views.remoteComment, name="remote_comment"),
   path('followers', views.followerView, name="followers"),
   path('findFollowers', views.findFollower, name='findFollowers'),
   path('addfollower/<str:foreign_author_id>', views.addFollower, name='addfollower'),
