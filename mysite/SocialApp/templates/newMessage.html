@@ -21,6 +21,8 @@
                                 <li class=posti> <p><strong><big>~ {{post.author}} sent you a message. ~ </p></big></strong>
                                 <!--post title -> it redirects to the post details-->
                                 <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
+                                <!--sharing post -->
+                                - <a href="{% url 'share_post' post.pk%}">Share Post</a>
                                 <!--post display status-->
                                 ~  <small><small>{{post.visibility}}</small></small>
                                 <!--post author and date posted-->
