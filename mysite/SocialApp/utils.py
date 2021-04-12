@@ -179,31 +179,29 @@ def ObjectLikeToJSON(like):
     """
     if not like:
         return None
-    try:
-        response = requests.get(like.author_url)
 
-        # backup author if get request fails
-        author = {
-            "type": "author",
-            "id": comment.author_url,
-            "host": "",
-            "displayName": "",
-            "url": comment.author_url,
-            "github": ""
-        }
+    response = requests.get(like.author_url)
+
+    # backup author if get request fails
+    author = {
+        "type": "author",
+        "id": comment.author_url,
+        "host": "",
+        "displayName": "",
+        "url": comment.author_url,
+        "github": ""
+    }
+    
+    if response.ok:
+        author = response.json()
         
-        if response.ok:
-            author = response.json()
-            
-        json = {
-            "summary": "{} Likes your post".format(author["displayName"]),
-            "type": "Like",
-            "author": author,
-            "object": like.object_url
-        }
-        return json
-    except:
-        return None
+    json = {
+        "summary": "{} Likes your post".format(author["displayName"]),
+        "type": "Like",
+        "author": author,
+        "object": like.object_url
+    }
+    return json
 
 
 def ObjectLikeListToJSON(likes):
