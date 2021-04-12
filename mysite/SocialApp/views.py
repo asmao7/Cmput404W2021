@@ -132,7 +132,7 @@ def remoteComment(request):
             post_url += "comments/"
         else:
             post_url += "/comments/"
-        requests.post(post_url, json=comment_json)
+        requests.post(post_url, json=comment_json, auth=HTTPBasicAuth("node", "password"))
     except:
         pass
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
