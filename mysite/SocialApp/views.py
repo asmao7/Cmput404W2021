@@ -1467,7 +1467,7 @@ def shared_post(request, pk):
 
         if friends:
             for friend in friends:
-                inbox_url = friend.url
+                inbox_url = friend.author_to.url
                 if inbox_url[-1] == "/":
                     inbox_url += "inbox/"
                 else:
