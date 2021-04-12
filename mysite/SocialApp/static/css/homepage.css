@@ -5,6 +5,10 @@
 }
 
 a {
+  color: rgb(200, 17, 61);
+}
+
+a:visited {
   color: rgb(150, 17, 61);
 }
 
@@ -19,7 +23,7 @@ a {
 /* Style the links inside the navigation bar */
 .topnav a {
   float: left;
-  color: beige;
+  color: beige !important;
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
@@ -28,8 +32,8 @@ a {
 
 /* Change the color of links on hover */
 .topnav a:hover {
-  background-color: #ddd;
-  color: black;
+  background-color: rgb(160, 142, 142);
+  color: black !important;
 }
 
 /* Add a color to the active/current link */
@@ -48,20 +52,19 @@ a {
   padding: 2em;
 }
 
-.wrapper > h1 {
-  text-align:center;
-}
-
 body{
   background-color: black;
 }
 
 .posts{
-	padding: 20px 15% 0px 15%;
-  /*border: 4px solid maroon;*/
   color: wheat;
   font-size: 20px;
-  text-align: center;
+  margin: 2em auto;
+  max-width: 700px;
+}
+
+.posts > h1 {
+  text-align:center;
 }
 
 .posti{
@@ -91,4 +94,14 @@ body{
 .likeButton:hover {
 	background-color: #96113D;
 	color: white;
+}
+
+.form-group > form > button {
+	display: block;
+	margin: 0 auto;
+	margin-top: 1em;
+}
+
+input[type="checkbox"] {
+	outline: 2px solid rgb(150, 17, 61);
 }

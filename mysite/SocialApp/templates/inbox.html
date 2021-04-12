@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load markdownify %}
 
 
 {% block head %}
@@ -6,8 +7,20 @@
     * {
         color: wheat;
     }
+    .inbox {
+        margin: 2em auto;
+        max-width: 600px;
+        font-size: 20px;
+    }
+    h1 {
+        margin-bottom: 0.5em;
+        text-align: center;
+    }
     button {
         color: black;
+        margin-bottom: 2em;
+    }
+    .item {
         margin-bottom: 2em;
     }
 </style>
@@ -56,7 +69,7 @@
 
 
 {% block content %}
-<div style="margin:2em 1em;">
+<div class="inbox">
     <h1>Inbox</h1>
     <p style="margin-bottom:2em;">
         Here you can see posts that other authors have shared with you, as well as new follows and likes.
@@ -65,24 +78,48 @@
         <button onclick="clearInbox();">Clear Inbox</button>
         <hr style="margin-bottom:2em;">
         {% for item in inbox_items %}
-            {% if item.type == "post" %}
-                <p><em>Someone shared a post with you:</em></p>
-                <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
-                <p>{{ item.description }}</p>
-                <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
-                <p>on {{ item.published }}:</p>
-                <!-- Might need to filter for different content types -->
-                <p style="margin:1em;margin-bottom:3em;">{{ item.content }}</p>
-            {% elif item.type == "Follow" %}
-                <p>{{ item.actor.displayName }} wants to follow you.</p>
-                <p>{{ item }}</p>
-            {% elif item.type == "Like" %}
-                <p style="margin-bottom:2em;">
-                    <a href={{ item.author.url }}>{{ item.author.displayName }}</a> 
-                    liked your <a href={{ item.object }}>post</a>.
-                </p>
+            {% if item.type == "post"  or item.type == "Post" %}
+                <div class="item">
+                    <p><em>Someone shared a post with you:</em></p>
+                    <h2><a href={{ item.id }}>{{ item.title }}</a></h2>
+                    <p>{{ item.description }}</p>
+                    <p>by <a href={{ item.author.url }}>{{ item.author.displayName }}</a></p>
+                    <p>on {{ item.published }}:</p>
+                    <!-- Might need to filter for different content types -->
+                    <p>{{ item.content | markdownify }}</p>
+                </div>
+            {% elif item.type == "Follow" or item.type == "follow" %}
+                <div class="item">
+                    <p>
+                        <a href={{ item.actor.url }}>
+                            {{ item.actor.displayName }}
+                        </a> 
+                        <a href={{ item.actor.github }}>
+                            [github]
+                        </a> 
+                        wants to follow you.
+                    </p>
+                </div>
+            {% elif item.type == "Like" or item.type == "like" %}
+                <div class="item">
+                    <p>
+                        <a href={{ item.author.url }}>{{ item.author.displayName }}</a> 
+                        liked your <a href={{ item.object }}>post</a>.
+                    </p>
+                </div>
+            {% elif item.type == "Comment" or item.type == "comment" %}
+                <div class="item">
+                    <p>
+                        <a href={{ item.author.url }}>{{ item.author.displayName }}</a> 
+                        <a href={{ item.id }}>commented on your post</a>.
+                    </p>
+                    <p>on {{ item.published }}</p>
+                    <p>{{ item.comment | markdownify }}</p>
+                </div>
             {% else %}
-                <p style="margin-bottom:2em;">{{ item }}</p>
+                <div class="item">
+                    <p>{{ item }}</p>                    
+                </div>
             {% endif %}
         {% endfor %}
     {% else %}
