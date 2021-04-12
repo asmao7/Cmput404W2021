@@ -4,6 +4,10 @@
   font-family:sans-serif;
 }
 
+a {
+  color: rgb(150, 17, 61);
+}
+
 /*navigation menu*/
 /* Add a black background color to the top navigation */
 .topnav {
@@ -40,7 +44,7 @@
   max-width: 800px;
   margin: 3em auto;
   color: wheat;
-  border: 5px solid maroon;
+  border: 5px solid rgb(150, 17, 61);
   padding: 2em;
 }
 
@@ -88,9 +92,3 @@ body{
 	background-color: #96113D;
 	color: white;
 }
-
-
-
-
-
-
