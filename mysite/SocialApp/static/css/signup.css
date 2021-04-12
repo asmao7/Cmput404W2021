@@ -40,21 +40,21 @@
 
 
 /*Login form styling*/
-.box{
-    width: 500px;
-    padding: 15px;
-    height: fit-content;
-    padding: 40px;
-    position: absolute;
-    top: 50%;
-    left:50%;
-    margin-top: 40px;
-    transform: translate(-50%, -50%);
-    background: white;
-    text-align: center;
-    border: 0.5px solid maroon;
-    background-color:#D3D3D3;
+.box {
+	max-width: 500px;
+	padding: 1em;
+	margin-top: 3em;
+	text-align: center;
+	border: 0.5px solid rgb(150, 17, 61);
+	background-color: #D3D3D3;
+	margin: 3em auto;
+}
 
+.helptext {
+	display: block;
+	text-align: left;
+	max-width: 85%;
+	margin: auto;
 }
 
 .box h1{
@@ -67,7 +67,7 @@
     background: none;
     margin: 20px auto;
     text-align: center;
-    border: 2px solid maroon;
+    border: 2px solid rgb(150, 17, 61);
     padding: 14px, 10px;
     width: 250px;
     height: 30px;
@@ -82,7 +82,7 @@
   background: none;
   margin: 20px auto;
   text-align: center;
-  border: 2px solid maroon;
+  border: 2px solid rgb(150, 17, 61);
   padding: 14px, 10px;
   width: 250px;
   height: 30px;
@@ -111,7 +111,7 @@
   display: inline-block;
   font-size: 16px;
   margin: 4px 5px 20px;
-  background-color:maroon;
+  background-color:rgb(150, 17, 61);
   border-radius: 12px;
   width: 150px;
 }
@@ -126,4 +126,14 @@ label {
   width: 150px;
   text-align: center;
   padding: 5px;
+}
+
+.form-group > form > ul {
+	text-align: left;
+	margin: auto;
+	max-width: 85%;
+}
+
+.form-group > form > button {
+	margin-top: 1em;
 }

@@ -13,7 +13,7 @@
 
     <div class="posti">
         <h1>{{ post.title }}</h1>
-            <p><small>By: {{ post.author }}</small></p>
+            <p id="post-author"><small>By: {{ post.author }}</small></p>
 
             <section>
                 {% if post.content_type == "text/plain" %}
@@ -33,16 +33,16 @@
         
          <!--COMMENTS-->
          <br><br/>
-        <h2 class="comment">COMMENTS </h2>
-        
+        <h2 id="comment-header">COMMENTS </h2>
+        <hr style="color:rgb(150, 17, 61);">
         {% if post.comment_set.all%}
             <ul>
                 {% for comment in post.comment_set.all%}
-                    <li>
+                    <li class="comment">
                         {% if comment.content_type == "text/plain" %}
-                            <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment}}</strong>
+                            <small>By: {{comment|comment_author_name}}</small> - <p>{{comment.comment}}</p>
                         {% else %}
-                            <small>By: {{comment|comment_author_name}}</small> - <strong>{{comment.comment|markdownify}}</strong>
+                            <small>By: {{comment|comment_author_name}}</small> - <p>{{comment.comment|markdownify}}</p>
                         {% endif %}
                         <!--LIKES pass in url that sends a post id argument and updates the database-->
                         <form action="{% url 'like' %}" method="POST">

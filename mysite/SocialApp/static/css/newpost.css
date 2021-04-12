@@ -3,20 +3,17 @@
     padding: 0;
 }
 
-.post{
-    border: 8px solid maroon;
-    border-radius: 100px;
-    color: wheat;
-    font-size: 20px;
-    text-align: center;
-    width:800px;
-    padding: 40px;
-    padding-top: 5px;
-    position: absolute;
-    top: 50%;
-    left:50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+.post {
+	border: 4px solid rgb(150, 17, 61);
+	color: wheat;
+	font-size: 20px;
+	max-width: 600px;
+	padding: 2em;
+	margin: 2em auto;
+}
+
+.post > h1 {
+	text-align: center;
 }
 
 .post .form-group #id_content{
