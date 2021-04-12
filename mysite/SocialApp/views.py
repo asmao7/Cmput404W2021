@@ -110,9 +110,9 @@ def like(request):
                 basic_auth2 = GetURLBasicAuth(author_url)
                 response2 = None
                 if (basic_auth2):
-                    response2 = requests.get(author_url, auth=basic_auth2)
+                    response2 = requests.post(author_url, json=like_json, auth=basic_auth2)
                 else:
-                    response2 = requests.get(author_url)
+                    response2 = requests.post(author_url, json=like_json)
             else:
                 # `object` is probably behind authentication or something
                 print("Couldn't get object. "+str(res.text))
