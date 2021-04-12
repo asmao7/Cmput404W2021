@@ -122,9 +122,7 @@ def remoteComment(request):
         "type": "comment",
         "author": AuthorToJSON(request.user),
         "comment": request.POST["comment"],
-        "contentType": request.POST["content_type"],
-        "published": "",
-        "id": ""
+        "contentType": request.POST["content_type"]
     }
     post_url = request.POST["post_url"]
     if post_url[-1] == "/":
