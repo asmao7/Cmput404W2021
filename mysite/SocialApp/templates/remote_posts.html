@@ -73,11 +73,17 @@
                     {% csrf_token %}
                     
                     <input type="hidden" name="post_url" value="{{ post.origin }}">
-                    <select name="content_type" class="form-control" id="id_content_type">
-                        <option value="text/plain" selected>Plain Text</option>
-                        <option value="text/markdown">Markdown</option>
-                    </select>
-                    <textarea name="comment" cols="40" rows="10" class="form-control" id="id_comment" spellcheck="false"></textarea>
+                    <p>
+                        <label for="id_content_type">Content type:</label>
+                        <select name="content_type" class="form-control" id="id_content_type">
+                            <option value="text/plain" selected>Plain Text</option>
+                            <option value="text/markdown">Markdown</option>
+                        </select>
+                    </p>
+                    <p>
+                        <label for="id_comment">Comment:</label>
+                        <textarea name="comment" cols="40" rows="10" class="form-control" id="id_comment" spellcheck="false"></textarea>
+                    </p>
                     <input class="likeButton" type="submit" value="Add Comment">
                 </form>
             {% endfor %}
