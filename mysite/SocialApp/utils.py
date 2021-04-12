@@ -188,19 +188,24 @@ def ObjectLikeToJSON(like):
     """
     if not like:
         return None
+    
+    if not like.author_json:
+        return None
+
+    # Used to fetch updated author representation for likes
+    # this is slow, so we stopped doing it and rely on stale data for likes
     try:
-        basic_auth = GetURLBasicAuth(like.author_url)
-        response = None
-        if (basic_auth):
-            response = requests.get(like.author_url, auth=basic_auth)
-        else:
-            response = requests.get(like.author_url)
+        # basic_auth = GetURLBasicAuth(like.author_url)
+        # response = None
+        # if (basic_auth):
+            # response = requests.get(like.author_url, auth=basic_auth)
+        #else:
+            #response = requests.get(like.author_url)
 
-        # backup author if get request fails
+        #if response.ok:
+            #author = response.json()
+
         author = json.loads(like.author_json)
-
-        if response.ok:
-            author = response.json()
             
         json_dict = {
             "summary": "{} Likes your post".format(author["displayName"]),
