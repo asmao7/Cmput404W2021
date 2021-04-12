@@ -118,23 +118,20 @@ def remoteComment(request):
     """
     Handles posting a comment to a foreign source
     """
-    try:
-        comment_json = {
-            "type": "comment",
-            "author": AuthorToJSON(request.user),
-            "comment": request.POST["comment"],
-            "contentType": request.POST["content_type"],
-            "published": str(datetime.now()),
-            "id": ""
-        }
-        post_url = request.POST["post_url"]
-        if post_url[-1] == "/":
-            post_url += "comments/"
-        else:
-            post_url += "/comments/"
-        requests.post(post_url, json=comment_json, auth=HTTPBasicAuth("node", "password"))
-    except:
-        pass
+    comment_json = {
+        "type": "comment",
+        "author": AuthorToJSON(request.user),
+        "comment": request.POST["comment"],
+        "contentType": request.POST["content_type"],
+        "published": str(datetime.now()),
+        "id": ""
+    }
+    post_url = request.POST["post_url"]
+    if post_url[-1] == "/":
+        post_url += "comments/"
+    else:
+        post_url += "/comments/"
+    requests.post(post_url, json=comment_json, auth=HTTPBasicAuth("node", "password"))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def home(request):
