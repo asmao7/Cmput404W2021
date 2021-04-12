@@ -14,7 +14,7 @@
         {% for post in posts %}
             {% if not is_empty%}
                 {% for friend in friends%}
-                    {% if post.author == friend.author_from%}
+                    {% if post.author == friend.author_from or post.author == user%}
                         {% if post.visibility == 'FRIENDS'%}
                             <ul>
                                 <!--display the author who sent you a friend message-->    
