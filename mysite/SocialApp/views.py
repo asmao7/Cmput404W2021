@@ -1448,16 +1448,38 @@ def posts_view(request):
 # from the user, so they can't edit the content, but they have the choice of 
 # changing the visibility
 def shared_post(request, pk):
-    sharing_author = request.user
-    post = get_object_or_404(Post, id=pk)
-    original_author = post.author
-    if request.method == "GET":
-        form = SharedPostForm(instance=post, initial={'title': post.title + f' - Shared from {str(original_author)}', 'visibility': post.visibility})
-        return render(request, "SharePost.html", {'form':form})
-    else:
-        form = SharedPostForm(data=request.POST)
-        form.instance.author = sharing_author
-        if form.is_valid():
-            (form.save(commit=False)).save()
-            return HttpResponseRedirect(reverse('author'))
+    try:
+        sharing_author = request.user
+        post = get_object_or_404(Post, id=pk)
+        friends = []
+        # all the people currently following this user
+        current_followers_list = current_author.followee.all()
+        #all the people that the user currently follows
+        current_following = current_author.following.all()
+        current_following_list = []
+
+        for author in current_following:
+            current_following_list.append(author.author_to)
+
+        for follower in current_followers_list:
+            if follower.author_from in current_following_list:
+                friends.append(follower)
+
+        if friends:
+            for friend in friends:
+                inbox_url = friend.url
+                if inbox_url[-1] == "/":
+                    inbox_url += "inbox/"
+                else:
+                    inbox_url += "/inbox/"
+
+                basic_auth = GetURLBasicAuth(inbox_url)
+                if (basic_auth):
+                    requests.post(post_url, json=PostToJSON(post), auth=basic_auth)
+                else:
+                    requests.post(post_url, json=PostToJSON(post))
+    except:
+        pass
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             
