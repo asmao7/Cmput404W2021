@@ -126,27 +126,27 @@ def CommentToJSON(comment):
     """
     if not comment:
         return None
+
+    if not comment.author_json:
+        return None
+
     try:
-        basic_auth = GetURLBasicAuth(comment.author_url)
-        response = None
-        if (basic_auth):
-            response = requests.get(comment.author_url, auth=basic_auth)
-        else:
-            response = requests.get(comment.author_url)
+        #basic_auth = GetURLBasicAuth(comment.author_url)
+        #response = None
+        #if (basic_auth):
+            #response = requests.get(comment.author_url, auth=basic_auth)
+        #else:
+            #response = requests.get(comment.author_url)
 
-        author = None
+        #author = None
 
-        if response.ok:
-            try:
-                author = response.json()
-            except:
-                pass
+        #if response.ok:
+            #try:
+                #author = response.json()
+            #except:
+                #pass
 
-        if (not author):
-            try:
-                json.loads(comment.author_json)
-            except:
-                pass
+        json.loads(comment.author_json)
 
         if (author):
             json_dict = {
@@ -206,14 +206,17 @@ def ObjectLikeToJSON(like):
             #author = response.json()
 
         author = json.loads(like.author_json)
-            
-        json_dict = {
-            "summary": "{} Likes your post".format(author["displayName"]),
-            "type": "Like",
-            "author": author,
-            "object": like.object_url
-        }
-        return json_dict
+        
+        if (author):
+            json_dict = {
+                "summary": "{} Likes your post".format(author["displayName"]),
+                "type": "Like",
+                "author": author,
+                "object": like.object_url
+            }
+            return json_dict
+        else:
+            return None
     except:
         return None
 
