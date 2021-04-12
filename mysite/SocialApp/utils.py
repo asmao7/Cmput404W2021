@@ -185,10 +185,10 @@ def ObjectLikeToJSON(like):
     # backup author if get request fails
     author = {
         "type": "author",
-        "id": comment.author_url,
+        "id": like.author_url,
         "host": "",
         "displayName": "",
-        "url": comment.author_url,
+        "url": like.author_url,
         "github": ""
     }
     
