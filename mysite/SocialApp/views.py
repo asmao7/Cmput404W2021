@@ -643,7 +643,7 @@ class PostCommentsEndpoint(APIView):
         comment = jsonData.get("comment")
         content_type = jsonData.get("contentType")
 
-        valid_content_type = false
+        valid_content_type = False
         if (content_type == "text/plain" or content_type == "text/markdown"):
             valid_content_type = true
 
