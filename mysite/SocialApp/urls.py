@@ -12,7 +12,10 @@ urlpatterns = [
   path('author.html', HomeView.as_view(), name="author"),
   #path('newMessage.html', FriendsPostView.as_view(), name="new_message"),
   path('Details/<str:pk>', PostDetailView.as_view(), name="post-details"),
-  path('AddPost.html', AddPostView.as_view(), name="add_post"),
+  path('AddPost.html', AddPostView.as_view(), name="add_post"), 
+  #######################33
+  path('details/<str:pk>/share', views.shared_post, name="share_post"),
+  #################
   path('details/edit/<str:pk>', UpdatePostView.as_view(), name="update_post"),
   path('details/<str:pk>/delete', DeletePostView.as_view(), name="delete_post"),
   path('editProfile.html', views.editProfile, name='editProfile'),
