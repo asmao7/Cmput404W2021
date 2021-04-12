@@ -1,5 +1,4 @@
 import uuid, requests, json, sys
-import datetime from datetime
 
 from requests.auth import HTTPBasicAuth
 
@@ -124,7 +123,7 @@ def remoteComment(request):
         "author": AuthorToJSON(request.user),
         "comment": request.POST["comment"],
         "contentType": request.POST["content_type"],
-        "published": str(datetime.now()),
+        "published": "",
         "id": ""
     }
     post_url = request.POST["post_url"]
