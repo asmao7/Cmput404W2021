@@ -13,9 +13,7 @@ urlpatterns = [
   #path('newMessage.html', FriendsPostView.as_view(), name="new_message"),
   path('Details/<str:pk>', PostDetailView.as_view(), name="post-details"),
   path('AddPost.html', AddPostView.as_view(), name="add_post"), 
-  #######################33
   path('details/<str:pk>/share', views.shared_post, name="share_post"),
-  #################
   path('details/edit/<str:pk>', UpdatePostView.as_view(), name="update_post"),
   path('details/<str:pk>/delete', DeletePostView.as_view(), name="delete_post"),
   path('editProfile.html', views.editProfile, name='editProfile'),
@@ -33,7 +31,7 @@ urlpatterns = [
   path('remotePosts', views.remotePosts, name="remotePosts"),
   path('findRemoteFollowers', views.findRemoteFollowers, name="findRemoteFollowers"),
   path('addRemoteFollower/<str:remote_author_id>', views.addRemoteFollower, name="addRemoteFollower"),
-  path('newMessage.html', views. posts_view, name="new_message"),   #######
+  path('newMessage.html', views. posts_view, name="new_message"),
   path('posts/', views.AllPostsEndpoint.as_view(), name="AllPosts"),
   path('authors/', views.AllAuthorsEndpoint.as_view(), name="AllAuthors"),
   path('author/<str:author_id>/posts/', views.AuthorPostsEndpoint.as_view(), name='AuthorPosts'),
@@ -43,5 +41,6 @@ urlpatterns = [
   path('author/<str:author_id>/followers/<str:foreign_author_id>/', views.EditFollowersEndpoint.as_view(), name='editFollowers'),
   path('author/<str:author_id>/posts/<str:post_id>/likes/', views.PostLikesEndpoint.as_view(), name="PostLikes"),
   path('author/<str:author_id>/posts/<str:post_id>/comments/', views.PostCommentsEndpoint.as_view(), name="PostComments"),
+  path('author/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/', views.CommentEndpoint.as_view(), name="Comment"),
   path('author/<str:author_id>/posts/<str:post_id>/comments/likes/', views.CommentLikesEndpoint.as_view(), name="CommentLikes"),
 ]
