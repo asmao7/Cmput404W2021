@@ -19,7 +19,9 @@ def liked_count(object_url):
 @register.filter(name='comment_author_name')
 def comment_author_name(author_url):
 	try:
+		# Try to get the latest display name for the author
 		author = requests.get(author_url).json()
 		return author["displayName"]
 	except:
+		# If we can't fetch author data, display the username as Anonymous
 		return "Anonymous"

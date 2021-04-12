@@ -127,7 +127,17 @@ def CommentToJSON(comment):
         return None
     try:
         response = requests.get(comment.author_url)
-        author = ""
+
+        # backup author if get request fails
+        author = {
+            "type": "author",
+            "id": comment.author_url,
+            "host": "",
+            "displayName": "",
+            "url": comment.author_url,
+            "github": ""
+        }
+
         if response.ok:
             author = response.json()
 
