@@ -203,8 +203,8 @@ class AllAuthorsEndpoint(APIView):
             return HttpResponse(status=401)
 
         try:
-            json = AuthorListToJSON(Author.objects.exclude(is_staff=True).exclude(is_server=True))
-            return JsonResponse({"authors":json})
+            author_json = AuthorListToJSON(Author.objects.exclude(is_staff=True).exclude(is_server=True))
+            return JsonResponse({"authors":author_json})
         except:
             return HttpResponse(status=500)
 
@@ -232,9 +232,9 @@ class AuthorEndpoint(APIView):
             return HttpResponse(status=400)
 
         # Return public info about the author
-        json = AuthorToJSON(author)
-        if json:
-            return JsonResponse(json)
+        author_json = AuthorToJSON(author)
+        if author_json:
+            return JsonResponse(author_json)
         else:
             return HttpResponse(status=500)
 
@@ -295,8 +295,8 @@ class AllPostsEndpoint(APIView):
             return HttpResponse(status=401)
 
         try:
-            json = PostListToJSON(Post.objects.all())
-            return JsonResponse({"posts":json})
+            post_list_json = PostListToJSON(Post.objects.all())
+            return JsonResponse({"posts":post_list_json})
         except:
             return HttpResponse(status=500)
 
@@ -342,9 +342,9 @@ class PostEndpoint(APIView):
 
             # TODO: Must be author's friend to have access
 
-        json = PostToJSON(post)
-        if json:
-            return JsonResponse(json)
+        post_json = PostToJSON(post)
+        if post_json:
+            return JsonResponse(post_json)
         else:
             return HttpResponse(status=500)
 
@@ -547,8 +547,8 @@ class AuthorPostsEndpoint(APIView):
         posts = Post.objects.filter(author=author)
 
         try:
-            json = PostListToJSON(posts)
-            return JsonResponse({"posts":json})
+            post_list_json = PostListToJSON(posts)
+            return JsonResponse({"posts":post_list_json})
         except:
             return HttpResponse(status=500)
 
@@ -744,9 +744,9 @@ class CommentEndpoint(APIView):
         except Exception:
             return HttpResponse(status=400)
 
-        json = CommentToJSON(comment)
-        if json:
-            return JsonResponse(json)
+        comment_json = CommentToJSON(comment)
+        if comment_json:
+            return JsonResponse(comment_json)
         else:
             return HttpResponse(status=500)
 
@@ -1234,10 +1234,10 @@ class EditFollowersEndpoint(APIView):
             requesting_author = AuthorToJSON(author)
             requested_author = AuthorToJSON(foreign_author)
 
-            json = FriendRequestToJson(requesting_author, requested_author)
+            friend_request_json = FriendRequestToJson(requesting_author, requested_author)
             if json:
                 #TODO sending json to inbox endpoint and return 200 if done correctly
-                return JsonResponse(json)
+                return JsonResponse(friend_request_json)
             else:
                 return HttpResponse(status=500)
             # return HttpResponse(status=200)
@@ -1307,9 +1307,9 @@ class GetFollowersEndpoint(APIView):
             follower_json = AuthorToJSON(follower)
             follower_json_list.append(follower_json)
 
-        json = FollowerFinalJSON(follower_json_list)
+        follower_final_json = FollowerFinalJSON(follower_json_list)
         if json:
-            return JsonResponse(json)
+            return JsonResponse(follower_final_json)
         else:
             return HttpResponse(status=500)
 
@@ -1338,9 +1338,9 @@ class InboxEndpoint(APIView):
             inbox_items = InboxItem.objects.filter(author=author)
             item_json_list = []
             for item in inbox_items:
-                json = InboxItemToJSON(item)
-                if json:
-                    item_json_list.append(json)
+                inbox_json = InboxItemToJSON(item)
+                if inbox_json:
+                    item_json_list.append(inbox_json)
             response_json = {
                 "type":"inbox",
                 "author": author.url,
