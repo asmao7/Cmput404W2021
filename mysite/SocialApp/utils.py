@@ -13,7 +13,7 @@ def AuthorToJSON(author):
     if not author:
         return None
     try:
-        json = {
+        json_dict = {
             "type":"author",
             "id":author.url,
             "host":author.host,
@@ -21,7 +21,7 @@ def AuthorToJSON(author):
             "url":author.url,
             "github":author.github
         }
-        return json
+        return json_dict
     except:
         return None
 
@@ -54,7 +54,7 @@ def PostToJSON(post):
         return None
 
     try:
-        json = {
+        json_dict = {
             "type":"post",
             "title":post.title,
             "id":post.url,
@@ -72,7 +72,7 @@ def PostToJSON(post):
             "visibility":post.visibility,
             "unlisted":post.unlisted
         }
-        return json
+        return json_dict
     except:
         return None
 
@@ -82,23 +82,23 @@ def FollowerFinalJSON(follower_list):
     Returns an empty list on failure.
     """
     if not follower_list:
-        json = {
+        json_dict = {
             "type":"followers",
             "items": []
         }
         return json
     try:
-        json = {
+        json_dict = {
             "type":"followers",
             "items": follower_list
         }
-        return json
+        return json_dict
     except:
-        json = {
+        json_dict = {
             "type":"followers",
             "items": []
         }
-        return json
+        return json_dict
 
 
 def PostListToJSON(posts):
@@ -140,7 +140,7 @@ def CommentToJSON(comment):
         if response.ok:
             author = response.json()
 
-        json = {
+        json_dict = {
             "type":"comment",
             "author":author,
             "comment":comment.comment,
@@ -149,7 +149,7 @@ def CommentToJSON(comment):
             "id":comment.url
         }
 
-        return json
+        return json_dict
     except:
         return None
 
@@ -192,13 +192,13 @@ def ObjectLikeToJSON(like):
         if response.ok:
             author = response.json()
             
-        json = {
+        json_dict = {
             "summary": "{} Likes your post".format(author["displayName"]),
             "type": "Like",
             "author": author,
             "object": like.object_url
         }
-        return json
+        return json_dict
     except:
         return None
 
@@ -322,14 +322,14 @@ def FriendRequestToJson(requesting_author, requested_author):
         return None
 
     try:
-        json = {
+        json_dict = {
             "type":"Follow",
             "summary": requesting_author['displayName'] + " wants to follow " + requested_author['displayName'],
             "actor":requesting_author,
             "object":requested_author,
             
         }
-        return json
+        return json_dict
     except:
         return None
 
