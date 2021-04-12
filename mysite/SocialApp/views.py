@@ -1453,9 +1453,9 @@ def shared_post(request, pk):
         post = get_object_or_404(Post, id=pk)
         friends = []
         # all the people currently following this user
-        current_followers_list = current_author.followee.all()
+        current_followers_list = sharing_author.followee.all()
         #all the people that the user currently follows
-        current_following = current_author.following.all()
+        current_following = sharing_author.following.all()
         current_following_list = []
 
         for author in current_following:
