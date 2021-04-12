@@ -19,6 +19,7 @@
                         {% if user.id == post.author.id %}
                             - <a href="{% url 'update_post' post.pk%}">Edit</a>
                             - <a href="{% url 'delete_post' post.pk%}">Delete Post</a>
+                            - <a href="{% url 'share_post' post.pk%}">Share Post</a>
                         {% endif %}
                         ~  <small><small>{{post.visibility}}</small></small>
                         <p>By: {{ post.author}} - <small>{{ post.published}}</small></p>
