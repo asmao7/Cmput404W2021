@@ -30,11 +30,12 @@
                                 <!--post content and description-->
                                 <p class='postDescription'>{{ post.description }} </p>
                                 <!--LIKES pass in url that sends a post id argument and updates the database-->
-                                <form action="{% url 'like' post.pk %}" method="POST"> 
+                                <form action="{% url 'like' %}" method="POST">
                                     {% csrf_token %}
-                                    {{ form.as_p }}
-                                    {% load app_filters %}
-                                    <input class="likeButton" type="submit" value='{{ post.pk|liked_or_not:user }} {{ post.likes.all|length }}'>
+                                    
+                                    <input type="hidden" name="author_url" value="{{ user.url }}">
+                                    <input type="hidden" name="object_url" value="{{ post.url }}">
+                                    <input class="likeButton" type="submit" value='{{ post.url|liked_or_not:user.url }} {{ post.url|liked_count }}'>
                                 </form>
                                 </li>
                         {% endif %}
