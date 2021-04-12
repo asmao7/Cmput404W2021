@@ -134,22 +134,32 @@ def CommentToJSON(comment):
         else:
             response = requests.get(comment.author_url)
 
-        # backup author if get request fails
-        author = json.loads(comment.author_json)
+        author = None
 
         if response.ok:
-            author = response.json()
+            try:
+                author = response.json()
+            except:
+                pass
 
-        json_dict = {
-            "type":"comment",
-            "author":author,
-            "comment":comment.comment,
-            "contentType":comment.content_type,
-            "published":str(comment.published),
-            "id":comment.url
-        }
+        if (not author):
+            try:
+                json.loads(comment.author_json)
+            except:
+                pass
 
-        return json_dict
+        if (author):
+            json_dict = {
+                "type":"comment",
+                "author":author,
+                "comment":comment.comment,
+                "contentType":comment.content_type,
+                "published":str(comment.published),
+                "id":comment.url
+            }
+            return json_dict
+        else:
+            return None
     except:
         return None
 

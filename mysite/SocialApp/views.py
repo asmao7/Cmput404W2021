@@ -68,6 +68,9 @@ class AddCommentView(CreateView):
 
     def form_valid(self, form):
         form.instance.post = Post.objects.get(pk=self.kwargs["pk"])
+        author_json = AuthorToJSON(self.request.user)
+        if (author_json):
+            form.instance.author_json = author_json
         return super().form_valid(form)
 
 
