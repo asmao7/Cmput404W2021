@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/followers.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
+{% block content %}
+    <h1 class="authors-title">Authors</h1>
+            <!-- <li class="no-author">No authors with that ID.</li> -->
+        <div class="button-container">
+            <a class="button" href="{% url 'findFollowers'%}">Find local Friends</a>
+        </div>
+        {% if is_empty %}
+            <div class="authorcard_list">
+                <p class="message"> No new Followers to add </p>
+            {% else %}                  
+                {% for author in remote_authors %}
+                    <li>
+                    <div class="authorcard_list">
+                            <div class="user-info">
+                                <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
+                                    <p class="message">{{ author.displayName}}</p>
+                                    </div>
+                            <div class="button-container">
+                                    <a class="button" href="{% url 'addRemoteFollower' author.id %}">Follow</a>
+                            </div>
+                        </div>
+                    </li>
+            {% endfor %}
+        {% endif %}
+        </div>
+{% endblock %}

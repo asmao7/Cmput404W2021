@@ -1,7 +1,12 @@
 import datetime, uuid, requests, json
 
 from requests.auth import HTTPBasicAuth
+
+from django.shortcuts import render
+from django.shortcuts import render
 from rest_framework.views import APIView, status
+from .forms import SignUpForm, LoginForm
+from requests.auth import HTTPBasicAuth
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -11,11 +16,16 @@ from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .models import Author, Post, Comment, ObjectLike, InboxItem, Followers, ForeignServer
+from .models import Author, Post, Comment,ObjectLike, InboxItem, Followers, ForeignServer, RemoteFollow
 from .admin import AuthorCreationForm
 from .forms import SignUpForm, LoginForm, PostForm, CommentForm
 
-from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON
+from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON, FriendRequestToJson
+
+from django.views import generic
+from django.urls import reverse_lazy
+
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
 class UserRegisterView(generic.CreateView):
@@ -231,12 +241,21 @@ class AuthorEndpoint(APIView):
 
         # Update author info
         jsonData = request.data
-        author.username = jsonData.get("displayName")
-        author.github = jsonData.get("github")
-        author.save()
 
-        return HttpResponse(status=200)
+        username = jsonData.get("displayName", "")
+        github = jsonData.get("github", "")
 
+        if (username != "" and github != ""):
+            try:
+                author.username = username
+                author.github = github
+                author.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponseRedirect(status=500)
+        else:
+            return HttpResponse(status=400)
+        
 
 class AllPostsEndpoint(APIView):
     """
@@ -348,16 +367,31 @@ class PostEndpoint(APIView):
             return HttpResponse(status=401)
 
         jsonData = request.data
-        post.title = jsonData.get("title")
-        post.description = jsonData.get("description")
-        post.content_type = jsonData.get("contentType")
-        post.content = jsonData.get("content")
-        post.visibility = jsonData.get("visibility")
-        post.unlisted = bool(jsonData.get("unlisted"))
-        post.categories.set(StringListToPostCategoryList(jsonData.get("categories")))
-        post.save()
 
-        return HttpResponse(status=200)
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted = bool(jsonData.get("unlisted", "false"))
+        categories = jsonData.get("categories", "")
+
+        if (content_type != ""):
+            try:
+                post.title = title
+                post.description = description
+                post.content_type = content_type
+                post.content = content
+                post.visibility = visibility
+                post.unlisted = unlisted
+                post.categories.set(StringListToPostCategoryList(categories))
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
+
 
     def delete(self, request, *args, **kwargs):
         """
@@ -443,14 +477,25 @@ class PostEndpoint(APIView):
         if request.user != author:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            post = Post(id=post_id, title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
-                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
-            post.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted=bool(jsonData.get("unlisted", "false"))
+
+        if content_type != "":
+            try:
+                post = Post(id=post_id, title=title, description=description, content_type=content_type, content=content,
+                            author=author, visibility=visibility, unlisted=unlisted)
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class AuthorPostsEndpoint(APIView):
@@ -508,14 +553,25 @@ class AuthorPostsEndpoint(APIView):
         if request.user != author:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            post = Post(title=jsonData.get("title"), description=jsonData.get("description"), content_type=jsonData.get("contentType"), content=jsonData.get("content"),
-                        author=author, visibility=jsonData.get("visibility"), unlisted=bool(jsonData.get("unlisted")))
-            post.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+
+        title = jsonData.get("title", "")
+        description = jsonData.get("description", "")
+        content_type = jsonData.get("contentType", "")
+        content = jsonData.get("content", "")
+        visibility = jsonData.get("visibility", "PUBLIC")
+        unlisted=bool(jsonData.get("unlisted", "false"))
+
+        if content_type != "":
+            try:
+                post = Post(title=title, description=description, content_type=content_type, content=content,
+                            author=author, visibility=visibility, unlisted=unlisted)
+                post.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class PostCommentsEndpoint(APIView):
@@ -595,14 +651,28 @@ class PostCommentsEndpoint(APIView):
         if not request.user.is_authenticated:
             return HttpResponse(status=401)
 
-        try:
-            jsonData = request.data
-            comment = Comment(author_url=jsonData.get("author")["url"], post=post, comment=jsonData.get("comment"),
-                              content_type=jsonData.get("contentType"))
-            comment.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=500)
+        jsonData = request.data
+        
+        author = jsonData.get("author", "")
+        author_url = ""
+        if (author != ""):
+            author_url = author.get("url", "")
+        comment = jsonData.get("comment")
+        content_type = jsonData.get("contentType")
+
+        valid_content_type = False
+        if (content_type == "text/plain" or content_type == "text/markdown"):
+            valid_content_type = True
+
+        if (author_url != "" and comment != "" and valid_content_type):
+            try:
+                comment = Comment(author_url=author_url, post=post, comment=comment, content_type=content_type)
+                comment.save()
+                return HttpResponse(status=200)
+            except:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=400)
 
 
 class CommentEndpoint(APIView):
@@ -772,14 +842,15 @@ class AuthorLikedEndpoint(APIView):
 
 
 def followerView(request):
-    
+    """
+    View shows a list of all the follow/friend requests to the signed in author
+    """   
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
     followers = []
     followers_list = current_author.followee.all() #all the people currently following this user
 
     #all the people that the user currently follows 
-    #TODO move these to the friends tab
     following = current_author.following.all()
     following_list = []
 
@@ -798,10 +869,13 @@ def followerView(request):
     else:
         is_empty = False
 
-    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty} )
+    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty})
 
 
 def findFollower(request):
+    """
+    View shows a list of all the authors and allows following (sending a friend request to) any author
+    """ 
     author_id = request.user.id
     author_object = Author.objects.get(pk=author_id)
     following_list = []
@@ -835,30 +909,37 @@ def findFollower(request):
 
 
 def addFollower(request, foreign_author_id):
+    """
+    allows following of an author in the system 
+    """ 
     #add new follower and return followers list with new follower included
     #TODO authenticate follower addition
     #TODO check correct save
-    #TODO order of add for unique constraint for friends
     foreign_author =  Author.objects.get(pk=foreign_author_id)
     current_author_id = request.user.id
     current_author =  Author.objects.get(pk=current_author_id)
 
     if current_author_id == foreign_author_id:
-            is_new_follower = False
-            return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+            following = False
+            return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':following} )
+
     new_follower = Followers.objects.create(author_from=current_author, author_to=foreign_author)
-    is_new_follower = True
-    return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':is_new_follower} )
+    following = True
+    #send friend request through inbox
+
+    return render(request, 'addFollower.html', {"foreign_author":foreign_author, 'new_follower':following} )
+
 
 def friendsView(request):
-
+    """
+    Shows a list of all the people that are friends with the current author
+    """ 
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
     friends = []
     current_followers_list = current_author.followee.all() #all the people currently following this user
 
     #all the people that the user currently follows
-    #TODO move these to the friends tab
     current_following = current_author.following.all()
     current_following_list = []
 
@@ -879,8 +960,9 @@ def friendsView(request):
 
 
 def unFollow(request, foreign_author_id): 
-    """ un follow an author """
-
+    """ 
+    un follow an author 
+    """
     foreign_author =  Author.objects.get(pk=foreign_author_id)
     current_author_id = request.user.id
     current_author =  Author.objects.get(pk=current_author_id)
@@ -905,8 +987,6 @@ def unFollow(request, foreign_author_id):
     else:
         is_empty = False
 
-
-   # chnage to render friends template
     return friendsView(request)
 
 
@@ -945,9 +1025,111 @@ def remotePosts(request):
     return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
 
 
+def findRemoteFollowers(request):
+    """
+    list all the remote Followers for the author
+    """
+    final_authorlist = []
+    is_empty = True
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+
+        if authors:
+            is_empty = False
+            #check if current author already follows some of them
+            current_author_id = request.user.id
+            current_author =  Author.objects.get(pk=current_author_id)
+            following = []
+            following_query = current_author.remote_following.all()  #all the people the current user follows on remote
+
+            for follower in following_query:
+                following.append(follower.remote_author_to) 
+
+            for author in authors:
+                if author["url"] in following:
+                    pass
+                else:
+                    final_authorlist.append(author) 
+
+    return render(request, 'findRemoteFollower.html', {"remote_authors":final_authorlist,'is_empty':is_empty })
+
+
+def addRemoteFollower(request, remote_author_id):
+    """
+    Follow a remote follower and send friend request to their inbox endpoint
+    """
+    #TODO authenticate follower addition
+    #TODO check correct save
+    #TODO handle when unique fails cleanly
+
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+
+        if authors:
+            for author in authors:
+                if author["id"] == remote_author_id:
+                    remote_author = author
+            
+            if not remote_author:
+                is_new_follower = False
+                return render(request, 'addRemoteFollower.html', {"remote_author":None, 'new_follower':is_new_follower} )
+
+            local_author_id = request.user.id
+            local_author =  Author.objects.get(pk=local_author_id)
+
+            if local_author_id == remote_author_id:
+                is_new_follower = False
+                return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
+
+            #Create Json friend request to send to inbox endpoint 
+            requesting_author = AuthorToJSON(local_author)
+            requested_author = remote_author #AuthorToJSON(remote_author)
+
+            friend_json = FriendRequestToJson(requesting_author, requested_author)
+            
+            if friend_json:  
+                inbox_endpoint = server.authors_url + remote_author_id + "/inbox/"
+                send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json)
+                if send_request_json.status_code == 200:
+                    #create record of follow 
+                    remote_author_url = remote_author['url']
+                    # print(remote_author_url)
+                    remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_url)
+                    is_new_follower = True
+                    return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
+                else:
+                    return HttpResponse(status=500)
+            else:
+                return HttpResponse(status=500)
+
+
+
 class EditFollowersEndpoint(APIView): 
 
+    """
+    The author/<str:author_id>/followers/<str:foreign_author_id>/ endpoint
+    """
+
     def get(self, request, *args, **kwargs):
+        """
+        Get a specific Follower by providng their ID 
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -986,7 +1168,9 @@ class EditFollowersEndpoint(APIView):
 
     def put(self, request, *args, **kwargs):  
         #TODO need to authenticate
-        #TODO modularize getting followers
+        """
+        Follower a specific Author (Friend Request)
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -1021,10 +1205,23 @@ class EditFollowersEndpoint(APIView):
 
         else:
             new_follower = Followers.objects.create(author_from=author, author_to=foreign_author)
-            return HttpResponse(status=200)
+            #compile friend Request Json to sedn to inbox 
+            requesting_author = AuthorToJSON(author)
+            requested_author = AuthorToJSON(foreign_author)
+
+            json = FriendRequestToJson(requesting_author, requested_author)
+            if json:
+                #TODO sending json to inbox endpoint and return 200 if done correctly
+                return JsonResponse(json)
+            else:
+                return HttpResponse(status=500)
+            # return HttpResponse(status=200)
     
 
     def delete(self, request, *args, **kwargs):
+        """
+        Stop following an Author
+        """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
             return HttpResponse(status=404)
@@ -1059,7 +1256,9 @@ class EditFollowersEndpoint(APIView):
             
 
 class GetFollowersEndpoint(APIView):
-    """ Get all the followers of a specific user"""
+    """ 
+    Get all the Authors following a specific user
+    """
     def get(self, request, *args, **kwargs):
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -1077,7 +1276,6 @@ class GetFollowersEndpoint(APIView):
         follower_json_list = []
 
         followers_list = author.followed_by.all()
-        # followers_list = author.followee.all()
 
         for follower in followers_list:
             followers.append(follower)
@@ -1155,12 +1353,18 @@ class InboxEndpoint(APIView):
         else:
             # Handle POSTed object as JSON string
             try:
-                received_json_str = json.dumps(request.data)                
+                team7_data = request.data.get("obj", "")
+                json_data = None
+                if (team7_data == ""):
+                    json_data = request.data
+                else:
+                    json_data = json.loads(team7_data)
+                received_json_str = json.dumps(json_data)          
                 # Save Likes we don't have yet (from foreign nodes)
-                if request.data["type"] == "Like":
-                    like = ObjectLike.objects.filter(author_url=request.data["author"]["url"], object_url=request.data["object"])
+                if json_data["type"] == "Like" or json_data["type"] == "like":
+                    like = ObjectLike.objects.filter(author_url=json_data["author"]["url"], object_url=json_data["object"])
                     if len(like) == 0:
-                        new_like = ObjectLike(author_url=request.data["author"]["url"], object_url=request.data["object"])
+                        new_like = ObjectLike(author_url=json_data["author"]["url"], object_url=json_data["object"])
                         new_like.save()
                 new_item = InboxItem(author=author, json_str=received_json_str)
                 new_item.save()
