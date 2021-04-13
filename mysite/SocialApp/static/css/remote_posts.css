@@ -65,6 +65,20 @@ li {
   color: white;
 }
 
+.likeCommentButton {
+  width: 60px;
+  padding: 5px 0 5px 0;
+  margin: 0.5em 0em 0.5em 0em;
+  background-color: white;
+  border-radius: 8px;
+  border: 4px solid #96113D;
+}
+
+.likeCommentButton:hover {
+  background-color: #96113D;
+  color: white;
+}
+
 .comment_form {
   margin: 2em 0em 0em 0em;
 }
