@@ -45,9 +45,9 @@
                 {% endif %}
 
                 <!--COMMENTS-->
-                <h3><u>COMMENTS</u></h2>
+                <h3 class="postText"><u>COMMENTS</u></h2>
                 {% if post.comments %}
-                    <ul>
+                    <ul class="postText">
                         {% for comment in post.comments %}
                             <li>
                                 {% if comment.contentType == "text/plain" %}
@@ -71,15 +71,15 @@
                 {% endif %}
                 <form action="{% url 'remote_comment' %}" method="POST" class="comment_form">
                     {% csrf_token %}
-                    
+                    <p><strong>New comment</strong></p>
                     <input type="hidden" name="post_url" value="{{ post.origin }}">
-                    <p>
+                    <p class="postText">
                         <select name="content_type" class="form-control" id="id_content_type">
-                            <option value="text/plain" selected>Plain Text</option>
+                            <option value="text/plain" selected >Plain Text</option>
                             <option value="text/markdown">Markdown</option>
                         </select>
                     </p>
-                    <p>
+                    <p class="postText">
                         <textarea name="comment" placeholder="Share your comment..." cols="40" rows="2" class="form-control" id="id_comment" spellcheck="false"></textarea>
                     </p>
                     <input class="likeButton" type="submit" value="Add Comment">
