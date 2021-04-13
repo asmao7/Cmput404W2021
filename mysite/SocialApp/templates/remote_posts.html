@@ -67,11 +67,11 @@
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p>No comments.</p>
+                    <p class="postText">No comments.</p>
                 {% endif %}
                 <form action="{% url 'remote_comment' %}" method="POST" class="comment_form">
                     {% csrf_token %}
-                    <p><strong>New comment</strong></p>
+                    <p class="postText"><strong>Add new comment:</strong></p>
                     <input type="hidden" name="post_url" value="{{ post.origin }}">
                     <p class="postText">
                         <select name="content_type" class="form-control" id="id_content_type">
@@ -88,6 +88,6 @@
             {% endfor %}
         </div>
     {% else %}
-        <h2>No Posts Available</h2>
+        <h2 >No Posts Available</h2>
     {% endif %}
 {% endblock %}
