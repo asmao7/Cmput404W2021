@@ -27,6 +27,8 @@
                         {% elif post.contentType == "application/base64" or post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" %}
                         <!--process the image to make sure it's formatted properly for an img tag-->
                             <img alt="post image" src={{ post.content|sanitize_image:post.contentType }}>
+                        {% else %}
+                            <p>Invalid Content Type</p>
                         {% endif %}
                     </section>
                     <!--LIKES pass in url that sends a post id argument and updates the database-->
