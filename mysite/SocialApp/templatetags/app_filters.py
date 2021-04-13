@@ -41,3 +41,13 @@ def comment_author_name(comment):
         return display_name
     else:
         return "Anonymous"
+
+@register.filter(name="sanitize_image")
+def sanitize_image(base64_content, content_type):
+    base64_prefix = "data:{},".format(content_type)
+    if content_type == "application/base64":
+        base64_prefix = "data:image/png;base64,"
+    if (base64_prefix in base64_content):
+        return base64_content
+    else:
+        return "{}{}".format(base64_prefix, base64_content)
