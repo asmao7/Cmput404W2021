@@ -22,12 +22,12 @@
                 {% elif post.content_type == "text/markdown" %}
                 <!--render markdown post as sanitized html-->
                     {{post.content|markdownify}}
-                {% elif post.content_type == "application/base64" %}
-                <!--assume this image has full base64 encoding, not just payload-->
-                    <img alt="post image" src={{ post.content }}>
+                {% elif post.content_type == "application/base64" or post.content_type == "image/png;base64" or post.content_type == "image/jpeg;base64" %}
+                <!--process the image to make sure it's formatted properly for an img tag-->
+                    <img alt="post image" src={{ post.content|sanitize_image:post.contentType }}>
                 {% else %}
-                <!--display base64 data as an image - prepend stored content type-->
-                    <img alt="post image" src={{ "data:"|add:post.content_type|add:","|add:post.content }}>
+                <!--received an invalid content type-->
+                    <p>Invalid Content Type</p>
                 {% endif %}
             </section>
         
