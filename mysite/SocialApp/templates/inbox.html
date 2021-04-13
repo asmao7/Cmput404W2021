@@ -17,9 +17,18 @@
         text-align: center;
     }
     button {
-        color: black;
-        margin-bottom: 2em;
-    }
+				border: none;
+				color: white;
+				padding: 10px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 4px 5px;
+				background-color:maroon;
+				border-radius: 12px;
+			}
+
     .item {
         margin-bottom: 2em;
     }
@@ -76,7 +85,7 @@
     </p>
     {% if inbox_items|length > 0 %}
         <button onclick="clearInbox();">Clear Inbox</button>
-        <hr style="margin-bottom:2em;">
+        <hr style="margin-bottom:2em; margin-top: 2em;">
         {% for item in inbox_items %}
             {% if item.type == "post"  or item.type == "Post" %}
                 <div class="item">
