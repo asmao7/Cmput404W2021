@@ -24,7 +24,7 @@
                     {{post.content|markdownify}}
                 {% elif post.content_type == "application/base64" or post.content_type == "image/png;base64" or post.content_type == "image/jpeg;base64" %}
                 <!--process the image to make sure it's formatted properly for an img tag-->
-                    <img alt="post image" src={{ post.content|sanitize_image:post.contentType }}>
+                    <img alt="post image" src={{ post.content|sanitize_image:post.content_type }}>
                 {% else %}
                 <!--received an invalid content type-->
                     <p>Invalid Content Type</p>
