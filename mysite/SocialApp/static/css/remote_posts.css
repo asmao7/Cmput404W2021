@@ -54,29 +54,35 @@ li {
 .likeButton {
   width: 150px;
   padding: 5px 0 5px 0;
-  margin: 0.5em 0em 0.5em 0em;
-  background-color: wheat;
+  margin: 1.5em 0em 1em 0em;
+  background-color: #96113D;
   border-radius: 8px;
+  color: white;
+  font-weight: 120%;
   border: 3px solid #96113D;
 }
 
 .likeButton:hover {
-  background-color: #96113D;
-  color: wheat;
+  background-color: wheat;
+  color: black;
+  font-weight: 120%;
 }
 
 .likeCommentButton {
   width: 60px;
   padding: 5px 0 5px 0;
   margin: 0.5em 0em 0.5em 0em;
-  background-color: wheat;
+  background-color: #96113D;
   border-radius: 8px;
-  border: 4px solid #96113D;
+  color: white;
+  font-weight: 120%;
+  border: 3px solid #96113D;
 }
 
 .likeCommentButton:hover {
-  background-color: #96113D;
-  color: wheat;
+  background-color: wheat;
+  color: black;
+  font-weight: 120%;
 }
 
 .comment_form {
@@ -87,7 +93,10 @@ li {
     margin: 10px 0 10px 0;
 }
 
-
+img {
+  width: auto;
+  height: 300px;
+}
 
 
 
