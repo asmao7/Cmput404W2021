@@ -16,12 +16,12 @@ h1 {
 
 h2 {
   font-size: 1.5em;
-  margin: 2em 1em 0em 1em;
+  margin: 1em 1em 0em 1em;
 }
 
 h3 {
   font-size: 1.25em;
-  margin: 1em 1em 0em 1em;
+  margin: 1em 0em 0em 0em;
 }
 
 li {
@@ -37,6 +37,8 @@ li {
 
 .post {
 	border: 4px solid maroon;
+  padding: 15px;
+  
 }
 
 .postDescription {
@@ -70,6 +72,7 @@ li {
 .form-control {
     margin: 10px;
 }
+
 
 
 
