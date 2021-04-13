@@ -61,7 +61,7 @@
                                     
                                     <input type="hidden" name="author_url" value="{{ user.url }}">
                                     <input type="hidden" name="object_url" value="{{ comment.id }}">
-                                    <input class="likeButton" type="submit" value='{{ comment.id|liked_or_not:user.url }} {{ comment.id|liked_count }}'>
+                                    <input class="likeCommentButton" type="submit" value='{{ comment.id|liked_or_not:user.url }} {{ comment.id|liked_count }}'>
                                 </form>
                             </li> 
                         {% endfor %}
@@ -80,7 +80,7 @@
                         </select>
                     </p>
                     <p class="postText">
-                        <textarea name="comment" placeholder="Share your comment..." cols="40" rows="2" class="form-control" id="id_comment" spellcheck="false"></textarea>
+                        <textarea name="comment" placeholder="Share your comment..." cols="40" rows="2" class="form-control" id="id_comment" spellcheck="false" style="background-color: #333333;color: wheat;border: 1px solid #333;padding: 5px;"></textarea>
                     </p>
                     <input class="likeButton" type="submit" value="Add Comment">
                 </form>
