@@ -87,7 +87,10 @@ li {
     margin: 10px 0 10px 0;
 }
 
-
+img {
+  width: auto;
+  height: 300px;
+}
 
 
 
