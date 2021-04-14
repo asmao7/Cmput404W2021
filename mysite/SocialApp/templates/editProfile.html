@@ -3,18 +3,21 @@
 {% load static %}
 
 {% block head %}
-    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/editProfile.css' %}">
 {% endblock %}
 
 {% block content %}
-    <form class="box" action="index.html" method="post">
+
+    <!-- use django forms to auto generate the edit fields -->
+    <div class="edit">
         <h1>Edit Profile</h1>
-        <input type="text" name="" placeholder="Name">
-        <input type="text" name="" placeholder="email">
-        <input type="text" name="" placeholder="Username">
-        <input type="password" name="" placeholder="Password">
-        <input type="password" name="" placeholder="Confirm password">
-        <br>
-        <a href="author.html">save changes</a>
-    </form>
+        <br/><br/>
+        <div class="form-group">
+            <form method="POST">
+                {% csrf_token%}
+                {{ form.as_p }}
+                <button class="btn btn-secondary">Update</button>
+        </div>
+    </div>
+
 {% endblock %}
