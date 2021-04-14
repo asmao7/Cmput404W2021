@@ -1039,18 +1039,22 @@ def remotePosts(request):
         
         # Append PUBLIC posts to our collection
         if posts:
+            clean_posts = []
             if server.posts_json_key:
                 for post in posts[server.posts_json_key]:
                     if ValidateForeignPostJSON(post):
                         if post["visibility"] == "PUBLIC":
-                            public_posts.append(post)
+                            clean_posts.append(post)
             else:
                 for post in posts:
                     if ValidateForeignPostJSON(post):
                         if post["visibility"] == "PUBLIC":
-                            public_posts.append(post)
+                            clean_posts.append(post)
 
-    return render(request, 'remote_posts.html', {"posts":public_posts, "has_content":len(public_posts) > 0})
+            if clean_posts:
+                public_posts.append({"name": server.host_name, "posts":clean_posts})
+
+    return render(request, 'remote_posts.html', {"all_posts":public_posts, "has_content":len(public_posts) > 0})
 
 
 def findRemoteFollowers(request):
