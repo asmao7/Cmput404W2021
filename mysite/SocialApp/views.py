@@ -39,7 +39,7 @@ class UserRegisterView(generic.CreateView):
 class UpdateProfile(UpdateView):
     model = Author
     template_name = "editProfile.html"
-    fields = ['username', 'github', 'password']
+    fields = ['username', 'github']
     success_url = reverse_lazy('author')
 
 
