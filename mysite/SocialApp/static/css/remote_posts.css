@@ -16,7 +16,7 @@ h1 {
 
 h2 {
   font-size: 1.5em;
-  margin: 0.5em 1em 0em 1em;
+  margin: 1em 1em 0.5em 1em;
 }
 
 h3 {
@@ -41,7 +41,7 @@ li {
 }
 
 .post {
-	border-bottom: 4px solid maroon;
+	border-top: 4px solid maroon;
   padding: 15px;
   
 }
