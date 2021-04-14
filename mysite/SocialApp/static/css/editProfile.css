@@ -30,4 +30,8 @@ body{
     transform: translate(-50%, -50%);
     text-align: center;
 }
+
+p {
+    margin: 0em 1em 1em 1em;
+}
   
