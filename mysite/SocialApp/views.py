@@ -35,6 +35,13 @@ class UserRegisterView(generic.CreateView):
     template_name = 'signup.html'
     success_url = reverse_lazy('login')
 
+
+class UpdateProfile(UpdateView):
+    model = Author
+    template_name = "editProfile.html"
+    success_url = reverse_lazy('author')
+
+
 class HomeView(ListView):
     model = Post
     template_name = 'author.html'
@@ -44,6 +51,7 @@ class HomeView(ListView):
 class PostDetailView(DetailView):
     model = Post
     template_name = 'PostDetails.html'
+
 
 class AddPostView(CreateView):
     model = Post
@@ -58,6 +66,7 @@ class AddPostView(CreateView):
         if form.is_valid():
             vis = form.cleaned_data['visibility']
     """
+
 
 class AddCommentView(CreateView):
     model = Comment
@@ -77,13 +86,16 @@ class AddCommentView(CreateView):
 class UpdatePostView(UpdateView):
     model = Post
     template_name = 'EditPost.html'
-    fields = ['title', 'content']
+    fields = ['title', 'description', 'content']
     success_url = reverse_lazy('author')
+
 
 class DeletePostView(DeleteView):
     model = Post
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
+
+
 
 def like(request):
     try:
@@ -159,9 +171,6 @@ def home(request):
 
 def author(request):
     return render(request, 'author.html', {})
-
-def editProfile(request):
-    return render(request, 'editProfile.html', {})
 
 def newPost(request):
     return render(request, 'newPost.html', {})
