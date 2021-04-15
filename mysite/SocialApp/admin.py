@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import Post, Author, PostCategory, Comment, Followers, InboxItem, ForeignServer, InboxItem, RemoteFollow, ObjectLike
+from .models import Post, Author, PostCategory, Comment, Followers, InboxItem, ForeignServer, InboxItem, RemoteFollow, ObjectLike, RemoteFollowers
 
 class DefaultAdmin(admin.ModelAdmin):
     """
@@ -93,6 +93,11 @@ class RemoteFollowAdmin(admin.ModelAdmin):
     search_fields = ("local_author_from", "remote_author_to",)
 
 
+class RemoteFollowersAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "remote_author_from", "local_author_to",)
+    search_fields = ("remote_author_from", "local_author_to",)
+
+
 class ObjectLikeAdmin(admin.ModelAdmin):
     list_display = ("__str__", "author_url", "object_url",)
     search_fields = ("author_url", "object_url")
@@ -121,4 +126,5 @@ admin.site.register(Followers, FollowersAdmin)
 admin.site.register(ObjectLike, ObjectLikeAdmin)
 admin.site.register(InboxItem, InboxItemAdmin)
 admin.site.register(RemoteFollow, RemoteFollowAdmin)
+admin.site.register(RemoteFollowers, RemoteFollowersAdmin)
 admin.site.register(ForeignServer, ForeignServerAdmin)

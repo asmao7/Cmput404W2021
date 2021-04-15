@@ -28,4 +28,17 @@
         </li>
         {% endfor%}
     {% endif %}
+    {% for remote_author in remoteFollowers %}
+        <li>
+            <div class="authorcard_list">
+                <div class="user-info">
+                    <i class="fa fa-user-circle" style="font-size: 150px;"></i> 
+                    <p class="message">{{ remote_author.displayName}}</p>
+                </div>
+                <div class="button-container"> 
+                    <a class="button" href="{% url 'addRemoteFollower' author.id %}">Follow Back</a>
+                </div>
+            </div>
+        </li>
+        {% endfor%}
 {% endblock %}

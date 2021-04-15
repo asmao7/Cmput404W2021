@@ -16,7 +16,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .models import Author, Post, Comment,ObjectLike, InboxItem, Followers, ForeignServer, RemoteFollow
+from .models import Author, Post, Comment,ObjectLike, InboxItem, Followers, ForeignServer, RemoteFollow, RemoteFollowers
 from .admin import AuthorCreationForm
 from .forms import SignUpForm, LoginForm, PostForm, CommentForm
 
@@ -140,7 +140,7 @@ def like(request):
         pass
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-#
+
 def remoteComment(request):
     """
     Handles posting a comment to a foreign source
@@ -879,7 +879,7 @@ class AuthorLikedEndpoint(APIView):
             return HttpResponse(status=500)
 
 
-def followerView(request):
+def followerView(request): #TODO get remote followers too
     """
     View shows a list of all the follow/friend requests to the signed in author
     """   
@@ -901,13 +901,35 @@ def followerView(request):
         else:
             followers.append(follower)
 
+    #get remote authors too 
+    remote_followers = RemoteFollowers.objects.filter(local_author_to=current_author)
+
+    remote_list = []
+    if remote_followers:
+        #get all authors in remote
+        for server in ForeignServer.objects.filter(is_active=True):
+            authors = None
+            try:
+                    authors = requests.get(server.authors_url).json()
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                # Do nothing on connection failure
+                pass
+            except requests.exceptions.HTTPError:
+                # Do nothing on HTTP error
+                pass
+        if authors:
+            for remote_url in remote_followers:
+                # remote_follower_json = AuthorToJSON(remote_follower)           
+                for author in authors:
+                    if author["url"] == remote_url:
+                        remote_list.append(author)
 
     if not followers:
        is_empty = True
     else:
         is_empty = False
 
-    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty})
+    return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty, "remoteFollowers":remote_list})
 
 
 def findFollower(request):
@@ -1115,7 +1137,7 @@ def addRemoteFollower(request, remote_author_id):
     for server in ForeignServer.objects.filter(is_active=True):
         authors = None
         try:
-                authors = requests.get(server.authors_url).json()
+            authors = requests.get(server.authors_url).json()
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             # Do nothing on connection failure
             pass
@@ -1151,7 +1173,7 @@ def addRemoteFollower(request, remote_author_id):
                 if send_request_json.status_code == 200:
                     #create record of follow 
                     remote_author_url = remote_author['url']
-                    # print(remote_author_url)
+                    print(remote_author_url)
                     remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_url)
                     is_new_follower = True
                     return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
@@ -1170,7 +1192,7 @@ class EditFollowersEndpoint(APIView):
 
     def get(self, request, *args, **kwargs):
         """
-        Get a specific Follower by providng their ID 
+        Check if a remote author is a follower of a local author
         """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -1184,22 +1206,42 @@ class EditFollowersEndpoint(APIView):
         if not author:
             return HttpResponse(status=404)
 
+        #assuming author_id contains url 
         foreign_author_id = kwargs.get("foreign_author_id", -1)
         if foreign_author_id == -1:
             return HttpResponse(status=404)
 
-        try:
-            get_foreign_author = Author.objects.get(pk=foreign_author_id)
-        except Author.DoesNotExist:
+        try:   #check if follower
+            # get_foreign_author = Author.objects.get(pk=foreign_author_id)
+            get_foreign_author = RemoteFollowers.objects.filter(local_author_to=author)
+        except RemoteFollowers.DoesNotExist:
             return HttpResponse(status=400)
 
+        # if the foreign author is not a follower 
         if not get_foreign_author:
             return HttpResponse(status=404)
+
+        #get the foreign author object 
+        for server in ForeignServer.objects.filter(is_active=True):
+            authors = None
+            try:
+                authors = requests.get(server.authors_url).json()
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                # Do nothing on connection failure
+                pass
+            except requests.exceptions.HTTPError:
+                # Do nothing on HTTP error
+                pass
+
+            if authors:
+                for author in authors:
+                    if author["id"] == foreign_author_id:
+                        foreign_author = author
 
         if author_id == foreign_author_id:
             return HttpResponse(status=400)
 
-        follower_json = AuthorToJSON(get_foreign_author)
+        follower_json = AuthorToJSON(foreign_author)
 
         if follower_json:
             return JsonResponse(follower_json)
@@ -1211,7 +1253,7 @@ class EditFollowersEndpoint(APIView):
     def put(self, request, *args, **kwargs):  
         #TODO need to authenticate
         """
-        Follower a specific Author (Friend Request)
+        Follower a specific Author (Friend Request) from remote to local
         """
         author_id = kwargs.get("author_id", -1)
         if author_id == -1:
@@ -1229,19 +1271,37 @@ class EditFollowersEndpoint(APIView):
         if foreign_author_id == -1:
             return HttpResponse(status=404)
 
-        try:
-            foreign_author = Author.objects.get(pk=foreign_author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
-            return HttpResponse(status=404)
+        # try:
+        #     foreign_author = Author.objects.get(pk=foreign_author_id)
+        # except:
+        #     return HttpResponse(status=400)
+        # if not author:
+        #     return HttpResponse(status=404)
+
+        #get the foreign author object 
+        for server in ForeignServer.objects.filter(is_active=True):
+            authors = None
+            try:
+                authors = requests.get(server.authors_url).json()
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                # Do nothing on connection failure
+                pass
+            except requests.exceptions.HTTPError:
+                # Do nothing on HTTP error
+                pass
+
+            if authors:
+                for author in authors:
+                    if author["id"] == foreign_author_id:
+                        foreign_author = author  #MAKE SURE THEY EXIST 
 
         #if author ID same as foreign_author_id bad request since you cannot follow yourself
         if author_id == foreign_author_id:
             return HttpResponse(status=400)
         
-        #check if already following first 
-        is_current_follower = current_author.following.filter(author_to=foreign_author_id)
+        #check if already a follower first 
+        # is_current_follower = current_author.following.filter(author_to=foreign_author_id)
+        is_current_follower = RemoteFollowers.objects.filter(remote_author_from=foreign_author["url"])
         if is_current_follower.exists():
             return HttpResponse(status=400)
 
@@ -1257,6 +1317,17 @@ class EditFollowersEndpoint(APIView):
                 return JsonResponse(friend_request_json)
             else:
                 return HttpResponse(status=500)
+            # return HttpResponse(status=200)
+
+            # requesting_author = AuthorToJSON(author)
+            # requested_author = AuthorToJSON(foreign_author)
+
+            # json = FriendRequestToJson(requesting_author, requested_author)
+            # if json:
+            #     #TODO sending json to inbox endpoint and return 200 if done correctly
+            #     return JsonResponse(json)
+            # else:
+            #     return HttpResponse(status=500)
             # return HttpResponse(status=200)
     
 
@@ -1313,18 +1384,25 @@ class GetFollowersEndpoint(APIView):
         if not author:
             return HttpResponse(status=404)
 
-        followers = []
+        # followers = []
 
         follower_json_list = []
 
         followers_list = author.followed_by.all()
 
         for follower in followers_list:
-            followers.append(follower)
+            # followers.append(follower)
             follower_json = AuthorToJSON(follower)
             follower_json_list.append(follower_json)
 
-        follower_final_json = FollowerFinalJSON(follower_json_list)
+        #get remote followers too,  using remote Followers table
+        remote_followers = RemoteFollowers.objects.filter(local_author_to=author) #see if I can use reverse relationship to get 
+
+        for remote_follower in remote_followers:
+            remote_follower_json = AuthorToJSON(remote_follower)
+            follower_json_list.append(remote_follower_json)
+
+        json = FollowerFinalJSON(follower_json_list)
         if json:
             return JsonResponse(follower_final_json)
         else:
@@ -1403,6 +1481,13 @@ class InboxEndpoint(APIView):
                     if len(like) == 0:
                         new_like = ObjectLike(author_url=json_data["author"]["url"], author_json=json.dumps(json_data["author"]), object_url=json_data["object"])
                         new_like.save()
+                
+                #Save a Remote Follow 
+                if json_data["type"] == "Follow" or json_data["type"] == "follow":
+                    remote_follower = RemoteFollowers.objects.filter(remote_author_from=json_data["actor"], local_author_to=json_data["object"]["url"])
+                    if RemoteFollowers.DoesNotExist:
+                        new_remote_follower = RemoteFollowers.objects.create(remote_author_from=json_data["actor"], local_author_to=json_data["object"]["url"])
+
                 new_item = InboxItem(author=author, json_str=received_json_str)
                 new_item.save()
                 return HttpResponse(status=201)
