@@ -1104,7 +1104,7 @@ def findRemoteFollowers(request):
     for server in ForeignServer.objects.filter(is_active=True):
         authors = None
         try:
-                authors = requests.get(server.authors_url).json()
+            authors = requests.get(server.authors_url).json()
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             # Do nothing on connection failure
             pass
@@ -1113,21 +1113,24 @@ def findRemoteFollowers(request):
             pass
 
         if authors:
-            is_empty = False
-            #check if current author already follows some of them
-            current_author_id = request.user.id
-            current_author =  Author.objects.get(pk=current_author_id)
-            following = []
-            following_query = current_author.remote_following.all()  #all the people the current user follows on remote
+            try:
+                is_empty = False
+                #check if current author already follows some of them
+                current_author_id = request.user.id
+                current_author = Author.objects.get(pk=current_author_id)
+                following = []
+                following_query = current_author.remote_following.all()  #all the people the current user follows on remote
 
-            for follower in following_query:
-                following.append(follower.remote_author_to) 
+                for follower in following_query:
+                    following.append(follower.remote_author_to) 
 
-            for author in authors:
-                if author["url"] in following:
-                    pass
-                else:
-                    final_authorlist.append(author) 
+                for author in authors:
+                    author_url = author.get("url", "")
+                    if author_url:
+                        if author_url not in following:
+                            final_authorlist.append(author)
+            except:
+                pass
 
     return render(request, 'findRemoteFollower.html', {"remote_authors":final_authorlist,'is_empty':is_empty })
 
