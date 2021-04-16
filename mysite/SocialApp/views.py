@@ -918,6 +918,12 @@ def githubView(request, username=None):
     """
     View modifies github username and passes link for github activity image
     """   
+    try:
+    	username = request.POST["username"]
+    except:
+    	pass
+
+            
     if username:
         url = f"https://api.github.com/users/{username}"
         r = requests.get(url.format(username)).json()
