@@ -48,10 +48,11 @@ class HomeView(ListView):
     model = Post
     template_name = 'author.html'
     ordering = ['-published']
-
+"""
 class GithubView(View):
 	model = Author
 	template_name = 'githubDetails.html'
+"""
 
 class PostDetailView(DetailView):
     model = Post
@@ -100,8 +101,6 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
-def github(request):
-    return render(request, 'githubDetails.html')
 
 def like(request):
     try:
@@ -913,6 +912,24 @@ def followerView(request):
         is_empty = False
 
     return render(request, 'followers.html', {"followers":followers, 'is_empty': is_empty})
+
+
+def githubView(request, username=None):
+    """
+    View shows a list of all the follow/friend requests to the signed in author
+    """   
+    if username:
+        url = f"https://api.github.com/users/{username}"
+        r = requests.get(url.format(username)).json()
+        if "message" in r:
+            if r["message"] == "Not Found":
+                return render(request, 'githubDetails.html', {'is_empty': True, 'is_correct': False})
+                
+        imgString = f"https://grass-graph.moshimo.works/images/{username}.png"
+        return render(request, 'githubDetails.html', {"username":username, "url":imgString, 'is_empty': False})
+    
+    else:
+        return render(request, 'githubDetails.html', {'is_empty': True, 'is_correct':True})
 
 
 def findFollower(request):

@@ -2,12 +2,14 @@ from django.urls import path
 from . import views
 
 from .views import UserRegisterView
-from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, DeletePostView, AddCommentView, GithubView
+from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, DeletePostView, AddCommentView
 
 urlpatterns = [
   path('', views.home, name='home'),
   path('index.html', views.home, name='home'),
-  path('github.html', views.github, name='github'),
+  path('github.html/', views.githubView, name='github'),
+  path('github.html/<slug:username>/', views.githubView, name='github'),
+  
   path('inbox/', views.inbox, name="inbox"),
   path('signup.html', UserRegisterView.as_view(), name="signup"),
   path('author.html', HomeView.as_view(), name="author"),

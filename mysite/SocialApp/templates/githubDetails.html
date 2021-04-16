@@ -9,8 +9,50 @@
 {% block content %}
 
     <!-- use django forms to auto generate the edit fields -->
+   {% if is_empty %}
+   	{% if is_correct %}
+	   <div>
+		    <h1>View GitHub Activity</h1>
+		    <div class="form">
+		    	<form method="POST">
+					{% csrf_token%}
+		            {{ form.as_p }}
+		            <input type="text" placeholder="GitHub username" name="githubUsername"/>
+		            <button>Find GitHub account</button>
+		    	</form>
+		    <br/>
+		    </div>
+		</div>
+	{% else %}
+		<div>
+		    <h1>View GitHub Activity</h1>
+		    <div class="form">
+		    	<form method="POST">
+					{% csrf_token%}
+		            {{ form.as_p }}
+		            <input type="text" placeholder="GitHub username" name="githubUsername"/>
+		            <button>Find GitHub account</button>
+		    	</form>
+		    <br/>
+		    <h4>Please enter excisting GitHub username</h4>
+		    </div>
+		</div>
+	{% endif %}
+   {% else %}   
     <div>
         <h1>View GitHub Activity</h1>
+        <div class="form">
+        	<form method="POST">
+				{% csrf_token%}
+                {{ form.as_p }}
+                <input type="text" placeholder="GitHub username" name="githubUsername"/>
+                <button>Find another GitHub account</button>
+        	</form>
+        <br/>
+        </div>
+        <h3>GitHub Activity of {{username}}:</h3>
+        <img src={{url}}>
     </div>
+    {% endif %}
 
 {% endblock %}
