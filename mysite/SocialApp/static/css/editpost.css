@@ -18,16 +18,33 @@ body{
 
 /* */
 .edit{
-    border: 8px solid maroon;
+    border: 4px solid maroon;
     color: wheat;
     font-size: 20px;
     text-align: center;
-    width: 400px;
+    width: 600px;
     padding: 40px;
     position: absolute;
     top: 50%;
     left:50%;
     transform: translate(-50%, -50%);
     text-align: center;
+}
+  
+
+.edit > h1 {
+	text-align: center;
+}
+
+.edit .form-group #id_content{
+    width: 100%;
+}
+
+.edit .form-group #id_description{
+    width: 50%;
+}
+
+.edit .form-group #id_title{
+    width: 50%;
 }
   
