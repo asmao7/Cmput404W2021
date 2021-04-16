@@ -97,11 +97,6 @@ class RemoteFollowersAdmin(admin.ModelAdmin):
     list_display = ("__str__", "remote_author_from", "local_author_to",)
     search_fields = ("remote_author_from", "local_author_to",)
 
-# class RemoteFriendsAdmin(admin.ModelAdmin):
-#     list_display = ("__str__", "local_author", "remote_friend",)
-#     search_fields = ("local_author", "remote_friend",)
-
-
 class ObjectLikeAdmin(admin.ModelAdmin):
     list_display = ("__str__", "author_url", "object_url",)
     search_fields = ("author_url", "object_url")
@@ -131,5 +126,4 @@ admin.site.register(ObjectLike, ObjectLikeAdmin)
 admin.site.register(InboxItem, InboxItemAdmin)
 admin.site.register(RemoteFollow, RemoteFollowAdmin)
 admin.site.register(RemoteFollowers, RemoteFollowersAdmin)
-# admin.site.register(RemoteFriends, RemoteFriendsAdmin)
 admin.site.register(ForeignServer, ForeignServerAdmin)
