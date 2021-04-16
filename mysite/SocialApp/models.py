@@ -5,6 +5,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
@@ -258,18 +259,3 @@ class RemoteFollowers(models.Model):
         ]
         verbose_name = "Remote Follower"
         verbose_name_plural = "Remote Followers"
-
-class RemoteFriends(models.Model):
-    """ keep track of a local author's remote friends """
-    #the author sending the follow request 
-    local_author = models.ForeignKey(Author, on_delete=models.CASCADE) 
-    #the author that is being followed
-    remote_friends = models.CharField(max_length=200, editable=False)  #list field
-
-     # make relationship unique
-    class Meta:
-        # constraints = [
-        #     models.UniqueConstraint(fields=['remote_author_from','local_author_to'],  name="remote_followers")
-        # ]
-        verbose_name = "Remote Friend"
-        verbose_name_plural = "Remote Friends"

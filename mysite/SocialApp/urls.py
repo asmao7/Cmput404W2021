@@ -31,6 +31,7 @@ urlpatterns = [
   path('remotePosts', views.remotePosts, name="remotePosts"),
   path('findRemoteFollowers', views.findRemoteFollowers, name="findRemoteFollowers"),
   path('addRemoteFollower/<str:remote_author_id>', views.addRemoteFollower, name="addRemoteFollower"),
+  path('removeRemoteFollower/<str:remote_author_id>', views.unFollowRemote, name="removeRemoteFollower"),
   path('newMessage.html', views. posts_view, name="new_message"),
   path('posts/', views.AllPostsEndpoint.as_view(), name="AllPosts"),
   path('authors/', views.AllAuthorsEndpoint.as_view(), name="AllAuthors"),

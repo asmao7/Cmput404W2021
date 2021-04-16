@@ -24,6 +24,7 @@ from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, S
 
 from django.views import generic
 from django.urls import reverse_lazy
+import uuid
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
@@ -882,7 +883,7 @@ class AuthorLikedEndpoint(APIView):
 def followerView(request): #TODO get remote followers too
     """
     View shows a list of all the follow/friend requests to the signed in author
-    """   
+    """    
     current_author_id = request.user.id
     current_author = Author.objects.get(pk=current_author_id)
     followers = []
@@ -902,7 +903,12 @@ def followerView(request): #TODO get remote followers too
             followers.append(follower)
 
     #get remote authors too 
-    remote_followers = RemoteFollowers.objects.filter(local_author_to=current_author)
+    remote_followers = current_author.remote_followers.all()
+    author_remote_following = current_author.remote_following.all()
+
+    remote_following_url = []
+    for remote_following in author_remote_following:
+                remote_following_url.append(remote_following.remote_author_to)
 
     remote_list = []
     if remote_followers:
@@ -919,10 +925,11 @@ def followerView(request): #TODO get remote followers too
                 pass
         if authors:
             for remote_url in remote_followers:
-                # remote_follower_json = AuthorToJSON(remote_follower)           
-                for author in authors:
-                    if author["url"] == remote_url:
-                        remote_list.append(author)
+                #check if not friends
+                if remote_url.remote_author_from not in remote_following_url:
+                    for author in authors:
+                        if author["url"] == remote_url.remote_author_from:
+                            remote_list.append(author)
 
     if not followers:
        is_empty = True
@@ -1010,13 +1017,45 @@ def friendsView(request):
         if follower.author_from in current_following_list:
             friends.append(follower)
 
+    #add remote friends 
+    remote_friends_list = []
+    remote_friends = []
+    remote_following_query = current_author.remote_following.all()  
 
-    if not friends:
+    remote_following =[]
+    for following in remote_following_query:
+        remote_following.append(following.remote_author_to) 
+
+    #all the remote followers
+    remote_follower_query = current_author.remote_followers.all()
+    for remote_follower in remote_follower_query:
+        if remote_follower.remote_author_from in remote_following:
+            remote_friends.append(remote_follower.remote_author_from)
+
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+
+        if authors:
+            for friend in remote_friends:
+                for remote_author in authors:
+                        if remote_author["url"] == friend:
+                            remote_friends_list.append(remote_author)
+
+
+    if not friends and not remote_friends_list:
        is_empty = True
     else:
         is_empty = False
 
-    return render(request, 'friends.html', {"friends":friends, 'is_empty': is_empty} )
+    return render(request, 'friends.html', {"friends":friends, 'is_empty': is_empty, "remoteFriends":remote_friends_list} )
 
 
 def unFollow(request, foreign_author_id): 
@@ -1028,7 +1067,7 @@ def unFollow(request, foreign_author_id):
     current_author =  Author.objects.get(pk=current_author_id)
     current_follower = current_author.following.filter(author_to=foreign_author)
 
-    # can only delete someone that was following you
+    # can only delete someone that you were following
     if current_follower.exists():
         current_follower.delete()
 
@@ -1111,12 +1150,19 @@ def findRemoteFollowers(request):
             #check if current author already follows some of them
             current_author_id = request.user.id
             current_author =  Author.objects.get(pk=current_author_id)
+
+            #all the people the current user is following on remote
             following = []
-            following_query = current_author.remote_following.all()  #all the people the current user follows on remote
+            following_query = current_author.remote_following.all()  
 
             for follower in following_query:
                 following.append(follower.remote_author_to) 
 
+            #all the remote followers
+            follower_query = current_author.remote_followers.all()
+            for remote_follower in follower_query:
+                following.append(remote_follower.remote_author_from)
+        
             for author in authors:
                 if author["url"] in following:
                     pass
@@ -1130,8 +1176,6 @@ def addRemoteFollower(request, remote_author_id):
     """
     Follow a remote follower and send friend request to their inbox endpoint
     """
-    #TODO authenticate follower addition
-    #TODO check correct save
     #TODO handle when unique fails cleanly
 
     for server in ForeignServer.objects.filter(is_active=True):
@@ -1168,20 +1212,60 @@ def addRemoteFollower(request, remote_author_id):
             friend_json = FriendRequestToJson(requesting_author, requested_author)
             
             if friend_json:  
+                # print(friend_json)
                 inbox_endpoint = server.authors_url + remote_author_id + "/inbox/"
                 send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json)
                 if send_request_json.status_code == 200:
                     #create record of follow 
                     remote_author_url = remote_author['url']
-                    print(remote_author_url)
                     remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_url)
                     is_new_follower = True
+    
                     return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
                 else:
                     return HttpResponse(status=500)
             else:
                 return HttpResponse(status=500)
 
+
+def unFollowRemote(request, remote_author_id):
+    """ 
+    un follow a remote author 
+    """
+    # foreign_author =  Author.objects.get(pk=foreign_author_id)
+    current_author_id = request.user.id
+    current_author =  Author.objects.get(pk=current_author_id)
+
+    for server in ForeignServer.objects.filter(is_active=True):
+        authors = None
+        try:
+                authors = requests.get(server.authors_url).json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Do nothing on connection failure
+            pass
+        except requests.exceptions.HTTPError:
+            # Do nothing on HTTP error
+            pass
+
+        if authors:
+            for author in authors:
+                if author["id"] == remote_author_id:
+                    remote_author_url = author["url"]
+
+    if remote_author_url:
+        friend_endpoint = server.authors_url + remote_author_id + "/followers/" + str(current_author.id)
+        delete_request = requests.delete(friend_endpoint, auth=HTTPBasicAuth(server.username, server.password))
+        if delete_request.status_code == 200:
+            current_follower = current_author.remote_following.filter(remote_author_to=remote_author_url)
+
+            # can only delete someone you were following 
+            if current_follower.exists():
+                current_follower.delete()
+
+            return friendsView(request)
+
+        else:
+            return HttpResponse(status=500)
 
 
 class EditFollowersEndpoint(APIView): 
@@ -1206,19 +1290,8 @@ class EditFollowersEndpoint(APIView):
         if not author:
             return HttpResponse(status=404)
 
-        #assuming author_id contains url 
         foreign_author_id = kwargs.get("foreign_author_id", -1)
         if foreign_author_id == -1:
-            return HttpResponse(status=404)
-
-        try:   #check if follower
-            # get_foreign_author = Author.objects.get(pk=foreign_author_id)
-            get_foreign_author = RemoteFollowers.objects.filter(local_author_to=author)
-        except RemoteFollowers.DoesNotExist:
-            return HttpResponse(status=400)
-
-        # if the foreign author is not a follower 
-        if not get_foreign_author:
             return HttpResponse(status=404)
 
         #get the foreign author object 
@@ -1234,24 +1307,30 @@ class EditFollowersEndpoint(APIView):
                 pass
 
             if authors:
-                for author in authors:
-                    if author["id"] == foreign_author_id:
-                        foreign_author = author
+                for remote_author in authors:
+                    author_url = remote_author["url"].split("/")
+                    if author_url[-1] == foreign_author_id:
+                        foreign_author = remote_author
+
+        try:
+            remote_follower = author.remote_followers.filter(remote_author_from=foreign_author["url"])
+        except:
+            return HttpResponse(status=400)
+        if not author:
+            return HttpResponse(status=404)
+
 
         if author_id == foreign_author_id:
             return HttpResponse(status=400)
 
-        follower_json = AuthorToJSON(foreign_author)
-
-        if follower_json:
-            return JsonResponse(follower_json)
+        if remote_follower:
+            return JsonResponse(foreign_author)
         else:
             return HttpResponse(status=500)
 
 
 
     def put(self, request, *args, **kwargs):  
-        #TODO need to authenticate
         """
         Follower a specific Author (Friend Request) from remote to local
         """
@@ -1271,12 +1350,6 @@ class EditFollowersEndpoint(APIView):
         if foreign_author_id == -1:
             return HttpResponse(status=404)
 
-        # try:
-        #     foreign_author = Author.objects.get(pk=foreign_author_id)
-        # except:
-        #     return HttpResponse(status=400)
-        # if not author:
-        #     return HttpResponse(status=404)
 
         #get the foreign author object 
         for server in ForeignServer.objects.filter(is_active=True):
@@ -1291,45 +1364,26 @@ class EditFollowersEndpoint(APIView):
                 pass
 
             if authors:
-                for author in authors:
-                    if author["id"] == foreign_author_id:
-                        foreign_author = author  #MAKE SURE THEY EXIST 
+                for remote_author in authors:
+                    author_url = remote_author["url"].split("/")
+                    if author_url[-1] == foreign_author_id:
+                        foreign_author = remote_author  #MAKE SURE THEY EXIST 
 
         #if author ID same as foreign_author_id bad request since you cannot follow yourself
         if author_id == foreign_author_id:
             return HttpResponse(status=400)
         
         #check if already a follower first 
-        # is_current_follower = current_author.following.filter(author_to=foreign_author_id)
-        is_current_follower = RemoteFollowers.objects.filter(remote_author_from=foreign_author["url"])
+        is_current_follower = author.remote_followers.filter(remote_author_from=foreign_author["url"])
         if is_current_follower.exists():
             return HttpResponse(status=400)
 
         else:
-            new_follower = Followers.objects.create(author_from=author, author_to=foreign_author)
-            #compile friend Request Json to sedn to inbox 
-            requesting_author = AuthorToJSON(author)
-            requested_author = AuthorToJSON(foreign_author)
-
-            friend_request_json = FriendRequestToJson(requesting_author, requested_author)
-            if json:
-                #TODO sending json to inbox endpoint and return 200 if done correctly
-                return JsonResponse(friend_request_json)
-            else:
+            try:
+                new_follow = RemoteFollowers.objects.create(local_author_to=author, remote_author_from=foreign_author["url"])
+                return HttpResponse(status=200)
+            except:
                 return HttpResponse(status=500)
-            # return HttpResponse(status=200)
-
-            # requesting_author = AuthorToJSON(author)
-            # requested_author = AuthorToJSON(foreign_author)
-
-            # json = FriendRequestToJson(requesting_author, requested_author)
-            # if json:
-            #     #TODO sending json to inbox endpoint and return 200 if done correctly
-            #     return JsonResponse(json)
-            # else:
-            #     return HttpResponse(status=500)
-            # return HttpResponse(status=200)
-    
 
     def delete(self, request, *args, **kwargs):
         """
@@ -1350,17 +1404,10 @@ class EditFollowersEndpoint(APIView):
         if foreign_author_id == -1:
             return HttpResponse(status=404)
 
-        try:
-            foreign_author = Author.objects.get(pk=foreign_author_id)
-        except:
-            return HttpResponse(status=400)
-        if not author:
-            return HttpResponse(status=404)
 
-        # current_author = Author.objects.get(pk=author_id)
-        current_follower = current_author.following.filter(author_to=foreign_author)
+        current_follower = current_author.remote_followers.filter(remote_author_from=remote_author_url)
 
-        # can only delete someone that was following you
+        # can only delete someone that was following you  
         if current_follower.exists():
             current_follower.delete()
             return HttpResponse(status=200)
@@ -1384,27 +1431,51 @@ class GetFollowersEndpoint(APIView):
         if not author:
             return HttpResponse(status=404)
 
-        # followers = []
-
         follower_json_list = []
 
         followers_list = author.followed_by.all()
 
         for follower in followers_list:
-            # followers.append(follower)
             follower_json = AuthorToJSON(follower)
             follower_json_list.append(follower_json)
 
-        #get remote followers too,  using remote Followers table
-        remote_followers = RemoteFollowers.objects.filter(local_author_to=author) #see if I can use reverse relationship to get 
+        
+        #get remote authors too 
+        remote_followers = author.remote_followers.all()
+        author_remote_following = author.remote_following.all()
 
-        for remote_follower in remote_followers:
-            remote_follower_json = AuthorToJSON(remote_follower)
-            follower_json_list.append(remote_follower_json)
+        remote_following_url = []
+        for remote_following in author_remote_following:
+                    remote_following_url.append(remote_following.remote_author_to)
+
+        remote_list = []
+        if remote_followers:
+            #get all authors in remote
+            for server in ForeignServer.objects.filter(is_active=True):
+                authors = None
+                try:
+                        authors = requests.get(server.authors_url).json()
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                    # Do nothing on connection failure
+                    pass
+                except requests.exceptions.HTTPError:
+                    # Do nothing on HTTP error
+                    pass
+            if authors:
+                for remote_url in remote_followers:
+                    #check if not friends
+                    if remote_url.remote_author_from not in remote_following_url:
+                        for author in authors:
+                            if author["url"] == remote_url.remote_author_from:
+                                remote_list.append(author)
+
+
+        for remote_follower in remote_list:
+            follower_json_list.append(remote_follower)
 
         json = FollowerFinalJSON(follower_json_list)
         if json:
-            return JsonResponse(follower_final_json)
+            return JsonResponse(json)
         else:
             return HttpResponse(status=500)
 
@@ -1484,9 +1555,9 @@ class InboxEndpoint(APIView):
                 
                 #Save a Remote Follow 
                 if json_data["type"] == "Follow" or json_data["type"] == "follow":
-                    remote_follower = RemoteFollowers.objects.filter(remote_author_from=json_data["actor"], local_author_to=json_data["object"]["url"])
+                    remote_follower = RemoteFollowers.objects.filter(remote_author_from=json_data["actor"]["url"], local_author_to=json_data["object"])
                     if RemoteFollowers.DoesNotExist:
-                        new_remote_follower = RemoteFollowers.objects.create(remote_author_from=json_data["actor"], local_author_to=json_data["object"]["url"])
+                        new_remote_follower = RemoteFollowers.objects.create(remote_author_from=json_data["actor"]["url"],  local_author_to=json_data["object"])
 
                 new_item = InboxItem(author=author, json_str=received_json_str)
                 new_item.save()
