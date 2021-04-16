@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/githubActivity.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- use django forms to auto generate the edit fields -->
+    <div>
+        <h1>View GitHub Activity</h1>
+    </div>
+
+{% endblock %}
