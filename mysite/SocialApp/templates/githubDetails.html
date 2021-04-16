@@ -11,27 +11,27 @@
     <!-- use django forms to auto generate the edit fields -->
    {% if is_empty %}
    	{% if is_correct %}
-	   <div>
+	   <div class="body">
 		    <h1>View GitHub Activity</h1>
 		    <div class="form">
 		    	<form action="{% url 'github' %}" method="POST">
 					{% csrf_token%}
 		            {{ form.as_p }}
 		            <input type="text" placeholder="GitHub username" name="username"/>
-		            <button type="submit">Find GitHub account</button>
+		            <button class="buttonG" type="submit">Find GitHub account</button>
 		    	</form>
 		    <br/>
 		    </div>
 		</div>
 	{% else %}
-		<div>
+		<div class="body">
 		    <h1>View GitHub Activity</h1>
 		    <div class="form">
 		    	<form action="{% url 'github' %}" method="POST">
 					{% csrf_token%}
 		            {{ form.as_p }}
 		            <input type="text" placeholder="GitHub username" name="username"/>
-		            <button type="submit">Find GitHub account</button>
+		            <button class="buttonG" type="submit">Find GitHub account</button>
 		    	</form>
 		    <br/>
 		    <h4>Please enter existing GitHub username</h4>
@@ -39,19 +39,21 @@
 		</div>
 	{% endif %}
    {% else %}   
-    <div>
+    <div class="body">
         <h1>View GitHub Activity</h1>
         <div class="form">
         	<form action="{% url 'github' %}" method="POST">
 					{% csrf_token%}
 		            {{ form.as_p }}
 		            <input type="text" placeholder="GitHub username" name="username"/>
-		            <button type="submit">Find GitHub account</button>
+		            <button class="buttonG" type="submit">Find GitHub account</button>
 		    </form>
         <br/>
         </div>
         <h3>GitHub Activity of {{username}}:</h3>
-        <img src={{url}}>
+        <div class="img-container">
+        	<img src={{url}}>
+        </div>
     </div>
     {% endif %}
 
