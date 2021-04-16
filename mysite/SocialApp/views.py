@@ -916,7 +916,7 @@ def followerView(request):
 
 def githubView(request, username=None):
     """
-    View shows a list of all the follow/friend requests to the signed in author
+    View modifies github username and passes link for github activity image
     """   
     if username:
         url = f"https://api.github.com/users/{username}"
