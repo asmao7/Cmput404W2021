@@ -23,6 +23,7 @@ from .forms import SignUpForm, LoginForm, PostForm, CommentForm
 from .utils import AuthorToJSON, PostToJSON, CommentToJSON, CommentListToJSON, StringListToPostCategoryList, AuthorListToJSON, PostListToJSON, InboxItemToJSON , FollowerFinalJSON, ValidateForeignPostJSON, ObjectLikeToJSON, ObjectLikeListToJSON, FriendRequestToJson, GetURLBasicAuth
 
 from django.views import generic
+from django.views import View
 from django.urls import reverse_lazy
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -48,6 +49,9 @@ class HomeView(ListView):
     template_name = 'author.html'
     ordering = ['-published']
 
+class GithubView(View):
+	model = Author
+	template_name = 'githubDetails.html'
 
 class PostDetailView(DetailView):
     model = Post
