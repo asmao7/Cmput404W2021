@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/githubActivity.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- use django forms to auto generate the edit fields -->
+   {% if is_empty %}
+   	{% if is_correct %}
+	   <div class="body">
+		    <h1>View GitHub Activity</h1>
+		    <div class="form">
+		    	<form action="{% url 'github' %}" method="POST">
+					{% csrf_token%}
+		            {{ form.as_p }}
+		            <input type="text" placeholder="GitHub username" name="username"/>
+		            <button class="buttonG" type="submit">Find GitHub account</button>
+		    	</form>
+		    <br/>
+		    </div>
+		</div>
+	{% else %}
+		<div class="body">
+		    <h1>View GitHub Activity</h1>
+		    <div class="form">
+		    	<form action="{% url 'github' %}" method="POST">
+					{% csrf_token%}
+		            {{ form.as_p }}
+		            <input type="text" placeholder="GitHub username" name="username"/>
+		            <button class="buttonG" type="submit">Find GitHub account</button>
+		    	</form>
+		    <br/>
+		    <h4>Please enter existing GitHub username</h4>
+		    </div>
+		</div>
+	{% endif %}
+   {% else %}   
+    <div class="body">
+        <h1>View GitHub Activity</h1>
+        <div class="form">
+        	<form action="{% url 'github' %}" method="POST">
+					{% csrf_token%}
+		            {{ form.as_p }}
+		            <input type="text" placeholder="GitHub username" name="username"/>
+		            <button class="buttonG" type="submit">Find GitHub account</button>
+		    </form>
+        <br/>
+        </div>
+        <h3>GitHub Activity of {{username}}:</h3>
+        <div class="img-container">
+        	<img src={{url}}>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock %}

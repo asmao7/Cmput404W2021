@@ -42,8 +42,36 @@
                         {% endif %}
                     {%endif%}
                 {%endfor%}
+            <!--if the author doesn;t have any friends, they should still be able to see the friend posts they've made-->
+            {% else %}
+                {% if post.author == user%}
+                    {% if post.visibility == 'FRIENDS'%}
+                        <ul>
+                            <!--display the author who sent you a friend message-->    
+                            <li class=posti> <p><strong><big>~ {{post.author}} sent you a message. ~ </p></big></strong>
+                            <!--post title -> it redirects to the post details-->
+                            <a href="{% url 'post-details' post.pk%}" class="postTitle">{{ post.title }}</a> 
+                            <!--sharing post -->
+                            - <a href="{% url 'share_post' post.pk%}">Share Post</a>
+                            <!--post display status-->
+                            ~  <small><small>{{post.visibility}}</small></small>
+                            <!--post author and date posted-->
+                            <p> By: {{ post.author}} - <small>{{ post.published}}</small></p>
+                            <!--post content and description-->
+                            <p class='postDescription'>{{ post.description }} </p>
+                            <!--LIKES pass in url that sends a post id argument and updates the database-->
+                            <form action="{% url 'like' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="author_url" value="{{ user.url }}">
+                                <input type="hidden" name="object_url" value="{{ post.url }}">
+                                <input class="likeButton" type="submit" value='{{ post.url|liked_or_not:user.url }} {{ post.url|liked_count }}'>
+                            </form>
+                            </li>
+                    {% endif %}
+                {% endif %}
             {% endif %}
         {% endfor %}
         </ul>
     </div>
+
 {% endblock %}

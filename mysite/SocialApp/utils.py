@@ -130,6 +130,8 @@ def CommentToJSON(comment):
     if not comment.author_json:
         return None
 
+    # Used to fetch updated author representation to attach to a comment
+    # Was too slow in practice (heroku servers take a long time to wake up if they haven't had a request in a while), so our data can get stale now
     try:
         #basic_auth = GetURLBasicAuth(comment.author_url)
         #response = None
@@ -146,7 +148,7 @@ def CommentToJSON(comment):
             #except:
                 #pass
 
-        json.loads(comment.author_json)
+        author = json.loads(comment.author_json)
 
         if (author):
             json_dict = {

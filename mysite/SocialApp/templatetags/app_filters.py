@@ -20,6 +20,9 @@ def liked_count(object_url):
 @register.filter(name='comment_author_name')
 def comment_author_name(comment):
     # Try to get the latest display name for the author
+    # Ended up being too slow because of how long heroku servers take to spool up
+    # after they go to sleep. Just serve stale data instead.
+    """
     basic_auth = GetURLBasicAuth(comment.author_url)
     request = None
     display_name = None
@@ -36,6 +39,15 @@ def comment_author_name(comment):
                 display_name = json.loads(comment.author_json)["displayName"]
             except:
                 pass
+    
+    if (not display_name):
+    """
+
+    display_name = None
+    try:
+        display_name = json.loads(comment.author_json)["displayName"]
+    except:
+        pass
 
     if (display_name):
         return display_name

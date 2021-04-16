@@ -1,5 +1,15 @@
 # Cmput404W2021
 
+## Environment Variables
+There are a number of environment variables that can be, and should be, configured when running an instance of this project. On Heroku specifically, these can be found in Settings -> Config Vars
+* DATABASE_URL: The url to a functioning PostgreSQL database. Can be set to sqlite:///db.sqlite3 for local testing.
+* DEV_DEBUG (True|False): Should be False in nearly all cases except for debugging purposes. This will enable advanced error reporting.
+* HOST_NAME: Should be the hostname for your heroku instance
+* NEW_ACCOUNTS_AUTO_APPROVED (True|False): When True, users will be able to sign up and use your site immediately. When False, users will need to be approved by an administrator who will set the "is_active" flag on their accounts.
+* PROJECT_PATH: Always set this to mysite
+* SCHEME: Should be set to https, but could be set to http if necessary, particularly for local testing.
+* SECRET_KEY: The Django secret key for your site. Should be secret.
+
 ## Heroku Deployment
 [https://socialdistributionproject.herokuapp.com/](https://socialdistributionproject.herokuapp.com/)
 

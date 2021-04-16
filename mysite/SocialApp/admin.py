@@ -65,7 +65,7 @@ class AuthorAdmin(UserAdmin):
 class PostAdmin(admin.ModelAdmin):
     list_display = ("title", "description", "id", "author", "visibility", "unlisted", "published",)
     list_filter = ("author", "visibility", "unlisted", "published",)
-    search_fields = ("title", "description", "author",)
+    search_fields = ("title", "description",)
 
 
 class PostCategoryAdmin(admin.ModelAdmin):
@@ -76,21 +76,18 @@ class PostCategoryAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ("__str__", "post", "author_url", "published",)
     list_filter = ("published",)
-    search_fields = ("post", "author_url",)
+    search_fields = ("author_url",)
 
 
 class FollowersAdmin(admin.ModelAdmin):
     list_display = ("__str__", "author_from", "author_to",)
-    search_fields = ("author_from", "author_to",)
 
 
 class InboxItemAdmin(admin.ModelAdmin):
     list_display = ("__str__", "author", "link",)
-    search_fields = ("author",)
 
 class RemoteFollowAdmin(admin.ModelAdmin):
     list_display = ("__str__", "local_author_from", "remote_author_to",)
-    search_fields = ("local_author_from", "remote_author_to",)
 
 
 class RemoteFollowersAdmin(admin.ModelAdmin):
