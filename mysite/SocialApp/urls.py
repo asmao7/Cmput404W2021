@@ -7,7 +7,7 @@ from .views import HomeView, PostDetailView, AddPostView, UpdatePostView, Delete
 urlpatterns = [
   path('', views.home, name='home'),
   path('index.html', views.home, name='home'),
-  path('github.html', GithubView.as_view(), name='github'),
+  path('github.html', views.github, name='github'),
   path('inbox/', views.inbox, name="inbox"),
   path('signup.html', UserRegisterView.as_view(), name="signup"),
   path('author.html', HomeView.as_view(), name="author"),

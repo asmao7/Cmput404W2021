@@ -100,7 +100,8 @@ class DeletePostView(DeleteView):
     template_name = 'DeletePost.html'
     success_url = reverse_lazy('author')
 
-
+def github(request):
+    return render(request, 'githubDetails.html')
 
 def like(request):
     try:
