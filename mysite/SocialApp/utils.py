@@ -146,7 +146,7 @@ def CommentToJSON(comment):
             #except:
                 #pass
 
-        json.loads(comment.author_json)
+        author = json.loads(comment.author_json)
 
         if (author):
             json_dict = {
