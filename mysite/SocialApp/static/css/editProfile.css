@@ -1,0 +1,37 @@
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+  /*Intro part*/
+.wrapper{
+  width: 1000px;  
+  margin: 0 auto;
+  color:white;
+}
+
+/* probably don't need this anymore?*/
+body{
+    background-color: black;
+}
+
+/* */
+.edit{
+    border: 8px solid maroon;
+    color: wheat;
+    font-size: 20px;
+    text-align: center;
+    width: 400px;
+    padding: 40px;
+    position: absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+p {
+    margin: 0em 1em 1em 1em;
+}
+  

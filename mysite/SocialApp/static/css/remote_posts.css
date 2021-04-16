@@ -16,12 +16,17 @@ h1 {
 
 h2 {
   font-size: 1.5em;
-  margin: 2em 1em 0em 1em;
+  margin: 1em 1em 0.5em 1em;
 }
 
 h3 {
   font-size: 1.25em;
-  margin: 1em 1em 0em 1em;
+  margin: 0.5em 1em 0em 1em;
+}
+
+h4 {
+  font-size: 1.15em;
+  margin: 1em 0em 0em 0em;
 }
 
 li {
@@ -36,7 +41,9 @@ li {
 }
 
 .post {
-	border: 4px solid maroon;
+	border-top: 4px solid maroon;
+  padding: 15px;
+  
 }
 
 .postDescription {
@@ -52,15 +59,35 @@ li {
 .likeButton {
   width: 150px;
   padding: 5px 0 5px 0;
-  margin: 0.5em 0em 0.5em 0em;
-  background-color: white;
+  margin: 1.5em 0em 1em 0em;
+  background-color: #96113D;
   border-radius: 8px;
+  color: white;
+  font-weight: 120%;
   border: 3px solid #96113D;
 }
 
 .likeButton:hover {
+  background-color: wheat;
+  color: black;
+  font-weight: 120%;
+}
+
+.likeCommentButton {
+  width: 60px;
+  padding: 5px 0 5px 0;
+  margin: 0.5em 0em 0.5em 0em;
   background-color: #96113D;
+  border-radius: 8px;
   color: white;
+  font-weight: 120%;
+  border: 3px solid #96113D;
+}
+
+.likeCommentButton:hover {
+  background-color: wheat;
+  color: black;
+  font-weight: 120%;
 }
 
 .comment_form {
@@ -68,9 +95,13 @@ li {
 }
 
 .form-control {
-    margin: 10px;
+    margin: 10px 0 10px 0;
 }
 
+img {
+  width: auto;
+  height: 300px;
+}
 
 
 

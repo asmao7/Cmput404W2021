@@ -68,10 +68,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'markdownify.apps.MarkdownifyConfig',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -140,6 +142,47 @@ REST_FRAMEWORK = {
     ]
 }
 
+# Very insecure, but Team 17 needs this to function
+CORS_ALLOW_ALL_ORIGINS = True
+
+MARKDOWNIFY = {
+    "default": {
+        "WHITELIST_TAGS": [
+            'a',
+            'abbr',
+            'acronym',
+            'b',
+            'blockquote',
+            'em',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'i',
+            'img',
+            'li',
+            'ol',
+            'p',
+            'span',
+            'strong',
+            'style',
+            'ul',
+        ],
+        "WHITELIST_ATTRS": [
+            'alt',
+            'href',
+            'src',
+            'title',
+        ],
+        "WHITELIST_STYLES": [
+            'background-color',
+            'color',
+            'font-weight',
+        ]
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/

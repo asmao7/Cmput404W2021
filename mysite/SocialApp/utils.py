@@ -209,7 +209,7 @@ def ObjectLikeToJSON(like):
         
         if (author):
             json_dict = {
-                "summary": "{} Likes your post".format(author["displayName"]),
+                "summary": "{} Likes your content".format(author["displayName"]),
                 "type": "Like",
                 "author": author,
                 "object": like.object_url

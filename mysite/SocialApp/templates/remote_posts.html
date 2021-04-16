@@ -12,83 +12,85 @@
     <h1>Remote Posts</h1>
     {% if has_content %}
         <div class="posts">
-            {% for post in posts %}
-            	<div class="post">
-                <h2><a href={{ post.origin }}>{{ post.title }}</a></h1>
-                <p>By: <a href={{ post.author.url }}>{{ post.author.displayName }}</a> - <small>{{ post.published }}</small></p>
-                <p class='postDescription'>{{ post.description }}</p>
-                {% if post.contentType and post.content %}
-                    <section>
-                        {% if post.contentType == "text/plain" %}
-                        <!--display a post as text without formatting-->
-                            <p class="postText">{{post.content}}</p>
-                        {% elif post.contentType == "text/markdown" %}
-                        <!--render markdown post as sanitized html-->
-                            {{post.content|markdownify}}
-                        {% elif post.contentType == "application/base64" %}
-                        <!--assume this image has full base64 encoding, not just payload-->
-                            <img alt="post image" src={{ post.content }}>
-                        {% elif post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" %}
-                        <!--display base64 data as an image - prepend stored content type-->
-                            <img alt="post image" src={{ "data:"|add:post.contentType|add:","|add:post.content }}>
-                        {% endif %}
-                    </section>
-                    <!--LIKES pass in url that sends a post id argument and updates the database-->
-                    <form action="{% url 'like' %}" method="POST">
-                        {% csrf_token %}
-                        
-                        <input type="hidden" name="author_url" value="{{ user.url }}">
-                        <input type="hidden" name="object_url" value="{{ post.origin }}">
-                        <input class="likeButton" type="submit" value='{{ post.origin|liked_or_not:user.url }} {{ post.origin|liked_count }}'>
-                    </form>
-                {% else %}
-                    <p>Post content error.</p>
-                {% endif %}
+            {% for post_collection in all_posts %}
+                <h2>Posts From {{ post_collection.name }}</h2>
+                {% for post in post_collection.posts %}
+                    <div class="post">
+                    <h3><a href={{ post.origin }}>{{ post.title }}</a></h3>
+                    <p>By: <a href={{ post.author.url }}>{{ post.author.displayName }}</a> - <small>{{ post.published }}</small></p>
+                    <p class='postDescription'>{{ post.description }}</p>
+                    {% if post.contentType and post.content %}
+                        <section>
+                            {% if post.contentType == "text/plain" %}
+                            <!--display a post as text without formatting-->
+                                <p class="postText">{{post.content}}</p>
+                            {% elif post.contentType == "text/markdown" %}
+                            <!--render markdown post as sanitized html-->
+                                {{post.content|markdownify}}
+                            {% elif post.contentType == "application/base64" or post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" %}
+                            <!--process the image to make sure it's formatted properly for an img tag-->
+                                <img alt="post image" src={{ post.content|sanitize_image:post.contentType }}>
+                            {% else %}
+                                <p>Invalid Content Type</p>
+                            {% endif %}
+                        </section>
+                        <!--LIKES pass in url that sends a post id argument and updates the database-->
+                        <form action="{% url 'like' %}" method="POST">
+                            {% csrf_token %}
+                            
+                            <input type="hidden" name="author_url" value="{{ user.url }}">
+                            <input type="hidden" name="object_url" value="{{ post.origin }}">
+                            <input class="likeButton" type="submit" value='{{ post.origin|liked_or_not:user.url }} {{ post.origin|liked_count }}'>
+                        </form>
+                    {% else %}
+                        <p>Post content error.</p>
+                    {% endif %}
 
-                <!--COMMENTS-->
-                <h3><u>COMMENTS</u></h2>
-                {% if post.comments %}
-                    <ul>
-                        {% for comment in post.comments %}
-                            <li>
-                                {% if comment.contentType == "text/plain" %}
-                                    <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment}}
-                                {% elif comment.contentType == "text/markdown" %}
-                                    <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment|markdownify}}
-                                {% endif %}
-                                <!--LIKES pass in url that sends a post id argument and updates the database-->
-                                <form action="{% url 'like' %}" method="POST">
-                                    {% csrf_token %}
-                                    
-                                    <input type="hidden" name="author_url" value="{{ user.url }}">
-                                    <input type="hidden" name="object_url" value="{{ comment.id }}">
-                                    <input class="likeButton" type="submit" value='{{ comment.id|liked_or_not:user.url }} {{ comment.id|liked_count }}'>
-                                </form>
-                            </li> 
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No comments.</p>
-                {% endif %}
-                <form action="{% url 'remote_comment' %}" method="POST" class="comment_form">
-                    {% csrf_token %}
-                    
-                    <input type="hidden" name="post_url" value="{{ post.origin }}">
-                    <p>
-                        <select name="content_type" class="form-control" id="id_content_type">
-                            <option value="text/plain" selected>Plain Text</option>
-                            <option value="text/markdown">Markdown</option>
-                        </select>
-                    </p>
-                    <p>
-                        <textarea name="comment" placeholder="Share your comment..." cols="40" rows="2" class="form-control" id="id_comment" spellcheck="false"></textarea>
-                    </p>
-                    <input class="likeButton" type="submit" value="Add Comment">
-                </form>
-              </div>
+                    <!--COMMENTS-->
+                    <h4 class="postText"><u>COMMENTS</u></h4>
+                    {% if post.comments %}
+                        <ul class="postText">
+                            {% for comment in post.comments %}
+                                <li>
+                                    {% if comment.contentType == "text/plain" %}
+                                        <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment}}
+                                    {% elif comment.contentType == "text/markdown" %}
+                                        <strong><a href={{ comment.author_id.url }}>{{comment.author_id.displayName}}</a>:</strong> {{comment.comment|markdownify}}
+                                    {% endif %}
+                                    <!--LIKES pass in url that sends a post id argument and updates the database-->
+                                    <form action="{% url 'like' %}" method="POST">
+                                        {% csrf_token %}
+                                        
+                                        <input type="hidden" name="author_url" value="{{ user.url }}">
+                                        <input type="hidden" name="object_url" value="{{ comment.id }}">
+                                        <input class="likeCommentButton" type="submit" value='{{ comment.id|liked_or_not:user.url }} {{ comment.id|liked_count }}'>
+                                    </form>
+                                </li> 
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="postText">No comments.</p>
+                    {% endif %}
+                    <form action="{% url 'remote_comment' %}" method="POST" class="comment_form">
+                        {% csrf_token %}
+                        <p class="postText"><strong>Add new comment:</strong></p>
+                        <input type="hidden" name="post_url" value="{{ post.origin }}">
+                        <p class="postText">
+                            <select name="content_type" class="form-control" id="id_content_type">
+                                <option value="text/plain" selected >Plain Text</option>
+                                <option value="text/markdown">Markdown</option>
+                            </select>
+                        </p>
+                        <p class="postText">
+                            <textarea name="comment" placeholder="Share your comment..." cols="40" rows="2" class="form-control" id="id_comment" spellcheck="false" style="background-color: #333333;color: white;border: 1px solid #333;padding: 5px;width: 100%;"></textarea>
+                        </p>
+                        <input class="likeButton" type="submit" value="Add Comment">
+                    </form>
+                </div>
+                {% endfor %}
             {% endfor %}
         </div>
     {% else %}
-        <h2>No Posts Available</h2>
+        <h2 >No Posts Available</h2>
     {% endif %}
 {% endblock %}
