@@ -1174,28 +1174,31 @@ def findRemoteFollowers(request):
             pass
 
         if authors:
-            is_empty = False
-            #check if current author already follows some of them
-            current_author_id = request.user.id
-            current_author =  Author.objects.get(pk=current_author_id)
+            try:
+                is_empty = False
+                #check if current author already follows some of them
+                current_author_id = request.user.id
+                current_author =  Author.objects.get(pk=current_author_id)
 
-            #all the people the current user is following on remote
-            following = []
-            following_query = current_author.remote_following.all()  
+                #all the people the current user is following on remote
+                following = []
+                following_query = current_author.remote_following.all()  
 
-            for follower in following_query:
-                following.append(follower.remote_author_to) 
+                for follower in following_query:
+                    following.append(follower.remote_author_to) 
 
-            #all the remote followers
-            follower_query = current_author.remote_followers.all()
-            for remote_follower in follower_query:
-                following.append(remote_follower.remote_author_from)
-        
-            for author in authors:
-                if author["url"] in following:
-                    pass
-                else:
-                    final_authorlist.append(author) 
+                #all the remote followers
+                follower_query = current_author.remote_followers.all()
+                for remote_follower in follower_query:
+                    following.append(remote_follower.remote_author_from)
+            
+                for author in authors:
+                    if author["url"] in following:
+                        pass
+                    else:
+                        final_authorlist.append(author) 
+            except:
+                pass
 
     return render(request, 'findRemoteFollower.html', {"remote_authors":final_authorlist,'is_empty':is_empty })
 
@@ -1218,42 +1221,45 @@ def addRemoteFollower(request, remote_author_id):
             pass
 
         if authors:
-            for author in authors:
-                if author["id"] == remote_author_id:
-                    remote_author = author
-            
-            if not remote_author:
-                is_new_follower = False
-                return render(request, 'addRemoteFollower.html', {"remote_author":None, 'new_follower':is_new_follower} )
+            try:
+                for author in authors:
+                    if author["id"] == remote_author_id:
+                        remote_author = author
+                
+                if not remote_author:
+                    is_new_follower = False
+                    return render(request, 'addRemoteFollower.html', {"remote_author":None, 'new_follower':is_new_follower} )
 
-            local_author_id = request.user.id
-            local_author =  Author.objects.get(pk=local_author_id)
+                local_author_id = request.user.id
+                local_author =  Author.objects.get(pk=local_author_id)
 
-            if local_author_id == remote_author_id:
-                is_new_follower = False
-                return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
+                if local_author_id == remote_author_id:
+                    is_new_follower = False
+                    return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower} )
 
-            #Create Json friend request to send to inbox endpoint 
-            requesting_author = AuthorToJSON(local_author)
-            requested_author = remote_author #AuthorToJSON(remote_author)
+                #Create Json friend request to send to inbox endpoint 
+                requesting_author = AuthorToJSON(local_author)
+                requested_author = remote_author #AuthorToJSON(remote_author)
 
-            friend_json = FriendRequestToJson(requesting_author, requested_author)
-            
-            if friend_json:  
-                # print(friend_json)
-                inbox_endpoint = server.authors_url + remote_author_id + "/inbox/"
-                send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json)
-                if send_request_json.status_code == 200:
-                    #create record of follow 
-                    remote_author_url = remote_author['url']
-                    remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_url)
-                    is_new_follower = True
-    
-                    return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
+                friend_json = FriendRequestToJson(requesting_author, requested_author)
+                
+                if friend_json:  
+                    # print(friend_json)
+                    inbox_endpoint = server.authors_url + remote_author_id + "/inbox/"
+                    send_request_json = requests.post(inbox_endpoint, auth=HTTPBasicAuth(server.username, server.password), json=friend_json)
+                    if send_request_json.status_code == 200:
+                        #create record of follow 
+                        remote_author_url = remote_author['url']
+                        remote_follow = RemoteFollow.objects.create(local_author_from=local_author, remote_author_to=remote_author_url)
+                        is_new_follower = True
+        
+                        return render(request, 'addRemoteFollower.html', {"remote_author":remote_author, 'new_follower':is_new_follower})
+                    else:
+                        return HttpResponse(status=500)
                 else:
                     return HttpResponse(status=500)
-            else:
-                return HttpResponse(status=500)
+            except:
+                pass
 
 
 def unFollowRemote(request, remote_author_id):
