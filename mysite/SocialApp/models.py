@@ -5,6 +5,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
@@ -232,14 +233,29 @@ class InboxItem(models.Model):
     json_str = models.TextField(default="")
 
 class RemoteFollow(models.Model):
-    """ get a specific user's followers """
+    """ keep track of the remote authors that an author is following """
     #the author sending the follow request 
     local_author_from = models.ForeignKey(Author, related_name='remote_following', on_delete=models.CASCADE) 
     #the author that is being followed
     remote_author_to = models.CharField(max_length=200, editable=False)
 
-    # make relatiuonship unique
+    # make relationship unique
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['local_author_from','remote_author_to'],  name="remote_follow")
         ]
+
+class RemoteFollowers(models.Model):
+    """ keep track of the remote authors that are following the current """
+    #the author sending the follow request 
+    remote_author_from = models.CharField(max_length=200, editable=False) 
+    #the author that is being followed
+    local_author_to = models.ForeignKey(Author, related_name='remote_followers', on_delete=models.CASCADE) 
+
+    # make relationship unique
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['remote_author_from','local_author_to'],  name="remote_followers")
+        ]
+        verbose_name = "Remote Follower"
+        verbose_name_plural = "Remote Followers"
